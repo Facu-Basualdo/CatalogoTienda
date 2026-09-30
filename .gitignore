@@ -1,0 +1,29 @@
+# Dependencias y builds
+node_modules/
+.next/
+out/
+build/
+*.tsbuildinfo
+
+# Variables de entorno: nunca se commitean (sólo el ejemplo)
+.env
+.env.*
+!.env.example
+
+# Supabase CLI (estado local)
+supabase/.temp/
+supabase/.branches/
+
+# Vercel
+.vercel/
+
+# Sistema y editores
+.DS_Store
+Thumbs.db
+*.log
+.vscode/*
+!.vscode/extensions.json
+
+# Configuración local de Claude Code / MCP
+.mcp.json
+.claude/settings.local.json
