@@ -7,6 +7,7 @@
 // Herramienta LOCAL: usa SUPABASE_SECRET_KEY de web/.env para escribir en Storage
 // sin sesión de admin. La app nunca importa esa clave y no va a Vercel.
 // Es idempotente: sólo actúa sobre productos sin imágenes y si no hay banners.
+// Con --regenerar reemplaza las imágenes de todos los productos.
 
 import { randomUUID } from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
@@ -43,27 +44,24 @@ function familia(slug, categoria) {
   return { remeras: 'remera', buzos: 'remera', abrigos: 'remera', pantalones: 'pantalon', monitores: 'monitor', notebooks: 'notebook' }[categoria] ?? 'remera';
 }
 
-const escapar = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-// Tres variantes de fondo por producto: claro, oscuro, gris.
+// Tres variantes de fondo por producto: claro, oscuro, gris. Sin texto: el nombre ya
+// está en la tarjeta y en la ficha; escrito en la imagen se duplica y se superpone.
 const ESTILOS = [
-  { fondo: '#f4f4f4', trazo: '#0a0a0a', texto: '#0a0a0a', sub: '#6b6b6b' },
-  { fondo: '#0f0f0f', trazo: '#fafafa', texto: '#fafafa', sub: '#a3a3a3' },
-  { fondo: '#e4e4e4', trazo: '#0a0a0a', texto: '#0a0a0a', sub: '#525252' },
+  { fondo: '#f4f4f4', trazo: '#0a0a0a' },
+  { fondo: '#0f0f0f', trazo: '#fafafa' },
+  { fondo: '#e4e4e4', trazo: '#0a0a0a' },
 ];
 
-function svgProducto({ nombre, categoria, fam, estilo, indice }) {
+function svgProducto({ fam, estilo, indice }) {
   const [w, h] = [1200, 1500];
   const escala = indice === 2 ? 4.2 : 3.2;
   const x = (w - 200 * escala) / 2;
-  const y = indice === 2 ? 260 : 330;
+  const y = (h - 200 * escala) / 2;
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
   <rect width="100%" height="100%" fill="${estilo.fondo}"/>
   <g transform="translate(${x} ${y}) scale(${escala})" fill="none" stroke="${estilo.trazo}" stroke-width="${2.2 / (escala / 3.2)}" stroke-linejoin="round" stroke-linecap="round">
     <path d="${ILUSTRACIONES[fam]}"/>
   </g>
-  ${indice === 2 ? '' : `<text x="80" y="${h - 170}" font-family="Arial, Helvetica, sans-serif" font-size="64" font-weight="700" fill="${estilo.texto}">${escapar(nombre)}</text>
-  <text x="80" y="${h - 100}" font-family="Arial, Helvetica, sans-serif" font-size="34" letter-spacing="6" fill="${estilo.sub}">${escapar(categoria.toUpperCase())}</text>`}
 </svg>`;
 }
 
@@ -96,14 +94,27 @@ const { data: productos, error } = await supabase
   .select('id, slug, nombre, categoria:categorias(slug, nombre), producto_imagenes(id)');
 if (error) throw error;
 
+// --regenerar: borra las imágenes de demo existentes (archivos y filas) y las vuelve a
+// generar. Nombres nuevos siempre: sobrescribir un path deja la versión vieja en el CDN.
+const regenerar = process.argv.includes('--regenerar');
+
 let subidas = 0;
 for (const p of productos) {
-  if (p.producto_imagenes.length > 0) continue;
+  if (p.producto_imagenes.length > 0 && !regenerar) continue;
+  if (regenerar && p.producto_imagenes.length > 0) {
+    const { data: archivos } = await supabase.storage.from(BUCKET).list(`productos/${p.id}`);
+    if (archivos?.length) {
+      const { error: e } = await supabase.storage.from(BUCKET).remove(archivos.map((a) => `productos/${p.id}/${a.name}`));
+      if (e) throw e;
+    }
+    const { error: e } = await supabase.from('producto_imagenes').delete().eq('producto_id', p.id);
+    if (e) throw e;
+  }
   const fam = familia(p.slug, p.categoria?.slug);
   const filas = [];
   for (let i = 0; i < ESTILOS.length; i++) {
     const path = `productos/${p.id}/${randomUUID()}.webp`;
-    const svg = svgProducto({ nombre: p.nombre, categoria: p.categoria?.nombre ?? '', fam, estilo: ESTILOS[i], indice: i });
+    const svg = svgProducto({ fam, estilo: ESTILOS[i], indice: i });
     const { ancho, alto } = await subir(path, svg);
     filas.push({ producto_id: p.id, path, alt: `${p.nombre} — vista ${i + 1}`, orden: i, ancho, alto });
     subidas++;

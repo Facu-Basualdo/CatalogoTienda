@@ -6,8 +6,10 @@ import { Suspense } from "react";
 import { Descripcion } from "@/components/tienda/descripcion";
 import { EsqueletoFicha } from "@/components/tienda/esqueletos";
 import { Galeria } from "@/components/tienda/galeria";
+import { PestanasFicha } from "@/components/tienda/pestanas-ficha";
 import { SelectorVariantes } from "@/components/tienda/selector-variantes";
-import { obtenerProducto, obtenerSlugsPublicados } from "@/lib/catalogo/lecturas";
+import { obtenerProducto, obtenerSlugsPublicados, type Caracteristica } from "@/lib/catalogo/lecturas";
+import { IconoGrupo } from "@/lib/iconos";
 import { SITIO } from "@/lib/sitio";
 import { urlPublica } from "@/lib/supabase/storage";
 
@@ -43,75 +45,97 @@ async function Ficha({ params }: { params: PageProps<"/p/[slug]">["params"] }) {
   const p = await obtenerProducto(slug);
   if (!p) notFound();
 
-  const url = `${SITIO.url}/p/${p.slug}`;
+  // Las 4 primeras especificaciones no-variante van como resumen con íconos junto al precio.
+  const principales = p.caracteristicas.filter((c) => !c.esVariante).slice(0, 4);
 
   return (
-    <article className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
-      <Breadcrumbs className="mb-6">
-        <Breadcrumbs.Item href="/catalogo">Catálogo</Breadcrumbs.Item>
-        {p.categoria?.padre && (
-          <Breadcrumbs.Item href={`/catalogo?cat=${p.categoria.padre.slug}`}>{p.categoria.padre.nombre}</Breadcrumbs.Item>
-        )}
-        {p.categoria && <Breadcrumbs.Item href={`/catalogo?cat=${p.categoria.slug}`}>{p.categoria.nombre}</Breadcrumbs.Item>}
-        <Breadcrumbs.Item>{p.nombre}</Breadcrumbs.Item>
-      </Breadcrumbs>
-
-      <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
+    <article className="mx-auto flex max-w-7xl flex-col gap-4 px-3 py-4 sm:px-6 sm:py-6">
+      <section className="grid gap-8 rounded-tarjeta border border-border bg-surface p-4 sm:p-8 lg:grid-cols-2 lg:gap-12">
         <Galeria imagenes={p.imagenes} />
 
-        <div className="flex flex-col gap-8">
-          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{p.nombre}</h1>
+        <div className="flex flex-col gap-5">
+          <Breadcrumbs>
+            <Breadcrumbs.Item href="/catalogo">Productos</Breadcrumbs.Item>
+            {p.categoria?.padre && (
+              <Breadcrumbs.Item href={`/catalogo?cat=${p.categoria.padre.slug}`}>{p.categoria.padre.nombre}</Breadcrumbs.Item>
+            )}
+            {p.categoria && <Breadcrumbs.Item href={`/catalogo?cat=${p.categoria.slug}`}>{p.categoria.nombre}</Breadcrumbs.Item>}
+          </Breadcrumbs>
+
+          <div className="flex flex-col gap-1">
+            {p.marca && (
+              <NextLink
+                href={`/catalogo?marca=${p.marca.slug}`}
+                className="self-start text-xs font-medium uppercase tracking-wider text-muted hover:text-foreground"
+              >
+                {p.marca.valor}
+              </NextLink>
+            )}
+            <h1 className="text-2xl font-light leading-tight tracking-tight sm:text-3xl">{p.nombre}</h1>
+          </div>
 
           {/* useSearchParams (?variante=) en un client component: requiere su propio Suspense. */}
-          <Suspense fallback={<div className="h-40" />}>
+          <Suspense fallback={<div className="h-64" />}>
             <SelectorVariantes
               nombre={p.nombre}
-              url={url}
+              url={`${SITIO.url}/p/${p.slug}`}
               precioAnterior={p.precioAnterior}
               grupos={p.gruposVariante}
               variantes={p.variantes}
             />
           </Suspense>
 
-          {p.caracteristicas.length > 0 && (
-            <section aria-labelledby="caracteristicas" className="flex flex-col gap-3">
-              <h2 id="caracteristicas" className="text-sm font-semibold uppercase tracking-wider">
-                Características
-              </h2>
-              <dl className="divide-y divide-border border-y border-border text-sm">
-                {p.caracteristicas.map((c) => (
-                  <div key={c.grupoSlug} className="grid grid-cols-[10rem_1fr] gap-4 py-2.5">
-                    <dt className="text-muted">{c.grupo}</dt>
-                    <dd className="flex flex-wrap gap-x-2">
-                      {c.valores.map((v, i) => (
-                        <span key={v.slug}>
-                          <NextLink
-                            href={`/catalogo?${c.grupoSlug}=${v.slug}`}
-                            className="underline decoration-border underline-offset-4 hover:decoration-foreground"
-                          >
-                            {v.valor}
-                          </NextLink>
-                          {i < c.valores.length - 1 && ","}
-                        </span>
-                      ))}
-                    </dd>
-                  </div>
+          {principales.length > 0 && (
+            <div className="flex flex-col gap-2 border-t border-border pt-5">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">Características principales</p>
+              <ul className="flex flex-wrap gap-x-6 gap-y-3">
+                {principales.map((c) => (
+                  <li key={c.grupoSlug} className="flex items-center gap-2 text-sm">
+                    <IconoGrupo nombre={c.icono} className="size-4 text-muted" />
+                    {c.valores.map((v) => v.valor).join(", ")}
+                  </li>
                 ))}
-              </dl>
-            </section>
+              </ul>
+            </div>
           )}
-
         </div>
-      </div>
+      </section>
 
-      {p.descripcion ? (
-        <section aria-labelledby="descripcion" className="mt-16 max-w-3xl">
-          <h2 id="descripcion" className="mb-4 text-sm font-semibold uppercase tracking-wider">
-            Descripción
-          </h2>
-          <Descripcion contenido={p.descripcion} />
-        </section>
-      ) : null}
+      <section className="rounded-tarjeta border border-border bg-surface p-4 sm:p-8">
+        <PestanasFicha
+          descripcion={p.descripcion ? <Descripcion contenido={p.descripcion} /> : null}
+          especificaciones={p.caracteristicas.length ? <Especificaciones caracteristicas={p.caracteristicas} /> : null}
+        />
+      </section>
     </article>
+  );
+}
+
+function Especificaciones({ caracteristicas }: { caracteristicas: Caracteristica[] }) {
+  return (
+    <dl className="grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
+      {caracteristicas.map((c) => (
+        <div key={c.grupoSlug} className="flex gap-3">
+          <IconoGrupo nombre={c.icono} className="mt-0.5 size-6 shrink-0" />
+          <div className="flex min-w-0 flex-col border-l border-border pl-3">
+            <dt className="text-xs text-muted">{c.grupo}</dt>
+            <dd className="text-sm font-semibold">
+              {c.valores.map((v, i) => (
+                <span key={v.slug}>
+                  {c.esVariante ? (
+                    v.valor
+                  ) : (
+                    <NextLink href={`/catalogo?${c.grupoSlug}=${v.slug}`} className="hover:underline hover:underline-offset-4">
+                      {v.valor}
+                    </NextLink>
+                  )}
+                  {i < c.valores.length - 1 && ", "}
+                </span>
+              ))}
+            </dd>
+          </div>
+        </div>
+      ))}
+    </dl>
   );
 }

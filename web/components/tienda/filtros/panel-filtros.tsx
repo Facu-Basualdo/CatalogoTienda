@@ -1,7 +1,7 @@
 "use client";
 
 import { Funnel } from "@gravity-ui/icons";
-import { Button, Checkbox, CheckboxGroup, Drawer, Label, Spinner } from "@heroui/react";
+import { Button, Checkbox, CheckboxGroup, Drawer, Label, ScrollShadow, Spinner } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { cantidadDeFiltros, conGrupo, urlDeFiltros, type Filtros } from "@/lib/catalogo/filtros";
@@ -21,17 +21,37 @@ function GruposDeFacetas({
   if (!facetas.length) return <p className="text-sm text-muted">No hay filtros para estos resultados.</p>;
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col divide-y divide-separator">
       {facetas.map((f) => (
-        <CheckboxGroup
-          key={f.slug}
-          name={f.slug}
-          value={filtros.etiquetas[f.slug] ?? []}
-          onChange={(valores) => onCambio(f.slug, valores)}
-          className="flex flex-col gap-3"
-        >
-          <Label className="text-sm font-semibold">{f.nombre}</Label>
-          {f.opciones.map((o) => (
+        <GrupoFaceta key={f.slug} faceta={f} valores={filtros.etiquetas[f.slug] ?? []} onCambio={onCambio} />
+      ))}
+    </div>
+  );
+}
+
+const VISIBLES = 5;
+
+// Grupos largos (talles, marcas) muestran 5 opciones y "Ver más". Si hay una
+// seleccionada entre las ocultas, el grupo arranca expandido: si no, el filtro activo
+// no se ve y parece que no hay ninguno.
+function GrupoFaceta({
+  faceta: f,
+  valores,
+  onCambio,
+}: {
+  faceta: Faceta;
+  valores: string[];
+  onCambio: (grupo: string, slugs: string[]) => void;
+}) {
+  const ocultaSeleccionada = f.opciones.slice(VISIBLES).some((o) => o.seleccionada);
+  const [expandido, setExpandido] = useState(ocultaSeleccionada);
+  const opciones = expandido ? f.opciones : f.opciones.slice(0, VISIBLES);
+
+  return (
+    <div className="flex flex-col gap-3 py-5 first:pt-0 last:pb-0">
+      <CheckboxGroup name={f.slug} value={valores} onChange={(v) => onCambio(f.slug, v)} className="flex flex-col gap-2.5">
+        <Label className="text-sm font-semibold">{f.nombre}</Label>
+        {opciones.map((o) => (
             // Seleccionada con 0 resultados: se muestra deshabilitada para poder entender por qué no hay nada.
             <Checkbox key={o.slug} value={o.slug} isDisabled={o.cantidad === 0 && !o.seleccionada}>
               <Checkbox.Content className="w-full">
@@ -51,9 +71,13 @@ function GruposDeFacetas({
                 </span>
               </Checkbox.Content>
             </Checkbox>
-          ))}
-        </CheckboxGroup>
-      ))}
+        ))}
+      </CheckboxGroup>
+      {f.opciones.length > VISIBLES && (
+        <Button variant="ghost" size="sm" className="self-start px-0 underline underline-offset-4" onPress={() => setExpandido((e) => !e)}>
+          {expandido ? "Ver menos" : `Ver más (${f.opciones.length - VISIBLES})`}
+        </Button>
+      )}
     </div>
   );
 }
@@ -65,13 +89,17 @@ export function PanelFiltros({ facetas, filtros }: { facetas: Faceta[]; filtros:
 
   return (
     // Desktop: columna lateral, cada cambio navega.
-    <aside className="hidden w-60 shrink-0 lg:block" aria-label="Filtros" aria-busy={pendiente}>
-      <div className="sticky top-24 flex flex-col gap-6">
-        <div className="flex h-6 items-center justify-between">
+    <aside className="hidden w-64 shrink-0 lg:block" aria-label="Filtros" aria-busy={pendiente}>
+      <div className="sticky top-32 flex max-h-[calc(100vh-9rem)] flex-col gap-5 rounded-tarjeta border border-border bg-surface py-5 pl-5 pr-2">
+        <div className="flex h-6 items-center justify-between pr-3">
           <h2 className="text-sm font-semibold uppercase tracking-wider">Filtrar</h2>
           {pendiente && <Spinner size="sm" color="current" />}
         </div>
-        <GruposDeFacetas facetas={facetas} filtros={filtros} onCambio={(g, s) => navegar(conGrupo(filtros, g, s))} />
+        {/* ScrollShadow: scrollbar del tema de HeroUI + degradado cuando hay más contenido.
+            Nada de overflow-y-auto suelto: muestra el scrollbar nativo del sistema. */}
+        <ScrollShadow className="min-h-0 flex-1 pr-3" size={32}>
+          <GruposDeFacetas facetas={facetas} filtros={filtros} onCambio={(g, s) => navegar(conGrupo(filtros, g, s))} />
+        </ScrollShadow>
       </div>
     </aside>
   );

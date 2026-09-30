@@ -30,6 +30,17 @@ Tailwind con `themes`. La documentación completa para agentes está en
   `Drawer.Backdrop isOpen/onOpenChange`.
 - Toasts: `<Toast.Provider />` una vez (está en `app/providers.tsx`) y `toast()` /
   `toast.danger()` desde cualquier client component.
+- **Scroll: nunca `overflow-y-auto` suelto**, que muestra el scrollbar nativo del sistema
+  (grueso y claro sobre fondo oscuro). HeroUI desactivó su estilo global de scrollbar;
+  hay que pedirlo: `ScrollShadow` para paneles (scrollbar del tema + degradado en los
+  bordes, ver el panel de filtros) o las utilidades `scrollbar` / `scrollbar-thin` de
+  `@heroui/styles` para scroll horizontal (tablas de la descripción).
+- **`Tabs` ocupa todo el ancho por defecto**: la lista tiene `min-w-full` y cada pestaña
+  `w-full`. `w-fit` no alcanza; para pestañas del ancho de su texto: `min-w-0` en
+  `Tabs.List` y `w-auto` en cada `Tabs.Tab` (ver `pestanas-destacados.tsx`).
+- Formularios: `Form` de HeroUI (no `<form>`); `TextField` + `Label` + `Input`/`TextArea`;
+  `NumberField` con `NumberField.Group` + botones. Con un `SearchField` dentro de un
+  `Form`, no pongas también `onSubmit` en el `SearchField`: Enter dispara los dos.
 
 ## Links: el punto donde más se equivoca uno
 

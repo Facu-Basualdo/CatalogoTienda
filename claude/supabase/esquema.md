@@ -11,6 +11,7 @@ categorias ─┐
             │              ├─< producto_variantes ─< variante_etiquetas >─┐
 grupos_etiqueta ─< etiquetas ─< producto_etiquetas >─┘                         │
                     └──────────────────────────────────────────────────────┘
+pedidos ─< pedido_items ··> producto_variantes (set null: el ítem es snapshot)
 banners
 admins ── auth.users
 ```
@@ -52,6 +53,8 @@ lo resuelve, no el cliente.
 
 Ver [etiquetas](etiquetas.md). Es el corazón de los filtros. `etiquetas.slug` es una
 columna generada desde `valor`; `etiquetas.color_hex` es la muestra para grupos de color.
+`grupos_etiqueta.es_marca` marca el grupo "Marca" (uno solo, nunca de variante) y
+`grupos_etiqueta.icono` es el nombre de un ícono de `@gravity-ui/icons` para la ficha.
 
 ## producto_variantes · variante_etiquetas
 
@@ -84,15 +87,24 @@ un banner que vence a las 00:00 sigue visible hasta la próxima revalidación �
 
 | Función | Rol | Para qué |
 |---|---|---|
-| `buscar_productos(p_filtros, p_categoria, p_q, p_orden, p_limite, p_offset, p_destacados)` | anon | Listado paginado con precio desde, stock y primera imagen |
+| `buscar_productos(p_filtros, p_categoria, p_q, p_orden, p_limite, p_offset, p_destacados, p_ofertas)` | anon | Listado paginado: marca, precio desde, stock, `variante_id` (variante única) y primera imagen |
 | `facetas_productos(p_filtros, p_categoria, p_q)` | anon | Opciones de filtro con cantidad |
 | `banners_vigentes()` | anon | Banners activos dentro de su ventana, por `now()` |
+| `cotizar_carrito(p_items)` | anon | Precios del carrito (ver [carrito](carrito.md)) |
+| `crear_pedido(p_items, p_nombre, p_notas)` | anon | Guarda el pedido (security definer) |
+| `cambiar_estado_pedido(p_pedido_id, p_estado)` | authenticated (+ admin) | Confirmar descuenta stock, cancelar lo repone |
 | `guardar_variantes(p_producto_id, p_variantes)` | authenticated (+RLS admin) | Reemplaza todas las variantes |
 | `reordenar_imagenes(p_producto_id, p_ids)` | authenticated (+RLS admin) | Reescribe `orden` |
 | `es_admin()` | authenticated | ¿El usuario actual es admin? |
 
 Helpers en el schema `private` (no expuesto): `productos_filtrados`, `filtros_validos`,
-`variante_cumple`, `es_admin` y los triggers.
+`variante_cumple`, `cotizar`, `es_admin` y los triggers.
+
+## pedidos · pedido_items
+
+Pedidos del carrito con `numero` secuencial, `estado` (enum `estado_pedido`) y totales;
+`pedido_items` es un snapshot (nombre, detalle, SKU, precio). Sin grants para `anon`.
+Ver [carrito](carrito.md).
 
 ## admins
 

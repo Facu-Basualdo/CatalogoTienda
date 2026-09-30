@@ -10,6 +10,9 @@ export type TarjetaProducto = {
   id: string;
   slug: string;
   nombre: string;
+  marca: string | null;
+  /** Variante única: se puede sumar al carrito desde la tarjeta. null = hay que elegir opciones. */
+  varianteId: string | null;
   precioDesde: number;
   precioVaria: boolean;
   precioAnterior: number | null;
@@ -23,6 +26,8 @@ type FilaBusqueda = {
   id: string;
   slug: string;
   nombre: string;
+  marca: string | null;
+  variante_id: string | null;
   precio_desde: number;
   precio_varia: boolean;
   precio_anterior: number | null;
@@ -39,6 +44,8 @@ function aTarjeta(f: FilaBusqueda): TarjetaProducto {
     id: f.id,
     slug: f.slug,
     nombre: f.nombre,
+    marca: f.marca,
+    varianteId: f.variante_id,
     precioDesde: Number(f.precio_desde),
     precioVaria: f.precio_varia,
     precioAnterior: f.precio_anterior === null ? null : Number(f.precio_anterior),
@@ -69,18 +76,54 @@ export async function buscarProductos(filtros: Filtros): Promise<ResultadoBusque
   return { productos: filas.map(aTarjeta), total, paginas: Math.ceil(total / POR_PAGINA) };
 }
 
-export async function obtenerDestacados(limite = 8): Promise<TarjetaProducto[]> {
+export async function obtenerDestacados(limite = 8, categoria: string | null = null): Promise<TarjetaProducto[]> {
   "use cache";
   cacheLife("max");
   cacheTag(TAGS.productos);
 
   const { data, error } = await supabasePublico().rpc("buscar_productos", {
     p_destacados: true,
+    p_categoria: categoria ?? undefined,
     p_orden: "recientes",
     p_limite: limite,
   });
   if (error) throw new Error(`destacados: ${error.message}`);
   return ((data ?? []) as FilaBusqueda[]).map(aTarjeta);
+}
+
+export async function obtenerOfertas(limite = 12, pagina = 1): Promise<ResultadoBusqueda> {
+  "use cache";
+  cacheLife("max");
+  cacheTag(TAGS.productos);
+
+  const { data, error } = await supabasePublico().rpc("buscar_productos", {
+    p_ofertas: true,
+    p_orden: "recientes",
+    p_limite: limite,
+    p_offset: (pagina - 1) * limite,
+  });
+  if (error) throw new Error(`ofertas: ${error.message}`);
+  const filas = (data ?? []) as FilaBusqueda[];
+  const total = filas[0] ? Number(filas[0].total) : 0;
+  return { productos: filas.map(aTarjeta), total, paginas: Math.ceil(total / limite) };
+}
+
+/** Subcategorías con la imagen de su producto más reciente, para el mosaico de la home. */
+export async function obtenerMosaicoCategorias(): Promise<{ slug: string; nombre: string; imagen: string | null }[]> {
+  "use cache";
+  cacheLife("max");
+  cacheTag(TAGS.categorias, TAGS.productos);
+
+  const categorias = await obtenerCategorias();
+  const hojas = categorias.flatMap((c) => (c.hijas.length ? c.hijas : [{ slug: c.slug, nombre: c.nombre }]));
+  const conImagen = await Promise.all(
+    hojas.map(async (h) => {
+      const { data } = await supabasePublico().rpc("buscar_productos", { p_categoria: h.slug, p_orden: "recientes", p_limite: 1 });
+      const fila = ((data ?? []) as FilaBusqueda[])[0];
+      return { slug: h.slug, nombre: h.nombre, imagen: fila?.imagen_path ?? null };
+    }),
+  );
+  return conImagen.filter((c) => c.imagen);
 }
 
 export type OpcionFaceta = {
@@ -189,12 +232,19 @@ export type VarianteFicha = {
   opciones: Record<string, string>;
   etiquetas: string;
 };
-export type Caracteristica = { grupo: string; grupoSlug: string; valores: { slug: string; valor: string }[] };
+export type Caracteristica = {
+  grupo: string;
+  grupoSlug: string;
+  icono: string | null;
+  esVariante: boolean;
+  valores: { slug: string; valor: string }[];
+};
 
 export type FichaProducto = {
   id: string;
   slug: string;
   nombre: string;
+  marca: { slug: string; valor: string } | null;
   descripcion: unknown;
   descripcionTexto: string;
   precio: number;
@@ -218,20 +268,29 @@ export async function obtenerProducto(slug: string): Promise<FichaProducto | nul
       `id, slug, nombre, descripcion, descripcion_texto, precio, precio_anterior,
        categoria:categorias(slug, nombre, padre:padre_id(slug, nombre)),
        imagenes:producto_imagenes(id, path, alt, orden, ancho, alto),
-       etiquetas:producto_etiquetas(etiqueta:etiquetas(slug, valor, orden, grupo:grupos_etiqueta(slug, nombre, orden, visible_en_ficha))),
+       etiquetas:producto_etiquetas(etiqueta:etiquetas(slug, valor, orden, grupo:grupos_etiqueta(slug, nombre, orden, visible_en_ficha, icono, es_marca))),
        variantes:producto_variantes(id, sku, precio, stock, orden,
-         etiquetas:variante_etiquetas(etiqueta:etiquetas(id, slug, valor, orden, color_hex, grupo:grupos_etiqueta(slug, nombre, orden))))`,
+         etiquetas:variante_etiquetas(etiqueta:etiquetas(id, slug, valor, orden, color_hex, grupo:grupos_etiqueta(slug, nombre, orden, icono, visible_en_ficha))))`,
     )
     .eq("slug", slug)
     .maybeSingle();
   if (error) throw new Error(`producto ${slug}: ${error.message}`);
   if (!p) return null;
 
-  // Características: grupos no-variante visibles en ficha.
+  // Especificaciones: grupos visibles en ficha. La marca va aparte (arriba del título).
   const porGrupo = new Map<string, Caracteristica & { orden: number }>();
+  let marca: FichaProducto["marca"] = null;
   for (const { etiqueta: e } of p.etiquetas) {
-    if (!e?.grupo?.visible_en_ficha) continue;
-    const g = porGrupo.get(e.grupo.slug) ?? { grupo: e.grupo.nombre, grupoSlug: e.grupo.slug, orden: e.grupo.orden, valores: [] };
+    if (e?.grupo?.es_marca) marca = { slug: e.slug ?? "", valor: e.valor };
+    if (!e?.grupo?.visible_en_ficha || e.grupo.es_marca) continue;
+    const g = porGrupo.get(e.grupo.slug) ?? {
+      grupo: e.grupo.nombre,
+      grupoSlug: e.grupo.slug,
+      icono: e.grupo.icono,
+      esVariante: false,
+      orden: e.grupo.orden,
+      valores: [],
+    };
     g.valores.push({ slug: e.slug ?? "", valor: e.valor });
     porGrupo.set(e.grupo.slug, g);
   }
@@ -252,6 +311,19 @@ export async function obtenerProducto(slug: string): Promise<FichaProducto | nul
           g.opciones.push({ id: e.id, slug: e.slug ?? "", valor: e.valor, orden: e.orden, colorHex: e.color_hex });
         }
         grupos.set(e.grupo.slug, g);
+        // Las opciones de variante también figuran en las especificaciones ("Talle: S, M, L").
+        if (e.grupo.visible_en_ficha) {
+          const c = porGrupo.get(e.grupo.slug) ?? {
+            grupo: e.grupo.nombre,
+            grupoSlug: e.grupo.slug,
+            icono: e.grupo.icono,
+            esVariante: true,
+            orden: e.grupo.orden,
+            valores: [],
+          };
+          if (!c.valores.some((x) => x.slug === e.slug)) c.valores.push({ slug: e.slug ?? "", valor: e.valor });
+          porGrupo.set(e.grupo.slug, c);
+        }
       }
       return {
         id: v.id,
@@ -275,6 +347,7 @@ export async function obtenerProducto(slug: string): Promise<FichaProducto | nul
     id: p.id,
     slug: p.slug,
     nombre: p.nombre,
+    marca,
     descripcion: p.descripcion,
     descripcionTexto: p.descripcion_texto,
     precio: Number(p.precio),

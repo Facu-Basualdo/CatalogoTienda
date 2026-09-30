@@ -17,7 +17,7 @@ export function Descripcion({ contenido }: { contenido: unknown }) {
           nodeMapping: {
             // Una tabla de talles de 8 columnas desborda en el celular: scroll propio.
             table: ({ children }) => (
-              <div className="not-prose my-6 overflow-x-auto rounded-[var(--radius)] border border-border">
+              <div className="not-prose scrollbar-thin my-6 overflow-x-auto rounded-[var(--radius)] border border-border">
                 <table className="w-full min-w-max border-collapse text-sm [&_td]:border-t [&_td]:border-border [&_td]:px-4 [&_td]:py-2.5 [&_th]:bg-surface-secondary [&_th]:px-4 [&_th]:py-2.5 [&_th]:text-left [&_th]:font-semibold [&_p]:m-0">
                   <tbody>{children}</tbody>
                 </table>

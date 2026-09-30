@@ -6,7 +6,9 @@ electrónica. Los productos se describen con **etiquetas agrupadas** (`Talle: M`
 facetados, tienen **variantes con stock propio** (talle × color, memoria ×
 almacenamiento), varias imágenes y una descripción rica con tablas.
 
-Estética minimalista en blanco y negro, pensada primero para el celular.
+Se compra con un **carrito que termina en un pedido por WhatsApp**: el total lo calcula
+la base de datos y el pedido queda guardado. La estructura visual toma como referencia
+a compragamer.com, llevada a blanco y negro y pensada primero para el celular.
 
 ## Stack
 
@@ -21,15 +23,19 @@ Estética minimalista en blanco y negro, pensada primero para el celular.
 
 **Hecho**
 
-- Home con carrusel de banners (imagen distinta en desktop y mobile), destacados y
-  categorías.
+- Home con carrusel de banners (imagen distinta en desktop y mobile), destacados por
+  categoría, mosaico de categorías y rebajados.
 - Catálogo con filtros facetados en la URL (`/catalogo?cat=ropa&talle=m&color=negro`):
   AND entre grupos, OR dentro de un grupo, conteos que no se anulan al tildar,
   búsqueda sin tildes (`algodon` encuentra `algodón`, `144hz` encuentra `144 Hz`),
   orden y paginación.
+- Tarjetas con marca, ahorro en pesos y "Sumar al carrito"; vista en grilla o lista;
+  página de ofertas.
 - Ficha de producto con galería, selector de variantes que distingue combinaciones
-  agotadas de inexistentes, stock bajo, tabla de características automática y
+  agotadas de inexistentes, cantidad, stock bajo, especificaciones con íconos y
   descripción con tablas.
+- Carrito con cotización en vivo, avisos de stock por línea y envío del pedido por
+  WhatsApp con número de pedido.
 - Filtros por variante que exigen **una misma variante con stock**: `talle=xl&color=negro`
   no muestra una remera que sólo tiene XL blanca y L negra.
 - Seguridad resuelta en la base: grants explícitos + Row Level Security. Los
@@ -38,9 +44,8 @@ Estética minimalista en blanco y negro, pensada primero para el celular.
 
 **En camino** (ver [el plan](docs/plan-implementacion.md))
 
-- Dashboard: productos, variantes y stock, imágenes con recorte obligatorio,
+- Dashboard: productos, variantes y stock, imágenes con recorte obligatorio, pedidos,
   etiquetas, categorías y banners.
-- Carrito con pedido por WhatsApp, guardado en la base.
 - Promociones (% o monto, N×M, 2da unidad), combos y cupones de descuento.
 
 ## Estructura

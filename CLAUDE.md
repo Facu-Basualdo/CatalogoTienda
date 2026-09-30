@@ -7,8 +7,9 @@ imágenes y una descripción rica con tablas. Se compra con un carrito que termi
 pedido por WhatsApp, con promociones, combos y cupones. Un dashboard administra todo.
 Next.js 16 + HeroUI v3 en Vercel, datos e imágenes en Supabase.
 
-**Estado:** fases 0–2 hechas (base, modelo de datos con demo, catálogo público). Lo que
-sigue y el diseño de carrito, promociones, combos y cupones está en
+**Estado:** hechos la base, el modelo de datos con demo, el catálogo público con el
+rediseño estilo compragamer y el carrito con pedido por WhatsApp. Falta el dashboard,
+promociones, combos y cupones: orden y diseño en
 [docs/plan-implementacion.md](docs/plan-implementacion.md). Las notas de `claude/`
 describen lo construido; si el código se aparta, gana el código y la nota se corrige
 con `/docs`.
@@ -56,9 +57,10 @@ grep -rn "updateTag" web/             # después, el código
 | Búsqueda | [etiquetas](claude/web/etiquetas.md#url-de-filtros) | [busqueda](claude/supabase/busqueda.md) |
 | Acceso al dashboard | [clientes-supabase](claude/web/clientes-supabase.md) | [seguridad-rls](claude/supabase/seguridad-rls.md) |
 | Banners de la home | [catalogo](claude/web/catalogo.md#home) · [cache-y-revalidacion](claude/web/cache-y-revalidacion.md#banners-y-ventanas-de-fecha) | [esquema](claude/supabase/esquema.md#banners) |
+| Carrito y pedidos | [carrito](claude/web/carrito.md) | [carrito](claude/supabase/carrito.md) |
 
-Carrito, pedidos, promociones, combos y cupones todavía no tienen notas: su diseño está
-en el [plan](docs/plan-implementacion.md#fase-5--carrito-y-pedidos).
+Promociones, combos y cupones todavía no tienen notas: su diseño está en el
+[plan](docs/plan-implementacion.md#fase-6--promociones).
 
 ## Reglas de workflow
 
@@ -82,10 +84,11 @@ en el [plan](docs/plan-implementacion.md#fase-5--carrito-y-pedidos).
   `<input>`, `<select>`, `<textarea>`, `<dialog>` crudos. Tabla de equivalencias y
   excepciones en [heroui](claude/web/heroui.md).
 - Botones con `onPress`, no `onClick` (React Aria).
-- **Blanco y negro minimalista.** `primary` sólo en la acción principal de cada vista;
-  rojo sólo para errores y acciones destructivas (ni ofertas ni "sin stock"). Nombre y
-  logo genéricos desde `lib/sitio.ts` y `components/logo.tsx`. Detalle en
-  [tema-y-marca](claude/web/tema-y-marca.md).
+- **Estructura tipo compragamer.com en blanco y negro**: encabezado oscuro de dos filas,
+  página gris, contenido en superficies blancas `rounded-tarjeta`. El **único color es el
+  verde del ahorro**; rojo sólo para errores. De la referencia se toma la estructura,
+  nunca su marca. Nombre y logo genéricos desde `lib/sitio.ts` y `components/logo.tsx`.
+  Detalle en [tema-y-marca](claude/web/tema-y-marca.md).
 - Imágenes siempre con `next/image` y `sizes` explícito. Relación fija por uso (4:5,
   3:1) con recorte obligatorio al subir.
 - UI en español rioplatense. Precios en ARS sin decimales, siempre con `formatearPrecio`

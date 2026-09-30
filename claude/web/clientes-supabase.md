@@ -9,7 +9,7 @@ usa**. Usar el equivocado no da error: da una página lenta o un agujero de segu
 |---|---|---|---|
 | `publico.ts` | `supabasePublico()` | `createClient` de `@supabase/supabase-js`, sin sesión | Lecturas del catálogo, dentro de funciones `'use cache'` |
 | `servidor.ts` | `supabaseServidor()` | `createServerClient` de `@supabase/ssr` con `cookies()` | Server components y Server Actions de `/admin` |
-| `navegador.ts` | `supabaseNavegador()` | `createBrowserClient` de `@supabase/ssr` | Login y subida de imágenes en el dashboard |
+| `navegador.ts` | `supabaseNavegador()` | `createBrowserClient` de `@supabase/ssr` | Login y subida de imágenes en el dashboard; `cotizar_carrito` y `crear_pedido` desde el carrito (como `anon`) |
 
 Los tres están tipados con `Database` de `database.types.ts` (generado, ver
 [migraciones](../supabase/migraciones.md#tipos)). `storage.ts` tiene `urlPublica(path)`,

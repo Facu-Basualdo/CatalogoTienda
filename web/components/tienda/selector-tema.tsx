@@ -17,6 +17,7 @@ export function SelectorTema() {
     <Button
       isIconOnly
       variant="ghost"
+      className="text-encabezado-foreground"
       aria-label={oscuro ? "Usar tema claro" : "Usar tema oscuro"}
       onPress={() => setTheme(oscuro ? "light" : "dark")}
     >

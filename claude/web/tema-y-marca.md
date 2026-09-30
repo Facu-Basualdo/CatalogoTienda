@@ -2,59 +2,61 @@
 
 [← Índice web](INDICE.md)
 
-Proyecto de portfolio: nombre y logo genéricos, estética **minimalista en blanco y
-negro**. El color lo ponen las fotos de los productos; la interfaz se queda neutra
-para no competir con ellas.
+Proyecto de portfolio con nombre y logo genéricos. **Estructura inspirada en
+compragamer.com, en blanco y negro**: encabezado oscuro de dos filas, página gris clara,
+contenido en superficies blancas muy redondeadas, botón de compra a todo el ancho. De la
+referencia se toma la estructura, nunca su logo, nombre ni su rojo de marca.
 
 ## Marca: un solo lugar
 
-- `web/lib/sitio.ts` exporta `SITIO = { nombre: 'Tienda', descripcion, url, whatsapp, moneda, locale }`.
-  **El nombre no se escribe literal en ningún otro archivo**: metadata, footer, Open
-  Graph y mensaje de WhatsApp lo leen de ahí. Renombrar la tienda es cambiar una línea.
-- `web/components/logo.tsx`: monograma SVG inline + nombre, con **`fill="currentColor"`**
-  y el trazo interno en `var(--background)`. Un PNG o un SVG con `#000` fijo
-  desaparece en modo oscuro.
-- `web/app/icon.svg`: favicon con `@media (prefers-color-scheme: dark)` adentro del SVG.
+- `web/lib/sitio.ts` exporta `SITIO`. **El nombre no se escribe literal en ningún otro
+  archivo**: metadata, footer y WhatsApp lo leen de ahí.
+- `web/components/logo.tsx`: monograma SVG con `fill="currentColor"`; el trazo interior
+  usa `var(--logo-contraste, var(--background))`. Sobre el encabezado oscuro la "T" se
+  perdía (era gris sobre blanco): el `<header>` define `--logo-contraste` con su propio
+  color.
+- `web/app/icon.svg`: favicon con `prefers-color-scheme` adentro del SVG.
 
 ## Dónde vive la paleta
 
-**En `web/app/globals.css`, sobrescribiendo las variables de `@heroui/styles`.** Las de
-HeroUI están en `@layer base`; las nuestras van sin capa para ganarles, y el bloque
-`.dark` va después del claro porque `:root` y `.dark` tienen la misma especificidad.
-Si agregás una variable al bloque claro, agregala también al oscuro o en modo oscuro
-queda el valor claro.
+**En `web/app/globals.css`, sobrescribiendo las variables de `@heroui/styles`** (que están
+en `@layer base`; las nuestras van sin capa para ganarles, y el bloque `.dark` va
+después del claro porque tienen la misma especificidad). Las variables propias se
+exponen a Tailwind en `@theme inline`.
 
-| Variable | Claro | Oscuro | Uso |
-|---|---|---|---|
-| `--background` / `--foreground` | blanco / `oklch(14.5% 0 0)` | invertidos | Fondo y texto |
-| `--accent` | negro, texto blanco | blanco, texto negro | Acción principal (`Button` `primary`, seleccionado) |
-| `--default`, `--surface-*` | grises neutros | grises neutros | Botones secundarios, tarjetas |
-| `--muted` | gris 52% | gris 70% | Texto secundario |
-| `--success`, `--warning` | neutralizados a grises | — | **No se usan**; neutralizados para que un uso accidental no meta color |
-| `--danger` | rojo apagado | rojo apagado | **Sólo** errores y acciones destructivas |
-
-`next-themes` pone la clase `light`/`dark` en `<html>` (sigue al sistema por defecto);
-HeroUI reacciona a esa clase.
+| Variable / utilidad | Uso |
+|---|---|
+| `--background` (gris 96.5%) | Fondo de página. **No es blanco**: el contenido va en superficies |
+| `--surface` → `bg-surface` | Tarjetas, paneles, filtros, carrito |
+| `--radio-tarjeta` → `rounded-tarjeta` (1.25rem) | Todo contenedor de página. Los controles usan `--radius` (0.625rem) |
+| `--encabezado` → `bg-encabezado` | Encabezado y franja "cómo comprar". **Oscuro también en tema claro** |
+| `--accent` | Negro (blanco en oscuro): botón principal y seleccionado |
+| `--ahorro` → `bg-ahorro` | **El único color de la interfaz**: el chip "-$ 18.880" |
+| `--danger` | Sólo errores y avisos que bloquean (stock en el carrito) |
+| `--success`, `--warning` | Neutralizados a grises; no se usan |
 
 ## Reglas
 
-- **`Button` `primary` sólo en la acción principal de cada vista.** Todo lo demás
-  `outline`, `ghost` o `secondary`.
-- **Precio anterior tachado en `text-muted`, no en rojo.** "Sin stock" también gris
-  (`Chip variant="secondary"`). El rojo queda para "algo salió mal".
+- **El verde es sólo para el ahorro en pesos** (`ChipAhorro` en `precio.tsx`). Es
+  información, no decoración: no se usa para "stock disponible", botones ni badges.
+- Precio anterior tachado en `text-muted`; "Sin stock" en gris. Nada de rojo para ofertas.
+- **Un botón negro por tarjeta o vista**: "Sumar al carrito" en la tarjeta, "Enviar
+  pedido" en el carrito. Lo demás `outline`, `ghost` o `secondary`.
 - **Seleccionado = invertido.** HeroUI pinta el `ToggleButton` seleccionado con
-  `--accent-soft` (15% del acento), que en blanco y negro casi no se distingue; en
-  `globals.css` `.toggle-button` lo redefine a `--accent`. Si otro componente de
-  selección se ve "apagado", es el mismo problema: redefinir su variable ahí, no con
-  clases sueltas.
-- Muestras de color (etiquetas con `color_hex`): `ring-1 ring-muted/60`, no `border-border`:
-  el negro sobre fondo oscuro desaparece.
-- Bordes en lugar de sombras (`--surface-shadow` y `--field-shadow` en transparente).
-- Radio chico (`--radius: 0.375rem`); las superficies propias usan `rounded-[var(--radius)]`.
-- Tipografía: Geist Sans y Geist Mono (SKUs) vía `next/font`.
+  `--accent-soft`, que en blanco y negro no se distingue; `globals.css` lo redefine a
+  `--accent` en `.toggle-button`.
+- Sobre el encabezado oscuro, los controles de HeroUI necesitan color explícito
+  (`text-encabezado-foreground`); el campo de búsqueda usa `bg-white/10` y borde
+  `white/20`.
+- Muestras de color: `ring-1 ring-muted/60`; el negro sobre fondo oscuro desaparece con
+  `border-border`.
+- Títulos de sección con peso mixto: "Conocé nuestros **productos destacados**"
+  (`font-light` + `<strong>`).
+- Tipografía: Geist Sans y Geist Mono (SKUs).
 
 ## Ver también
 
 - [HeroUI](heroui.md#tema)
-- [Variantes y stock](variantes-y-stock.md)
 - [Catálogo](catalogo.md)
+- [Carrito](carrito.md)
+- [Variantes y stock](variantes-y-stock.md)

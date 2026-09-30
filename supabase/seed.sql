@@ -21,7 +21,15 @@ begin
   insert into public.categorias (slug, nombre, padre_id, orden) values ('audio', 'Audio', (select id from public.categorias where slug = 'electronica'), 3);
   insert into public.categorias (slug, nombre, padre_id, orden) values ('perifericos', 'Periféricos', (select id from public.categorias where slug = 'electronica'), 4);
 
-  insert into public.grupos_etiqueta (slug, nombre, orden, es_variante, visible_en_ficha) values ('talle', 'Talle', 1, true, true);
+  insert into public.grupos_etiqueta (slug, nombre, orden, es_variante, visible_en_ficha, icono, es_marca) values ('marca', 'Marca', 0, false, true, 'Tag', true);
+  insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'marca'), 'Norte', 0, null);
+  insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'marca'), 'Alba', 1, null);
+  insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'marca'), 'Raíz', 2, null);
+  insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'marca'), 'Vértice', 3, null);
+  insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'marca'), 'Orbe', 4, null);
+  insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'marca'), 'Pulsar', 5, null);
+  insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'marca'), 'Sonar', 6, null);
+  insert into public.grupos_etiqueta (slug, nombre, orden, es_variante, visible_en_ficha, icono, es_marca) values ('talle', 'Talle', 1, true, true, 'LayoutCells', false);
   insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'talle'), 'S', 0, null);
   insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'talle'), 'M', 1, null);
   insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'talle'), 'L', 2, null);
@@ -30,36 +38,36 @@ begin
   insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'talle'), '40', 5, null);
   insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'talle'), '42', 6, null);
   insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'talle'), '44', 7, null);
-  insert into public.grupos_etiqueta (slug, nombre, orden, es_variante, visible_en_ficha) values ('color', 'Color', 2, true, true);
+  insert into public.grupos_etiqueta (slug, nombre, orden, es_variante, visible_en_ficha, icono, es_marca) values ('color', 'Color', 2, true, true, 'Palette', false);
   insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'color'), 'Negro', 0, '#0a0a0a');
   insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'color'), 'Blanco', 1, '#ffffff');
   insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'color'), 'Gris', 2, '#9ca3af');
   insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'color'), 'Azul', 3, '#1e3a8a');
-  insert into public.grupos_etiqueta (slug, nombre, orden, es_variante, visible_en_ficha) values ('memoria', 'Memoria RAM', 3, true, true);
+  insert into public.grupos_etiqueta (slug, nombre, orden, es_variante, visible_en_ficha, icono, es_marca) values ('memoria', 'Memoria RAM', 3, true, true, 'Cpu', false);
   insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'memoria'), '16 GB', 0, null);
   insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'memoria'), '32 GB', 1, null);
-  insert into public.grupos_etiqueta (slug, nombre, orden, es_variante, visible_en_ficha) values ('almacenamiento', 'Almacenamiento', 4, true, true);
+  insert into public.grupos_etiqueta (slug, nombre, orden, es_variante, visible_en_ficha, icono, es_marca) values ('almacenamiento', 'Almacenamiento', 4, true, true, 'HardDrive', false);
   insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'almacenamiento'), '512 GB', 0, null);
   insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'almacenamiento'), '1 TB', 1, null);
-  insert into public.grupos_etiqueta (slug, nombre, orden, es_variante, visible_en_ficha) values ('material', 'Material', 5, false, true);
+  insert into public.grupos_etiqueta (slug, nombre, orden, es_variante, visible_en_ficha, icono, es_marca) values ('material', 'Material', 5, false, true, 'Layers', false);
   insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'material'), '100% algodón', 0, null);
   insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'material'), 'Algodón y poliéster', 1, null);
   insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'material'), 'Gabardina', 2, null);
   insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'material'), 'Denim', 3, null);
   insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'material'), 'Poliéster', 4, null);
-  insert into public.grupos_etiqueta (slug, nombre, orden, es_variante, visible_en_ficha) values ('refresco', 'Tasa de refresco', 6, false, true);
+  insert into public.grupos_etiqueta (slug, nombre, orden, es_variante, visible_en_ficha, icono, es_marca) values ('refresco', 'Tasa de refresco', 6, false, true, 'Speedometer', false);
   insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'refresco'), '60 Hz', 0, null);
   insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'refresco'), '144 Hz', 1, null);
   insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'refresco'), '165 Hz', 2, null);
   insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'refresco'), '240 Hz', 3, null);
-  insert into public.grupos_etiqueta (slug, nombre, orden, es_variante, visible_en_ficha) values ('panel', 'Panel', 7, false, true);
+  insert into public.grupos_etiqueta (slug, nombre, orden, es_variante, visible_en_ficha, icono, es_marca) values ('panel', 'Panel', 7, false, true, 'Display', false);
   insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'panel'), 'IPS', 0, null);
   insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'panel'), 'VA', 1, null);
-  insert into public.grupos_etiqueta (slug, nombre, orden, es_variante, visible_en_ficha) values ('resolucion', 'Resolución', 8, false, true);
+  insert into public.grupos_etiqueta (slug, nombre, orden, es_variante, visible_en_ficha, icono, es_marca) values ('resolucion', 'Resolución', 8, false, true, 'Picture', false);
   insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'resolucion'), 'Full HD', 0, null);
   insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'resolucion'), 'QHD', 1, null);
   insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'resolucion'), '4K', 2, null);
-  insert into public.grupos_etiqueta (slug, nombre, orden, es_variante, visible_en_ficha) values ('conectividad', 'Conectividad', 9, false, true);
+  insert into public.grupos_etiqueta (slug, nombre, orden, es_variante, visible_en_ficha, icono, es_marca) values ('conectividad', 'Conectividad', 9, false, true, 'Signal', false);
   insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'conectividad'), 'Bluetooth', 0, null);
   insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'conectividad'), 'Wi-Fi 6', 1, null);
   insert into public.etiquetas (grupo_id, valor, orden, color_hex) values ((select id from public.grupos_etiqueta where slug = 'conectividad'), 'USB-C', 2, null);
@@ -91,6 +99,7 @@ No usar secarropas
 Planchar del revés', 18000, null,
     (select id from public.categorias where slug = 'remeras'), true, true, now() - interval '20 days')
   returning id into v_id;
+  insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'marca' and e.slug = 'norte'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'material' and e.slug = '100-algodon'));
   perform public.guardar_variantes(v_id, jsonb_build_array(
     jsonb_build_object('etiquetas', jsonb_build_array((select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'talle' and e.slug = 's'), (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'color' and e.slug = 'negro')), 'sku', 'REMERA-BASICA-S-NEGRO', 'precio', null, 'stock', 6, 'activa', true),
@@ -123,6 +132,7 @@ No usar secarropas
 Planchar del revés', 22000, 26000,
     (select id from public.categorias where slug = 'remeras'), true, false, now() - interval '19 days')
   returning id into v_id;
+  insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'marca' and e.slug = 'alba'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'material' and e.slug = '100-algodon'));
   perform public.guardar_variantes(v_id, jsonb_build_array(
     jsonb_build_object('etiquetas', jsonb_build_array((select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'talle' and e.slug = 'm'), (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'color' and e.slug = 'negro')), 'sku', 'REMERA-OVERSIZE-M-NEGRO', 'precio', null, 'stock', 5, 'activa', true),
@@ -154,6 +164,7 @@ XL
  75', 45000, null,
     (select id from public.categorias where slug = 'buzos'), true, true, now() - interval '18 days')
   returning id into v_id;
+  insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'marca' and e.slug = 'alba'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'material' and e.slug = 'algodon-y-poliester'));
   perform public.guardar_variantes(v_id, jsonb_build_array(
     jsonb_build_object('etiquetas', jsonb_build_array((select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'talle' and e.slug = 's'), (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'color' and e.slug = 'negro')), 'sku', 'BUZO-CANGURO-S-NEGRO', 'precio', null, 'stock', 2, 'activa', true),
@@ -171,6 +182,7 @@ XL
   values ('buzo-cuello-redondo', 'Buzo cuello redondo', '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Buzo liviano de rústico, ideal para media estación. Puños y cintura con elastano."}]}]}'::jsonb, 'Buzo liviano de rústico, ideal para media estación. Puños y cintura con elastano.', 39000, null,
     (select id from public.categorias where slug = 'buzos'), true, false, now() - interval '17 days')
   returning id into v_id;
+  insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'marca' and e.slug = 'norte'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'material' and e.slug = '100-algodon'));
   perform public.guardar_variantes(v_id, jsonb_build_array(
     jsonb_build_object('etiquetas', jsonb_build_array((select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'talle' and e.slug = 's'), (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'color' and e.slug = 'blanco')), 'sku', 'BUZO-CUELLO-REDONDO-S-BLANCO', 'precio', null, 'stock', 3, 'activa', true),
@@ -201,6 +213,7 @@ Talle
  105', 52000, null,
     (select id from public.categorias where slug = 'pantalones'), true, false, now() - interval '16 days')
   returning id into v_id;
+  insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'marca' and e.slug = 'raiz'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'material' and e.slug = 'gabardina'));
   perform public.guardar_variantes(v_id, jsonb_build_array(
     jsonb_build_object('etiquetas', jsonb_build_array((select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'talle' and e.slug = '38'), (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'color' and e.slug = 'negro')), 'sku', 'PANTALON-CARGO-38-NEGRO', 'precio', null, 'stock', 2, 'activa', true),
@@ -211,9 +224,10 @@ Talle
 
   -- Jean recto
   insert into public.productos (slug, nombre, descripcion, descripcion_texto, precio, precio_anterior, categoria_id, publicado, destacado, creado_en)
-  values ('jean-recto', 'Jean recto', '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Denim rígido de 13 oz con lavado medio. Tiro medio y pierna recta."}]}]}'::jsonb, 'Denim rígido de 13 oz con lavado medio. Tiro medio y pierna recta.', 58000, null,
+  values ('jean-recto', 'Jean recto', '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Denim rígido de 13 oz con lavado medio. Tiro medio y pierna recta."}]}]}'::jsonb, 'Denim rígido de 13 oz con lavado medio. Tiro medio y pierna recta.', 58000, 64000,
     (select id from public.categorias where slug = 'pantalones'), true, true, now() - interval '15 days')
   returning id into v_id;
+  insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'marca' and e.slug = 'raiz'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'material' and e.slug = 'denim'));
   perform public.guardar_variantes(v_id, jsonb_build_array(
     jsonb_build_object('etiquetas', jsonb_build_array((select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'talle' and e.slug = '40'), (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'color' and e.slug = 'azul')), 'sku', 'JEAN-RECTO-40-AZUL', 'precio', null, 'stock', 4, 'activa', true),
@@ -226,6 +240,7 @@ Talle
   values ('campera-rompevientos', 'Campera rompevientos', '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Rompevientos liviana con capucha guardable. "},{"type":"text","text":"Sin stock","marks":[{"type":"bold"}]},{"type":"text","text":" por el momento: ejemplo de producto agotado."}]}]}'::jsonb, 'Rompevientos liviana con capucha guardable. Sin stock por el momento: ejemplo de producto agotado.', 68000, null,
     (select id from public.categorias where slug = 'abrigos'), true, false, now() - interval '14 days')
   returning id into v_id;
+  insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'marca' and e.slug = 'alba'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'material' and e.slug = 'poliester'));
   perform public.guardar_variantes(v_id, jsonb_build_array(
     jsonb_build_object('etiquetas', jsonb_build_array((select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'talle' and e.slug = 'm'), (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'color' and e.slug = 'negro')), 'sku', 'CAMPERA-ROMPEVIENTOS-M-NEGRO', 'precio', null, 'stock', 0, 'activa', true),
@@ -238,6 +253,7 @@ Talle
   values ('medias-pack-x3', 'Medias pack x3', '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Pack de tres pares de medias de algodón con puño acanalado. Talle único (39 a 44)."}]}]}'::jsonb, 'Pack de tres pares de medias de algodón con puño acanalado. Talle único (39 a 44).', 9500, null,
     (select id from public.categorias where slug = 'accesorios'), true, false, now() - interval '13 days')
   returning id into v_id;
+  insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'marca' and e.slug = 'norte'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'material' and e.slug = '100-algodon'));
   update public.producto_variantes set stock = 40, sku = 'MEDIAS-PACK-X3' where producto_id = v_id;
 
@@ -261,6 +277,7 @@ VESA
  100 × 100', 280000, null,
     (select id from public.categorias where slug = 'monitores'), true, true, now() - interval '12 days')
   returning id into v_id;
+  insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'marca' and e.slug = 'vertice'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'refresco' and e.slug = '144-hz'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'panel' and e.slug = 'ips'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'resolucion' and e.slug = 'full-hd'));
@@ -281,6 +298,7 @@ Curvatura
  Plano', 390000, 430000,
     (select id from public.categorias where slug = 'monitores'), true, false, now() - interval '11 days')
   returning id into v_id;
+  insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'marca' and e.slug = 'vertice'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'refresco' and e.slug = '165-hz'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'panel' and e.slug = 'va'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'resolucion' and e.slug = 'qhd'));
@@ -301,6 +319,7 @@ USB-C
  Power Delivery 65 W', 520000, null,
     (select id from public.categorias where slug = 'monitores'), true, false, now() - interval '10 days')
   returning id into v_id;
+  insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'marca' and e.slug = 'orbe'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'refresco' and e.slug = '60-hz'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'panel' and e.slug = 'ips'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'resolucion' and e.slug = '4-k'));
@@ -311,6 +330,7 @@ USB-C
   values ('monitor-32-curvo-240-hz', 'Monitor 32" curvo 240 Hz', '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Curvatura 1000R y 240 Hz para juegos competitivos. Ejemplo de producto sin stock."}]}]}'::jsonb, 'Curvatura 1000R y 240 Hz para juegos competitivos. Ejemplo de producto sin stock.', 610000, null,
     (select id from public.categorias where slug = 'monitores'), true, false, now() - interval '9 days')
   returning id into v_id;
+  insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'marca' and e.slug = 'vertice'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'refresco' and e.slug = '240-hz'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'panel' and e.slug = 'va'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'resolucion' and e.slug = 'qhd'));
@@ -328,9 +348,10 @@ Memoria
  $ 950.000
 32 GB
  512 GB SSD
- $ 1.150.000', 950000, null,
+ $ 1.150.000', 950000, 1050000,
     (select id from public.categorias where slug = 'notebooks'), true, true, now() - interval '8 days')
   returning id into v_id;
+  insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'marca' and e.slug = 'orbe'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'conectividad' and e.slug = 'wi-fi-6'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'conectividad' and e.slug = 'usb-c'));
   perform public.guardar_variantes(v_id, jsonb_build_array(
@@ -343,6 +364,7 @@ Memoria
   values ('notebook-16-gamer', 'Notebook 16" gamer', '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Pantalla 16\" a 165 Hz, placa dedicada y refrigeración con doble ventilador."}]}]}'::jsonb, 'Pantalla 16" a 165 Hz, placa dedicada y refrigeración con doble ventilador.', 1480000, null,
     (select id from public.categorias where slug = 'notebooks'), true, false, now() - interval '7 days')
   returning id into v_id;
+  insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'marca' and e.slug = 'pulsar'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'conectividad' and e.slug = 'wi-fi-6'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'refresco' and e.slug = '165-hz'));
   perform public.guardar_variantes(v_id, jsonb_build_array(
@@ -357,9 +379,10 @@ Memoria
   values ('auriculares-inalambricos', 'Auriculares inalámbricos', '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Cancelación activa de ruido, 30 horas de batería y carga rápida por USB-C."}]},{"type":"bulletList","content":[{"type":"listItem","content":[{"type":"paragraph","content":[{"type":"text","text":"Bluetooth 5.3 con multipunto"}]}]},{"type":"listItem","content":[{"type":"paragraph","content":[{"type":"text","text":"Modo transparencia"}]}]},{"type":"listItem","content":[{"type":"paragraph","content":[{"type":"text","text":"Estuche rígido incluido"}]}]}]}]}'::jsonb, 'Cancelación activa de ruido, 30 horas de batería y carga rápida por USB-C.
 Bluetooth 5.3 con multipunto
 Modo transparencia
-Estuche rígido incluido', 85000, null,
+Estuche rígido incluido', 85000, 99000,
     (select id from public.categorias where slug = 'audio'), true, true, now() - interval '6 days')
   returning id into v_id;
+  insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'marca' and e.slug = 'sonar'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'conectividad' and e.slug = 'bluetooth'));
   perform public.guardar_variantes(v_id, jsonb_build_array(
     jsonb_build_object('etiquetas', jsonb_build_array((select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'color' and e.slug = 'negro')), 'sku', 'AURICULARES-INALAMBRICOS-NEGRO', 'precio', null, 'stock', 7, 'activa', true),
@@ -371,14 +394,16 @@ Estuche rígido incluido', 85000, null,
   values ('auriculares-con-cable', 'Auriculares con cable', '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Auriculares cerrados livianos con micrófono en línea."}]}]}'::jsonb, 'Auriculares cerrados livianos con micrófono en línea.', 25000, null,
     (select id from public.categorias where slug = 'audio'), true, false, now() - interval '5 days')
   returning id into v_id;
+  insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'marca' and e.slug = 'sonar'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'conectividad' and e.slug = 'cable-3-5-mm'));
   update public.producto_variantes set stock = 15, sku = 'AURICULARES-CON-CABLE' where producto_id = v_id;
 
   -- Teclado mecánico
   insert into public.productos (slug, nombre, descripcion, descripcion_texto, precio, precio_anterior, categoria_id, publicado, destacado, creado_en)
-  values ('teclado-mecanico', 'Teclado mecánico', '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Formato 75% con switches lineales hot-swap, conexión por cable o Bluetooth."}]}]}'::jsonb, 'Formato 75% con switches lineales hot-swap, conexión por cable o Bluetooth.', 72000, null,
+  values ('teclado-mecanico', 'Teclado mecánico', '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Formato 75% con switches lineales hot-swap, conexión por cable o Bluetooth."}]}]}'::jsonb, 'Formato 75% con switches lineales hot-swap, conexión por cable o Bluetooth.', 72000, 80000,
     (select id from public.categorias where slug = 'perifericos'), true, false, now() - interval '4 days')
   returning id into v_id;
+  insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'marca' and e.slug = 'pulsar'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'conectividad' and e.slug = 'usb-c'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'conectividad' and e.slug = 'bluetooth'));
   perform public.guardar_variantes(v_id, jsonb_build_array(
@@ -391,15 +416,17 @@ Estuche rígido incluido', 85000, null,
   values ('mouse-inalambrico', 'Mouse inalámbrico', '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Sensor de 26.000 DPI y 60 g de peso. Hasta 70 horas de batería."}]}]}'::jsonb, 'Sensor de 26.000 DPI y 60 g de peso. Hasta 70 horas de batería.', 30000, null,
     (select id from public.categorias where slug = 'perifericos'), true, false, now() - interval '3 days')
   returning id into v_id;
+  insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'marca' and e.slug = 'pulsar'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'conectividad' and e.slug = 'receptor-2-4-ghz'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'conectividad' and e.slug = 'bluetooth'));
   update public.producto_variantes set stock = 20, sku = 'MOUSE-INALAMBRICO' where producto_id = v_id;
 
   -- Parlante bluetooth
   insert into public.productos (slug, nombre, descripcion, descripcion_texto, precio, precio_anterior, categoria_id, publicado, destacado, creado_en)
-  values ('parlante-bluetooth', 'Parlante bluetooth', '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Parlante portátil resistente al agua (IP67) con 12 horas de autonomía."}]}]}'::jsonb, 'Parlante portátil resistente al agua (IP67) con 12 horas de autonomía.', 48000, null,
+  values ('parlante-bluetooth', 'Parlante bluetooth', '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Parlante portátil resistente al agua (IP67) con 12 horas de autonomía."}]}]}'::jsonb, 'Parlante portátil resistente al agua (IP67) con 12 horas de autonomía.', 48000, 55000,
     (select id from public.categorias where slug = 'audio'), true, false, now() - interval '2 days')
   returning id into v_id;
+  insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'marca' and e.slug = 'sonar'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'conectividad' and e.slug = 'bluetooth'));
   update public.producto_variantes set stock = 6, sku = 'PARLANTE-BLUETOOTH' where producto_id = v_id;
 
@@ -408,6 +435,7 @@ Estuche rígido incluido', 85000, null,
   values ('monitor-34-ultrawide', 'Monitor 34" ultrawide', '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Borrador: no aparece en la tienda hasta que se publique desde el dashboard."}]}]}'::jsonb, 'Borrador: no aparece en la tienda hasta que se publique desde el dashboard.', 700000, null,
     (select id from public.categorias where slug = 'monitores'), false, false, now() - interval '1 days')
   returning id into v_id;
+  insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'marca' and e.slug = 'orbe'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'refresco' and e.slug = '144-hz'));
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'panel' and e.slug = 'ips'));
   update public.producto_variantes set stock = 2, sku = 'MONITOR-34-ULTRAWIDE' where producto_id = v_id;

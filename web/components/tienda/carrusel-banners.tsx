@@ -30,7 +30,7 @@ export function CarruselBanners({ banners }: { banners: Banner[] }) {
   if (!banners.length) return null;
 
   return (
-    <section aria-roledescription="carrusel" aria-label="Destacados" className="relative">
+    <section aria-roledescription="carrusel" aria-label="Novedades" className="relative overflow-hidden rounded-tarjeta">
       <div className="overflow-hidden" ref={ref}>
         <div className="flex">
           {banners.map((b, i) => {

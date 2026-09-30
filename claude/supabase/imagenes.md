@@ -70,7 +70,11 @@ apunta a un archivo inexistente es una imagen rota en la tienda.
 
 `web/scripts/sembrar-imagenes.mjs` genera ilustraciones en blanco y negro (SVG →
 WebP con `sharp`, en los tamaños de la tabla de arriba) para cada producto sin
-imágenes y crea los dos banners si no hay ninguno. Es idempotente.
+imágenes y crea los dos banners si no hay ninguno. Es idempotente; con `--regenerar`
+borra archivos y filas de todos los productos y los vuelve a generar. **Las imágenes no
+llevan texto**: el nombre ya está en la tarjeta y escrito en la imagen se superpone.
+Después de regenerar hay que invalidar la caché (ver
+[cache-y-revalidacion](../web/cache-y-revalidacion.md#cambios-hechos-fuera-de-la-app)).
 
 **Es la única pieza que usa `SUPABASE_SECRET_KEY`**, leída de `web/.env` y sólo en local:
 sube a Storage sin sesión de admin. La app no la importa y no va a Vercel.

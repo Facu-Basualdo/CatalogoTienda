@@ -2,14 +2,43 @@
 
 [← Índice web](INDICE.md)
 
-Rutas bajo `web/app/(tienda)/`: `/` (home), `/catalogo`, `/p/[slug]`. Todas leen con
-funciones de `lib/catalogo/lecturas.ts` (cacheadas); ninguna llama a Supabase directo.
+Rutas bajo `web/app/(tienda)/`. Todas leen con funciones de `lib/catalogo/lecturas.ts`
+(cacheadas); ninguna llama a Supabase directo. Estructura visual en
+[tema-y-marca](tema-y-marca.md).
 
 | Ruta | Lecturas | Build |
 |---|---|---|
-| `/` | `obtenerBanners` · `obtenerDestacados` · `obtenerCategorias` | Estática, revalida cada 1 min (por los banners) |
+| `/` | `obtenerBanners` · `obtenerDestacados` (por categoría raíz) · `obtenerMosaicoCategorias` · `obtenerOfertas` | Estática, revalida cada 1 min (por los banners) |
 | `/catalogo` | `buscarProductos` · `obtenerFacetas` · `obtenerCategorias` | Shell estático + contenido por `searchParams` en streaming |
+| `/ofertas` | `obtenerOfertas` (`p_ofertas`) | Estática |
 | `/p/[slug]` | `obtenerProducto` | `generateStaticParams` con todos los publicados; los nuevos se generan al primer pedido |
+| `/carrito` | — (cotiza en el cliente) | Estática, `noindex`. Ver [carrito](carrito.md) |
+
+**Ofertas es una ruta y no un filtro de `/catalogo`**: `?ofertas=1` sería otra clave
+reservada que ningún grupo de etiquetas podría usar como slug.
+
+## Tarjeta de producto
+
+`components/tienda/tarjeta-producto.tsx`: marca arriba (del grupo `es_marca`), nombre en
+dos líneas, precio con ahorro, y una acción que depende de la variante única (ver
+[carrito](carrito.md#pantallas)). `horizontal` la pone con la imagen a la izquierda
+(destacados de la home).
+
+## Vista grilla / lista
+
+`components/tienda/vista-listado.tsx`. **La preferencia vive en `localStorage`, no en la
+URL**: en la URL sería otra clave reservada y duplicaría las entradas de caché del
+listado. Las tarjetas siguen siendo server components: el contenedor client pone
+`data-vista` y las tarjetas se adaptan con `sm:group-data-[vista=lista]/vista:flex-row`.
+En mobile la vista lista no aplica (la grilla de 2 columnas ya es compacta).
+
+## Ficha
+
+Dos paneles: galería + compra (breadcrumb, marca, título, caja de precio, selector de
+variantes, cantidad, características principales con íconos) y pestañas
+**Especificaciones** (grilla con el ícono de cada grupo, `lib/iconos.tsx`) /
+**Descripción** (TipTap). Los grupos de variante aparecen en especificaciones con todas
+sus opciones ("Talle: S, M, L, XL").
 
 ## Patrón de página con Cache Components
 
@@ -50,9 +79,15 @@ Lo mismo para client components con `useSearchParams` (`Buscador`,
 
 ## Home
 
-Carrusel de banners (Embla), destacados (`buscar_productos` con `p_destacados`) y
-tarjetas de categorías raíz. El título, subtítulo y botón del banner se superponen en
-la web desde la tabla `banners`; **la imagen del banner no lleva texto**.
+Banner redondeado (Embla), destacados en pestañas por categoría raíz (`p_destacados` +
+`p_categoria`, tarjetas horizontales), franja "cómo comprar", mosaico de subcategorías
+con la imagen de su producto más reciente y carrusel de rebajados (`p_ofertas`). El
+título y botón del banner se superponen desde la tabla `banners`: **las imágenes (de
+banners y de productos) no llevan texto**; escrito en la imagen se duplica y se
+superpone con el de la tarjeta.
+
+El mosaico hace una consulta por subcategoría: con ~10 está bien (cacheadas con tag);
+si pasan de ~30, moverlo a un RPC.
 
 ## Ver también
 

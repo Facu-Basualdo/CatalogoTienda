@@ -2,10 +2,10 @@ import { Skeleton } from "@heroui/react";
 
 export function EsqueletoGrilla({ cantidad = 8 }: { cantidad?: number }) {
   return (
-    <ul className="grid grid-cols-2 gap-x-4 gap-y-8 sm:gap-x-6 md:grid-cols-3 xl:grid-cols-4" aria-hidden>
+    <ul className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4" aria-hidden>
       {Array.from({ length: cantidad }, (_, i) => (
         <li key={i} className="flex flex-col gap-3">
-          <Skeleton className="aspect-[4/5] w-full rounded-[var(--radius)]" />
+          <Skeleton className="aspect-[4/5] w-full rounded-tarjeta" />
           <Skeleton className="h-4 w-3/4 rounded" />
           <Skeleton className="h-4 w-1/3 rounded" />
         </li>
@@ -36,7 +36,7 @@ export function EsqueletoCatalogo() {
 export function EsqueletoFicha() {
   return (
     <div className="mx-auto grid max-w-7xl gap-10 px-4 py-8 sm:px-6 lg:grid-cols-2" aria-busy>
-      <Skeleton className="aspect-[4/5] w-full rounded-[var(--radius)]" />
+      <Skeleton className="aspect-[4/5] w-full rounded-tarjeta" />
       <div className="flex flex-col gap-4">
         <Skeleton className="h-10 w-3/4 rounded" />
         <Skeleton className="h-6 w-1/4 rounded" />

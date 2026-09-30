@@ -1,15 +1,17 @@
 "use client";
 
-import { Comment } from "@gravity-ui/icons";
-import { Chip, Label, ToggleButton, ToggleButtonGroup } from "@heroui/react";
+import { CircleCheck, CircleXmark, Comment } from "@gravity-ui/icons";
+import { Label, NumberField, ToggleButton, ToggleButtonGroup } from "@heroui/react";
 import { buttonVariants } from "@heroui/styles";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { BotonAgregar } from "@/components/carrito/boton-agregar";
 import type { GrupoVariante, VarianteFicha } from "@/lib/catalogo/lecturas";
 import { SITIO } from "@/lib/sitio";
 import { Precio } from "./precio";
 
 // Reglas del selector: claude/web/variantes-y-stock.md#selector-en-la-ficha
-// - opciones agotadas o inexistentes se deshabilitan, no se ocultan
+// - nunca se ocultan opciones: agotada = tachada y elegible, inexistente = deshabilitada
 // - la disponibilidad se calcula contra lo ya elegido en los otros grupos
 // - la variante elegida vive en la URL (?variante=<id>)
 
@@ -29,6 +31,7 @@ export function SelectorVariantes({ nombre, url, precioAnterior, grupos, variant
   const router = useRouter();
   const pathname = usePathname();
   const actual = varianteInicial(variantes, useSearchParams().get("variante"));
+  const [cantidad, setCantidad] = useState(1);
 
   function elegir(grupo: string, slug: string) {
     const deseadas = { ...actual.opciones, [grupo]: slug };
@@ -37,7 +40,10 @@ export function SelectorVariantes({ nombre, url, precioAnterior, grupos, variant
     const alternativa =
       variantes.find((v) => v.opciones[grupo] === slug && v.stock > 0) ?? variantes.find((v) => v.opciones[grupo] === slug);
     const destino = exacta ?? alternativa;
-    if (destino) router.replace(`${pathname}?variante=${destino.id}`, { scroll: false });
+    if (destino) {
+      setCantidad(1);
+      router.replace(`${pathname}?variante=${destino.id}`, { scroll: false });
+    }
   }
 
   function estadoOpcion(grupo: string, slug: string): "ok" | "agotada" | "inexistente" {
@@ -48,14 +54,16 @@ export function SelectorVariantes({ nombre, url, precioAnterior, grupos, variant
   }
 
   const disponible = actual.stock > 0;
+  const maximo = Math.min(actual.stock, 20);
   const mensaje = encodeURIComponent(
-    `Hola, me interesa: ${nombre}${actual.etiquetas ? ` — ${actual.etiquetas}` : ""}\n${url}`,
+    `Hola, tengo una consulta sobre: ${nombre}${actual.etiquetas ? ` — ${actual.etiquetas}` : ""}\n${url}`,
   );
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center gap-3">
-        <Precio valor={actual.precio} anterior={precioAnterior} className="text-2xl" />
+    <div className="flex flex-col gap-5">
+      <div className="rounded-xl border border-border p-4 sm:p-5">
+        <p className="mb-1 text-xs text-muted">Precio</p>
+        <Precio valor={actual.precio} anterior={precioAnterior} tamano="lg" />
       </div>
 
       {grupos.map((g) => (
@@ -96,31 +104,68 @@ export function SelectorVariantes({ nombre, url, precioAnterior, grupos, variant
         </div>
       ))}
 
-      <div className="flex flex-col gap-3" aria-live="polite">
-        {!disponible ? (
-          <Chip variant="secondary" className="self-start">
-            Sin stock{grupos.length ? " en esta combinación" : ""}
-          </Chip>
-        ) : actual.stock <= 3 ? (
-          <p className="text-sm text-muted">
-            {actual.stock === 1 ? "Última unidad" : `Últimas ${actual.stock} unidades`}
-          </p>
-        ) : null}
+      <p className="flex items-center gap-2 text-sm" aria-live="polite">
+        {disponible ? (
+          <>
+            <CircleCheck aria-hidden className="size-4" />
+            {actual.stock <= 3
+              ? actual.stock === 1
+                ? "Última unidad disponible"
+                : `Últimas ${actual.stock} unidades`
+              : "Stock disponible"}
+          </>
+        ) : (
+          <>
+            <CircleXmark aria-hidden className="size-4 text-muted" />
+            <span className="text-muted">Sin stock{grupos.length ? " en esta combinación" : ""}</span>
+          </>
+        )}
+      </p>
 
-        {SITIO.whatsapp ? (
-          <a
-            href={`https://wa.me/${SITIO.whatsapp}?text=${mensaje}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-disabled={!disponible}
-            className={`${buttonVariants({ size: "lg", fullWidth: true, variant: disponible ? "primary" : "outline" })}`}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+        {disponible && maximo > 1 && (
+          <NumberField
+            aria-label="Cantidad"
+            value={Math.min(cantidad, maximo)}
+            onChange={(v) => setCantidad(v && v > 0 ? v : 1)}
+            minValue={1}
+            maxValue={maximo}
+            className="w-full sm:w-36"
           >
-            <Comment />
-            {disponible ? "Consultar por WhatsApp" : "Consultar disponibilidad"}
-          </a>
-        ) : null}
-        {actual.sku && <p className="font-mono text-xs text-muted">SKU {actual.sku}</p>}
+            <Label className="text-xs text-muted">Cantidad</Label>
+            <NumberField.Group>
+              <NumberField.DecrementButton />
+              <NumberField.Input />
+              <NumberField.IncrementButton />
+            </NumberField.Group>
+          </NumberField>
+        )}
+        <div className="flex-1">
+          <BotonAgregar
+            varianteId={actual.id}
+            nombre={nombre}
+            cantidad={Math.min(cantidad, maximo)}
+            isDisabled={!disponible}
+            size="lg"
+          />
+        </div>
       </div>
+
+      {SITIO.whatsapp && (
+        <a
+          href={`https://wa.me/${SITIO.whatsapp}?text=${mensaje}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={buttonVariants({ variant: "outline", fullWidth: true })}
+        >
+          <Comment />
+          {disponible ? "Consultar por WhatsApp" : "Consultar disponibilidad"}
+        </a>
+      )}
+
+      {actual.sku && (
+        <p className="self-start rounded-full bg-surface-secondary px-3 py-1 font-mono text-xs text-muted">SKU {actual.sku}</p>
+      )}
     </div>
   );
 }

@@ -61,6 +61,7 @@ as $$ select exists (select 1 from public.admins where user_id = (select auth.ui
 | `variante_etiquetas` | la variante es visible (RLS anidado) | ídem o admin | admin |
 | `categorias`, `grupos_etiqueta`, `etiquetas` | todo | todo | admin |
 | `banners` | `activo` | `activo or es_admin` | admin |
+| `pedidos`, `pedido_items` | — (sin grants) | admin | sólo `crear_pedido` (definer) crea; admin actualiza y borra |
 | `admins` | — | — | sólo SQL |
 | `storage.objects` bucket `catalogo` | URL pública, sin policy | admin (listar/borrar) | admin |
 
@@ -72,6 +73,10 @@ as $$ select exists (select 1 from public.admins where user_id = (select auth.ui
   `separar_policies_escritura`.
 - UPDATE necesita `using` y `with check`, y además una policy de SELECT: sin ella el
   update afecta 0 filas sin error.
+- **La única función `security definer` en `public` es `crear_pedido`, a propósito**:
+  `anon` no tiene grants sobre `pedidos` y la función es la puerta controlada. Por eso
+  valida todo adentro y chequea `publicado`/`activa` a mano (ver [carrito](carrito.md)).
+  Cualquier otra definer va en `private`.
 - **Los RPC del catálogo son `security invoker`**: respetan el RLS de quien llama. Un
   `security definer` en `buscar_productos` expondría borradores.
 

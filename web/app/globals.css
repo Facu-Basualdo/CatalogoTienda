@@ -5,6 +5,11 @@
 @theme inline {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-encabezado: var(--encabezado);
+  --color-encabezado-foreground: var(--encabezado-foreground);
+  --color-ahorro: var(--ahorro);
+  --color-ahorro-foreground: var(--ahorro-foreground);
+  --radius-tarjeta: var(--radio-tarjeta);
 }
 
 /*
@@ -16,12 +21,23 @@
 :root,
 .light,
 [data-theme="light"] {
-  --radius: 0.375rem;
+  --radius: 0.625rem;
   --field-radius: var(--radius);
+  /* Contenedores de página (tarjetas, paneles, banners): muy redondeados. */
+  --radio-tarjeta: 1.25rem;
   --field-border-width: 1px;
 
-  --background: oklch(100% 0 0);
+  /* Página gris claro; el contenido va en superficies blancas. */
+  --background: oklch(96.5% 0 0);
   --foreground: oklch(14.5% 0 0);
+
+  /* Encabezado siempre oscuro, en claro y en oscuro. */
+  --encabezado: oklch(16% 0 0);
+  --encabezado-foreground: oklch(98.5% 0 0);
+
+  /* ÚNICO color de la interfaz: el ahorro ("-$ 18.880"). Es información, no decoración. */
+  --ahorro: oklch(56% 0.15 150);
+  --ahorro-foreground: oklch(100% 0 0);
 
   --surface: oklch(100% 0 0);
   --surface-foreground: var(--foreground);
@@ -54,7 +70,7 @@
   --field-background: oklch(100% 0 0);
   --field-foreground: var(--foreground);
   --field-placeholder: var(--muted);
-  --field-border: oklch(88% 0 0);
+  --field-border: oklch(86% 0 0);
 
   --segment: oklch(100% 0 0);
   --segment-foreground: var(--foreground);
@@ -72,8 +88,14 @@
 
 .dark,
 [data-theme="dark"] {
-  --background: oklch(14.5% 0 0);
+  --background: oklch(11% 0 0);
   --foreground: oklch(98.5% 0 0);
+
+  --encabezado: oklch(7% 0 0);
+  --encabezado-foreground: oklch(98.5% 0 0);
+
+  --ahorro: oklch(62% 0.15 150);
+  --ahorro-foreground: oklch(100% 0 0);
 
   --surface: oklch(17% 0 0);
   --surface-foreground: var(--foreground);

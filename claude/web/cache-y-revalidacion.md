@@ -53,6 +53,18 @@ Las facetas llevan `facetas` **y** `productos`: publicar un producto cambia los 
 - No uses `revalidatePath('/', 'layout')` como atajo: invalida todo el sitio y oculta
   qué dependía de qué.
 
+## Cambios hechos fuera de la app
+
+**Si los datos se tocan por SQL, por la CLI o con un script, ningún tag se invalida** y
+la tienda sigue mostrando lo anterior. Ya pasó: se regeneraron las imágenes de demo con
+`scripts/sembrar-imagenes.mjs --regenerar` y el build siguiente siguió sirviendo las
+fichas con los paths viejos (archivos ya borrados).
+
+- En local, **la caché de `'use cache'` sobrevive entre builds** en `web/.next/cache`:
+  después de tocar datos por fuera, `rm -rf web/.next` antes de `next build`.
+- En producción hace falta una invalidación explícita. Pendiente para el dashboard: una
+  acción "Refrescar tienda" que llame `updateTag` sobre todos los tags de `TAGS`.
+
 ## Banners y ventanas de fecha
 
 Los banners tienen `desde/hasta`, pero nadie muta nada cuando llega la hora de

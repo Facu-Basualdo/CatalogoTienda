@@ -25,6 +25,10 @@ grupo**.
 
 ## Invariantes
 
+- **La marca es un grupo común con `es_marca = true`** (uno solo, por índice único parcial,
+  y nunca de variante: `check`). `buscar_productos` devuelve su valor para la tarjeta y
+  el grupo va primero en los filtros (`orden = 0`). No hay columna `marca` en `productos`:
+  sería un segundo lugar donde filtrar y se desincronizaría con la faceta.
 - **Toda etiqueta tiene grupo.** Una etiqueta suelta no se puede ubicar en el panel de
   filtros ni en la tabla de características. Si el admin no sabe qué grupo, va a
   `General`.

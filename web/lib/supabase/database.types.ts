@@ -145,7 +145,9 @@ export type Database = {
       grupos_etiqueta: {
         Row: {
           creado_en: string;
+          es_marca: boolean;
           es_variante: boolean;
+          icono: string | null;
           id: string;
           nombre: string;
           orden: number;
@@ -155,7 +157,9 @@ export type Database = {
         };
         Insert: {
           creado_en?: string;
+          es_marca?: boolean;
           es_variante?: boolean;
+          icono?: string | null;
           id?: string;
           nombre: string;
           orden?: number;
@@ -165,13 +169,127 @@ export type Database = {
         };
         Update: {
           creado_en?: string;
+          es_marca?: boolean;
           es_variante?: boolean;
+          icono?: string | null;
           id?: string;
           nombre?: string;
           orden?: number;
           slug?: string;
           visible_en_ficha?: boolean;
           visible_en_filtros?: boolean;
+        };
+        Relationships: [];
+      };
+      pedido_items: {
+        Row: {
+          cantidad: number;
+          descripcion: string;
+          descuento: number;
+          detalle: string | null;
+          id: string;
+          orden: number;
+          pedido_id: string;
+          precio_unitario: number;
+          producto_id: string | null;
+          sku: string | null;
+          subtotal: number;
+          variante_id: string | null;
+        };
+        Insert: {
+          cantidad: number;
+          descripcion: string;
+          descuento?: number;
+          detalle?: string | null;
+          id?: string;
+          orden?: number;
+          pedido_id: string;
+          precio_unitario: number;
+          producto_id?: string | null;
+          sku?: string | null;
+          subtotal: number;
+          variante_id?: string | null;
+        };
+        Update: {
+          cantidad?: number;
+          descripcion?: string;
+          descuento?: number;
+          detalle?: string | null;
+          id?: string;
+          orden?: number;
+          pedido_id?: string;
+          precio_unitario?: number;
+          producto_id?: string | null;
+          sku?: string | null;
+          subtotal?: number;
+          variante_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "pedido_items_pedido_id_fkey";
+            columns: ["pedido_id"];
+            isOneToOne: false;
+            referencedRelation: "pedidos";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "pedido_items_producto_id_fkey";
+            columns: ["producto_id"];
+            isOneToOne: false;
+            referencedRelation: "productos";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "pedido_items_variante_id_fkey";
+            columns: ["variante_id"];
+            isOneToOne: false;
+            referencedRelation: "producto_variantes";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      pedidos: {
+        Row: {
+          actualizado_en: string;
+          creado_en: string;
+          cupon_codigo: string | null;
+          descuento_cupon: number;
+          descuento_promociones: number;
+          estado: Database["public"]["Enums"]["estado_pedido"];
+          id: string;
+          nombre: string;
+          notas: string | null;
+          numero: number;
+          subtotal: number;
+          total: number;
+        };
+        Insert: {
+          actualizado_en?: string;
+          creado_en?: string;
+          cupon_codigo?: string | null;
+          descuento_cupon?: number;
+          descuento_promociones?: number;
+          estado?: Database["public"]["Enums"]["estado_pedido"];
+          id?: string;
+          nombre: string;
+          notas?: string | null;
+          numero?: never;
+          subtotal: number;
+          total: number;
+        };
+        Update: {
+          actualizado_en?: string;
+          creado_en?: string;
+          cupon_codigo?: string | null;
+          descuento_cupon?: number;
+          descuento_promociones?: number;
+          estado?: Database["public"]["Enums"]["estado_pedido"];
+          id?: string;
+          nombre?: string;
+          notas?: string | null;
+          numero?: never;
+          subtotal?: number;
+          total?: number;
         };
         Relationships: [];
       };
@@ -410,6 +528,7 @@ export type Database = {
           p_destacados?: boolean;
           p_filtros?: Json;
           p_limite?: number;
+          p_ofertas?: boolean;
           p_offset?: number;
           p_orden?: string;
           p_q?: string;
@@ -421,6 +540,7 @@ export type Database = {
           imagen_alto: number;
           imagen_ancho: number;
           imagen_path: string;
+          marca: string;
           nombre: string;
           precio_anterior: number;
           precio_desde: number;
@@ -428,7 +548,20 @@ export type Database = {
           slug: string;
           stock_total: number;
           total: number;
+          variante_id: string;
         }[];
+      };
+      cambiar_estado_pedido: {
+        Args: {
+          p_estado: Database["public"]["Enums"]["estado_pedido"];
+          p_pedido_id: string;
+        };
+        Returns: undefined;
+      };
+      cotizar_carrito: { Args: { p_items: Json }; Returns: Json };
+      crear_pedido: {
+        Args: { p_items: Json; p_nombre: string; p_notas?: string };
+        Returns: Json;
       };
       es_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
       f_unaccent: { Args: { texto: string }; Returns: string };
@@ -458,7 +591,7 @@ export type Database = {
       slugify: { Args: { texto: string }; Returns: string };
     };
     Enums: {
-      [_ in never]: never;
+      estado_pedido: "pendiente" | "confirmado" | "entregado" | "cancelado";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -585,6 +718,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      estado_pedido: ["pendiente", "confirmado", "entregado", "cancelado"],
+    },
   },
 } as const;
