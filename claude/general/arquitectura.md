@@ -45,8 +45,8 @@ a Storage; el servidor sólo registra la fila en `producto_imagenes`. Ver
 ## Lo que deliberadamente no hay
 
 - **Service key / secret key en la app**: no está en Vercel ni la importa ningún archivo de
-  `app/` o `lib/`. Todo lo que un admin puede hacer lo habilita una policy. (La usa sólo
-  el script local de imágenes de demo.)
+  `app/` o `lib/`. Todo lo que un admin puede hacer lo habilita una policy. (La usan sólo
+  los scripts locales de imágenes de demo y de alta de admin.)
 - **Route handlers (`app/api/`)** para CRUD: Server Actions + RPC alcanzan. Un route
   handler se justifica sólo para algo que llame un tercero (webhook).
 - **Pago online**: el carrito termina en un pedido por WhatsApp, no en un checkout. El

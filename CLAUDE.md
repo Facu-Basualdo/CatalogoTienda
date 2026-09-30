@@ -55,7 +55,7 @@ grep -rn "updateTag" web/             # después, el código
 | Imágenes de producto | [imagenes](claude/web/imagenes.md) | [imagenes](claude/supabase/imagenes.md) |
 | Descripción rica | [descripcion-rica](claude/web/descripcion-rica.md) | [esquema](claude/supabase/esquema.md#productos) |
 | Búsqueda | [etiquetas](claude/web/etiquetas.md#url-de-filtros) | [busqueda](claude/supabase/busqueda.md) |
-| Acceso al dashboard | [clientes-supabase](claude/web/clientes-supabase.md) | [seguridad-rls](claude/supabase/seguridad-rls.md) |
+| Acceso al dashboard | [dashboard](claude/web/dashboard.md) · [clientes-supabase](claude/web/clientes-supabase.md) | [seguridad-rls](claude/supabase/seguridad-rls.md) |
 | Banners de la home | [catalogo](claude/web/catalogo.md#home) · [cache-y-revalidacion](claude/web/cache-y-revalidacion.md#banners-y-ventanas-de-fecha) | [esquema](claude/supabase/esquema.md#banners) |
 | Carrito y pedidos | [carrito](claude/web/carrito.md) | [carrito](claude/supabase/carrito.md) |
 

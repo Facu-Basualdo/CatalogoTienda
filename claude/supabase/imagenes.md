@@ -76,7 +76,7 @@ llevan texto**: el nombre ya está en la tarjeta y escrito en la imagen se super
 Después de regenerar hay que invalidar la caché (ver
 [cache-y-revalidacion](../web/cache-y-revalidacion.md#cambios-hechos-fuera-de-la-app)).
 
-**Es la única pieza que usa `SUPABASE_SECRET_KEY`**, leída de `web/.env` y sólo en local:
+**Junto con `crear-admin.mjs`, es lo único que usa `SUPABASE_SECRET_KEY`**, leída de `web/.env` y sólo en local:
 sube a Storage sin sesión de admin. La app no la importa y no va a Vercel.
 
 ## Ver también

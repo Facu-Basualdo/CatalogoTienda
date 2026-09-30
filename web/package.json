@@ -31,6 +31,9 @@
     "react-aria": "^3.52.1",
     "react-aria-components": "^1.21.1",
     "react-dom": "19.2.8",
+    "react-dropzone": "^20.1.2",
+    "react-easy-crop": "^6.2.3",
+    "server-only": "^0.0.1",
     "zod": "^4.6.5"
   },
   "devDependencies": {

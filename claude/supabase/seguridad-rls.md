@@ -102,6 +102,9 @@ GET  /rest/v1/productos?slug=eq.<borrador> → []
 
 ### Alta de un admin
 
+Con script: `cd web && node scripts/crear-admin.mjs email@dominio.com` (ver
+[dashboard](../web/dashboard.md#crear-un-admin)). A mano:
+
 1. Supabase → Authentication → Users → *Add user* (con contraseña, auto-confirmado).
 2. SQL editor: `insert into admins (user_id) values ('<uuid del usuario>');`
 

@@ -35,8 +35,8 @@ Tienda de portfolio con catálogo genérico (ropa, electrónica, lo que sea):
 | 1 — Modelo de datos | ✅ Hecha: migraciones aplicadas, advisors limpios, seed + imágenes de demo |
 | 2 — Catálogo público | ✅ Hecha: home, catálogo con filtros y paginación, ficha con variantes |
 | 2b — Rediseño estilo compragamer | ✅ Hecho: estructura de compragamer.com en blanco y negro, marca, íconos, vista grilla/lista, `/ofertas` |
-| 3 — Auth y estructura del dashboard | Pendiente — **siguiente** |
-| 4 — ABM de productos | Pendiente |
+| 3 — Auth y estructura del dashboard | ✅ Hecha: login, guardia, navegación, patrón de acciones, "Refrescar tienda", `SubidaImagen` (sin usar todavía) |
+| 4 — ABM de productos | Pendiente — **siguiente** |
 | 5 — Carrito y pedidos | ✅ Parte pública hecha (carrito, cotización, pedido, WhatsApp) · dashboard de pedidos pendiente |
 | 6 — Promociones | Pendiente |
 | 7 — Combos | Pendiente |
@@ -44,7 +44,7 @@ Tienda de portfolio con catálogo genérico (ropa, electrónica, lo que sea):
 | 9 — Etiquetas, categorías y banners | Pendiente |
 | 10 — SEO, rendimiento y producción | Pendiente |
 
-Orden acordado: rediseño y carrito primero (hecho); ahora el dashboard (3, 4 y la parte
+Orden acordado: rediseño y carrito primero (hecho); dashboard: fase 3 hecha, ahora la 4 y la parte
 admin de 5), después promociones, combos y cupones.
 
 ## Decisiones de arquitectura
@@ -71,20 +71,22 @@ deshabilitar sign-ups en Supabase Auth y cargar `NEXT_PUBLIC_WHATSAPP`.
 
 ### Fase 3 — Auth y estructura del dashboard
 
-- [ ] `/admin/login` con email y contraseña (`TextField`, `Button`, errores en español).
-- [ ] Layout `/admin` con `requerirAdmin()`, navegación lateral (`Drawer` en mobile):
+- [x] `/admin/login` con email y contraseña (`TextField`, `Button`, errores en español).
+- [x] Layout `/admin` con `requerirAdmin()`, navegación lateral (`Drawer` en mobile):
       Productos · Pedidos · Combos · Promociones · Cupones · Banners · Etiquetas · Categorías.
-- [ ] Alta del primer admin a mano (ver [seguridad-rls](../claude/supabase/seguridad-rls.md#alta-de-un-admin)).
-- [ ] Patrón de Server Action: Zod → escritura con `supabaseServidor()` → `updateTag`
+- [x] Alta del primer admin (`scripts/crear-admin.mjs`, o a mano (ver [seguridad-rls](../claude/supabase/seguridad-rls.md#alta-de-un-admin))).
+- [x] Patrón de Server Action: Zod → escritura con `supabaseServidor()` → `updateTag`
       → `{ ok, error }` → `toast()`.
-- [ ] Acción "Refrescar tienda": `updateTag` sobre todos los `TAGS`, para cambios hechos
+- [x] Acción "Refrescar tienda": `updateTag` sobre todos los `TAGS`, para cambios hechos
       por fuera de la app (ver [cache](../claude/web/cache-y-revalidacion.md#cambios-hechos-fuera-de-la-app)).
-- [ ] Componente compartido `SubidaImagen` con dropzone + **recorte obligatorio**
+- [x] Componente compartido `SubidaImagen` (se prueba en la fase 4) con dropzone + **recorte obligatorio**
       (`react-easy-crop` en `Modal`, relación por prop) + export WebP al tamaño exacto.
       Lo usan productos, combos y banners.
 
 **Listo cuando:** un usuario autenticado que no está en `admins` no ve el dashboard
-**ni** puede escribir por API directa; subir una foto 16:9 abre el recorte en 4:5.
+**ni** puede escribir por API directa (✅ verificado: insert, update, lectura de pedidos y
+subida a Storage rechazados; el login lo devuelve con "sin permiso"); subir una foto 16:9
+abre el recorte en 4:5 (pendiente: se verifica con la fase 4).
 
 ### Fase 4 — ABM de productos
 

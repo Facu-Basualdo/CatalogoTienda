@@ -13,7 +13,8 @@ Todas en `web/.env` (ignorado por git; el molde es `web/.env.example`).
 | `NEXT_PUBLIC_SITIO_URL` | Sí (Production) | URL canónica: metadata, Open Graph, links de WhatsApp |
 | `NEXT_PUBLIC_WHATSAPP` | Sí | Número para los pedidos, internacional sin `+` (`5491100000000`). Sin él no aparece el botón |
 | `DATABASE_URL` | **No** | Sólo la CLI de Supabase en local (migraciones, tipos, advisors). Session pooler, puerto 5432 |
-| `SUPABASE_SECRET_KEY` | **No** | Sólo `web/scripts/sembrar-imagenes.mjs` en local. **La app no la importa** |
+| `SUPABASE_SECRET_KEY` | **No** | Sólo los scripts locales (`sembrar-imagenes.mjs`, `crear-admin.mjs`). **La app no la importa** |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | **No** | Credenciales del admin de prueba que escribe `crear-admin.mjs`. Sólo referencia local |
 
 **Si alguien necesita `SUPABASE_SECRET_KEY` en código de la app "para que funcione",
 está tapando un grant o una policy faltante** — ver
