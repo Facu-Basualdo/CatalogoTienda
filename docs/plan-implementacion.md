@@ -36,15 +36,15 @@ Tienda de portfolio con catálogo genérico (ropa, electrónica, lo que sea):
 | 2 — Catálogo público | ✅ Hecha: home, catálogo con filtros y paginación, ficha con variantes |
 | 2b — Rediseño estilo compragamer | ✅ Hecho: estructura de compragamer.com en blanco y negro, marca, íconos, vista grilla/lista, `/ofertas` |
 | 3 — Auth y estructura del dashboard | ✅ Hecha: login, guardia, navegación, patrón de acciones, "Refrescar tienda", `SubidaImagen` (sin usar todavía) |
-| 4 — ABM de productos | Pendiente — **siguiente** |
-| 5 — Carrito y pedidos | ✅ Parte pública hecha (carrito, cotización, pedido, WhatsApp) · dashboard de pedidos pendiente |
+| 4 — ABM de productos | ✅ Hecha: listado, alta, datos, marca y características, galería con recorte, variantes y stock, descripción con tablas, borrado |
+| 5 — Carrito y pedidos | ✅ Parte pública hecha (carrito, cotización, pedido, WhatsApp) · dashboard de pedidos pendiente — **siguiente** |
 | 6 — Promociones | Pendiente |
 | 7 — Combos | Pendiente |
 | 8 — Cupones | Pendiente |
 | 9 — Etiquetas, categorías y banners | Pendiente |
 | 10 — SEO, rendimiento y producción | Pendiente |
 
-Orden acordado: rediseño y carrito primero (hecho); dashboard: fase 3 hecha, ahora la 4 y la parte
+Orden acordado: rediseño y carrito primero (hecho); dashboard: fases 3 y 4 hechas, ahora la parte
 admin de 5), después promociones, combos y cupones.
 
 ## Decisiones de arquitectura
@@ -86,25 +86,28 @@ deshabilitar sign-ups en Supabase Auth y cargar `NEXT_PUBLIC_WHATSAPP`.
 **Listo cuando:** un usuario autenticado que no está en `admins` no ve el dashboard
 **ni** puede escribir por API directa (✅ verificado: insert, update, lectura de pedidos y
 subida a Storage rechazados; el login lo devuelve con "sin permiso"); subir una foto 16:9
-abre el recorte en 4:5 (pendiente: se verifica con la fase 4).
+abre el recorte en 4:5 (✅ verificado con la galería de productos).
 
 ### Fase 4 — ABM de productos
 
-- [ ] Listado con `Table` paginada: búsqueda, filtros por categoría, estado y "sin
+- [x] Listado con `Table` paginada: búsqueda, filtros por categoría, estado y "sin
       stock", columna de stock total, `Switch` "visible en la tienda" inline.
-- [ ] "Nuevo producto" crea borrador y redirige a la edición.
-- [ ] Formulario: nombre, marca, slug (con aviso si ya está publicado), precio, precio
+- [x] "Nuevo producto" crea borrador y redirige a la edición.
+- [x] Formulario: nombre, marca, slug (con aviso si ya está publicado), precio, precio
       anterior, categoría, destacado, visible.
-- [ ] Galería: `SubidaImagen` (4:5), reorden con drag and drop, `alt`, borrado
+- [x] Galería: `SubidaImagen` (4:5), reorden con flechas (no drag and drop), `alt`, borrado
       (Storage primero, fila después).
-- [ ] Etiquetas no-variante: `Autocomplete` por grupo con "crear «…»".
-- [ ] Variantes: grupos (máx. 3), "generar combinaciones" (tope 100), `Table` editable
+- [x] Etiquetas no-variante: `Autocomplete` por grupo con "crear «…»".
+- [x] Variantes: grupos (máx. 3), "generar combinaciones" (tope 100), `Table` editable
       (SKU, precio, stock, activa), "aplicar stock a todas", guardado por `guardar_variantes`.
-- [ ] Editor TipTap con tablas; guardado de `descripcion` + `descripcion_texto`.
+- [x] Editor TipTap con tablas; guardado de `descripcion` + `descripcion_texto`.
 
 **Listo cuando:** se carga una remera 3 talles × 2 colores y un monitor sin variantes
 desde el celular, aparecen en la tienda en segundos, y stock 0 en "M/negro" la saca del
-filtro `talle=m&color=negro`.
+filtro `talle=m&color=negro`. ✅ Verificado en el navegador (escritorio): alta, datos,
+marca, variantes con stock, imagen 16:9 → recorte 4:5, descripción con tabla, ficha y
+filtro de variante en la tienda, y borrado (limpia Storage). Pendiente: probarlo desde
+un celular real.
 
 ### Fase 5 — Carrito y pedidos
 

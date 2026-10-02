@@ -15,13 +15,13 @@ import {
 import { Button, Chip, Drawer } from "@heroui/react";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 
 // Secciones del panel. `listo: false` se muestra deshabilitada con "Pronto": el orden
 // de construcción está en docs/plan-implementacion.md.
 const SECCIONES = [
   { href: "/admin", titulo: "Inicio", icono: House, listo: true },
-  { href: "/admin/productos", titulo: "Productos", icono: Box, listo: false },
+  { href: "/admin/productos", titulo: "Productos", icono: Box, listo: true },
   { href: "/admin/pedidos", titulo: "Pedidos", icono: Receipt, listo: false },
   { href: "/admin/combos", titulo: "Combos", icono: LayoutHeaderCells, listo: false },
   { href: "/admin/promociones", titulo: "Promociones", icono: Percent, listo: false },
@@ -31,8 +31,21 @@ const SECCIONES = [
   { href: "/admin/categorias", titulo: "Categorías", icono: Gear, listo: false },
 ] as const;
 
+// usePathname es dato de la URL: en rutas dinámicas (/admin/productos/[id]) tiene que
+// estar dentro de un Suspense o el build falla. Fallback: la misma lista sin activa.
 function Enlaces({ alNavegar }: { alNavegar?: () => void }) {
-  const pathname = usePathname();
+  return (
+    <Suspense fallback={<Lista pathname="" alNavegar={alNavegar} />}>
+      <EnlacesConRuta alNavegar={alNavegar} />
+    </Suspense>
+  );
+}
+
+function EnlacesConRuta({ alNavegar }: { alNavegar?: () => void }) {
+  return <Lista pathname={usePathname()} alNavegar={alNavegar} />;
+}
+
+function Lista({ pathname, alNavegar }: { pathname: string; alNavegar?: () => void }) {
   return (
     <nav aria-label="Secciones del panel" className="flex flex-col gap-1">
       {SECCIONES.map(({ href, titulo, icono: Icono, listo }) => {

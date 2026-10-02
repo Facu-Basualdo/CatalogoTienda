@@ -89,14 +89,45 @@ panel (SQL, scripts) no invalidan nada** (ver
 (`lib/admin/imagenes.ts`) y subida directa a Storage. Reglas en
 [imagenes](imagenes.md#recorte-obligatorio).
 
-**Todavía no está usado por ninguna pantalla**: se prueba con la edición de productos
-(fase 4).
+Usado por la galería del producto (verificado: una foto 16:9 abre el recorte y se
+guarda en 1200×1500).
+
+## Productos
+
+`app/admin/(panel)/productos/`: listado (`page.tsx`), edición (`[id]/page.tsx`) y todas
+las acciones (`acciones.ts`). Componentes en `components/admin/productos/`.
+
+- **"Nuevo producto" crea el borrador y abre su edición** (`crearBorrador`): slug
+  `borrador-xxxxxxxx`, oculto, con su variante única (la crea el trigger). Mientras el
+  slug siga siendo `borrador-…`, el formulario lo deriva del nombre.
+- La edición son secciones independientes, **cada una con su propio Guardar** y su
+  acción: datos, imágenes, marca y características, variantes, descripción, borrar.
+  Después de guardar, `router.refresh()`; las secciones con estado propio llevan un
+  `key` derivado de los datos para reiniciarse con lo nuevo.
+- **El slugify del cliente (`lib/slug.ts`) replica el de la base**: "Remera e2e" da
+  `remera-e2-e` (separa número de letra). Si se cambia uno, cambiar el otro.
+- `guardarEtiquetas` **agrega antes de quitar**: si algo falla a mitad, sobra una
+  etiqueta en vez de faltar la marca.
+- Listado: "sin stock" y la búsqueda por SKU se filtran en el servidor de Next sobre
+  hasta 1000 productos (el stock vive en las variantes y PostgREST no filtra por un
+  agregado). Con catálogos más grandes, pasar a un RPC.
+- Reordenar imágenes con flechas y "Hacer principal", no drag and drop: funciona con
+  teclado y en touch sin otra dependencia.
+
+### Errores que ya pasaron acá
+
+| Síntoma | Causa | Regla |
+|---|---|---|
+| `/admin/productos` en blanco, log: *Functions cannot be passed directly to Client Components* | `renderEmptyState={() => …}` en `Table.Body` desde un server component | Desde server components, sólo props serializables a HeroUI. El estado vacío va afuera de la tabla |
+| El build falla en `/admin/productos/[id]`: *usePathname() … outside of Suspense* | La navegación lateral (client) lee la ruta, y en una ruta dinámica eso es dato de URL | `usePathname`/`useSearchParams` dentro de un `Suspense` con fallback; ver `navegacion-admin.tsx` |
+| Guardar una descripción con tabla o título: "contenido no soportado" | ProseMirror crea `attrs` con `Object.create(null)`; React los manda al action como referencias opacas | El JSON del editor viaja como **string** (`JSON.stringify`) y se parsea en el action. Ver [descripcion-rica](descripcion-rica.md#guardado) |
+| Campos dentro de una `Table` de HeroUI no aceptan flechas ni espacio | `Table` es un grid de React Aria que captura el teclado | Filas editables (variantes) en una grilla de `div`, no en `Table` |
 
 ## Secciones
 
 `components/admin/navegacion-admin.tsx` lista todas; las que no existen van con
 `listo: false` (deshabilitadas, chip "Pronto"). Al construir una sección, pasarla a
-`listo: true`.
+`listo: true`. La lista que lee `usePathname` va en `Suspense` (ver la tabla de arriba).
 
 ## Ver también
 

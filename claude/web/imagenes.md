@@ -63,7 +63,8 @@ Por qué forzarlo en la subida y no con `object-cover` en la tienda: `object-cov
 recorta por el centro sin criterio y en la grilla corta cabezas, cuellos de remera o
 el pie de un monitor. El admin elige qué queda.
 
-Reordenar (`@dnd-kit/sortable`) llama a `reordenar_imagenes` con el array completo de
+Reordenar (flechas y "Hacer principal" en `galeria-admin.tsx`, sin drag and drop) llama a
+`reordenar_imagenes` con el array completo de
 ids. El `alt` es obligatorio al guardar; por defecto se propone el nombre del producto.
 
 ## Ver también

@@ -56,8 +56,9 @@ Sección "Variantes" en la edición del producto:
 
 1. Elegir los grupos de variante que usa el producto (máximo 3) y, por grupo, las
    etiquetas (`Autocomplete` con "Crear «…»").
-2. "Generar combinaciones" arma el producto cartesiano y lo muestra en una `Table`
-   editable: SKU, precio (vacío = precio base), stock (`NumberField`), activa
+2. Las combinaciones se generan solas (producto cartesiano, `editor-variantes.tsx`) en
+   una grilla editable (no `Table`: ver [heroui](heroui.md#rsc)) y conservan los valores ya
+   cargados de cada combinación: SKU, precio (vacío = precio base), stock (`NumberField`), activa
    (`Switch`). Tope de 100 combinaciones.
 3. "Aplicar stock a todas" para cargas masivas.
 4. Guardar manda la lista completa a `guardar_variantes` (un solo RPC, nunca updates

@@ -77,7 +77,6 @@ server components.
 | Editor de descripción con tablas | TipTap v3 | Ver [descripcion-rica](descripcion-rica.md) |
 | Zona de arrastrar y soltar | `react-dropzone` (sólo el hook) | Ver [imagenes](imagenes.md) |
 | Recorte de imágenes | `react-easy-crop` dentro de un `Modal` | Ver [imagenes](imagenes.md) |
-| Reordenar | `@dnd-kit/sortable` | Galería del formulario de producto |
 | Íconos | `@gravity-ui/icons` (los que usa la doc de HeroUI). **No tiene logo de WhatsApp**: se usa `Comment` | — |
 
 **Las tablas dentro de la descripción del producto no son `Table` de HeroUI**: son
@@ -92,9 +91,15 @@ cuáles no: [tema-y-marca](tema-y-marca.md).
 ## RSC
 
 Los componentes de HeroUI son client components. Desde un server component se usan
-**sólo con props serializables**: un `onPress` definido en el server no compila. La
-página (server) trae datos y se los pasa a un componente cliente chico con los
-handlers (patrón de `panel-filtros.tsx`, `selector-orden.tsx`).
+**sólo con props serializables**: un `onPress` o un `renderEmptyState={() => …}` desde
+el server rompe la página en runtime (*Functions cannot be passed directly to Client
+Components*; ya pasó en el listado de productos). La página (server) trae datos y se
+los pasa a un componente cliente chico con los handlers (patrón de
+`panel-filtros.tsx`, `selector-orden.tsx`).
+
+**`Table` no sirve para filas editables**: es un grid de React Aria que captura flechas
+y espacio, y los `TextField`/`NumberField` de adentro pelean con eso. Para editar filas
+(variantes), una grilla de `div` con `role="list"`.
 
 ## Ver también
 

@@ -28,16 +28,26 @@ hay dos listas.
 
 ## Editor (dashboard)
 
-- `components/admin/editor-descripcion.tsx`, `'use client'`, con `useEditor({ immediatelyRender: false, … })`.
-  **Sin `immediatelyRender: false` hay hydration mismatch** en Next: TipTap intenta
-  renderizar en el servidor un DOM que después no coincide.
-- Barra de herramientas con `Toolbar` + `ToggleButton` / `Button` de HeroUI (`isIconOnly`). Para
-  tablas: insertar 3×3 con encabezado, agregar/quitar fila y columna.
-- El JSON viaja al Server Action serializado con `JSON.stringify` junto al resto del
-  formulario y se valida con Zod en el action (tipo raíz `doc`, tamaño máximo ~100 KB,
-  muy por debajo del límite de 1 MB del action).
+- `components/admin/productos/editor-descripcion.tsx`, `'use client'`, con
+  `useEditor({ immediatelyRender: false, … })`. **Sin `immediatelyRender: false` hay
+  hydration mismatch** en Next: TipTap intenta renderizar en el servidor un DOM que
+  después no coincide. El estado de los botones sale de `useEditorState`.
+- Barra con `Toolbar` + `ToggleButton` / `Button` de HeroUI. Tablas: insertar 3×3 con
+  encabezado; dentro de una tabla, + / − fila y columna y borrar tabla.
 
 ## Guardado
+
+**El documento viaja al Server Action como string** (`JSON.stringify(editor.getJSON())`)
+y `guardarDescripcion` lo parsea. Pasar el objeto directo **falla con tablas y títulos**:
+ProseMirror crea los `attrs` de los nodos con `Object.create(null)`, React no los
+serializa como datos al llamar un action (los convierte en referencias temporales
+opacas) y el servidor recibe algo que no puede leer: *"Cannot access colspan on the
+server"*. El texto plano no tiene `attrs`, así que el bug no se ve hasta que alguien
+mete una tabla. Ya pasó.
+
+En el action: tamaño máximo ~100 KB, raíz `doc`, y `generateText` con la lista
+compartida de extensiones, que además **valida**: un nodo desconocido tira error y se
+rechaza la descripción. Si queda sin texto, se guarda `null`.
 
 El Server Action guarda dos columnas:
 
