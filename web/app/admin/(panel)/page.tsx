@@ -1,5 +1,6 @@
 import { Skeleton } from "@heroui/react";
 import type { Metadata } from "next";
+import NextLink from "next/link";
 import { Suspense } from "react";
 import { BotonRefrescar } from "@/components/admin/boton-refrescar";
 import { requerirAdmin } from "@/lib/auth";
@@ -46,18 +47,20 @@ async function Resumen() {
   const sinStock = lista.filter((p) => p.publicado && !p.variantes.some((v) => v.activa && v.stock > 0)).length;
 
   const tarjetas = [
-    { titulo: "Productos", valor: lista.length, detalle: `${publicados} visibles en la tienda` },
-    { titulo: "Sin stock", valor: sinStock, detalle: "Visibles pero sin unidades" },
-    { titulo: "Pedidos pendientes", valor: pedidos.count ?? 0, detalle: "Esperando confirmación" },
+    { titulo: "Productos", valor: lista.length, detalle: `${publicados} visibles en la tienda`, href: "/admin/productos" },
+    { titulo: "Sin stock", valor: sinStock, detalle: "Visibles pero sin unidades", href: "/admin/productos?estado=sin-stock" },
+    { titulo: "Pedidos pendientes", valor: pedidos.count ?? 0, detalle: "Esperando confirmación", href: "/admin/pedidos?estado=pendiente" },
   ];
 
   return (
     <ul className="grid gap-4 sm:grid-cols-3">
       {tarjetas.map((t) => (
-        <li key={t.titulo} className="flex flex-col gap-1 rounded-tarjeta border border-border bg-surface p-5">
-          <p className="text-sm text-muted">{t.titulo}</p>
-          <p className="text-3xl font-semibold tabular-nums">{t.valor}</p>
-          <p className="text-xs text-muted">{t.detalle}</p>
+        <li key={t.titulo}>
+          <NextLink href={t.href} className="flex flex-col gap-1 rounded-tarjeta border border-border bg-surface p-5 transition-colors hover:border-muted">
+            <p className="text-sm text-muted">{t.titulo}</p>
+            <p className="text-3xl font-semibold tabular-nums">{t.valor}</p>
+            <p className="text-xs text-muted">{t.detalle}</p>
+          </NextLink>
         </li>
       ))}
     </ul>

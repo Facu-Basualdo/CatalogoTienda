@@ -60,8 +60,8 @@ combos y cupones van a entrar **dentro de `cotizar`**, no en funciones paralelas
   `raise` y no se descuenta nada (la función es una transacción).
 - Volver de `confirmado`/`entregado` a `pendiente`/`cancelado` **repone**.
 - `for update` sobre el pedido: dos admins confirmando a la vez no descuentan dos veces.
-- Todavía no se probó con un admin real (no hay dashboard); probarlo en la fase del
-  dashboard de pedidos.
+- ✅ Verificado desde el dashboard: crear el pedido no toca el stock, confirmarlo descuenta
+  exactamente la cantidad, cancelarlo lo repone.
 
 ## Verificación hecha (como anon, por HTTP)
 

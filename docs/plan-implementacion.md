@@ -37,8 +37,8 @@ Tienda de portfolio con catálogo genérico (ropa, electrónica, lo que sea):
 | 2b — Rediseño estilo compragamer | ✅ Hecho: estructura de compragamer.com en blanco y negro, marca, íconos, vista grilla/lista, `/ofertas` |
 | 3 — Auth y estructura del dashboard | ✅ Hecha: login, guardia, navegación, patrón de acciones, "Refrescar tienda", `SubidaImagen` (sin usar todavía) |
 | 4 — ABM de productos | ✅ Hecha: listado, alta, datos, marca y características, galería con recorte, variantes y stock, descripción con tablas, borrado |
-| 5 — Carrito y pedidos | ✅ Parte pública hecha (carrito, cotización, pedido, WhatsApp) · dashboard de pedidos pendiente — **siguiente** |
-| 6 — Promociones | Pendiente |
+| 5 — Carrito y pedidos | ✅ Hecha: carrito, cotización, pedido por WhatsApp y dashboard de pedidos con estados y stock |
+| 6 — Promociones | Pendiente — **siguiente** |
 | 7 — Combos | Pendiente |
 | 8 — Cupones | Pendiente |
 | 9 — Etiquetas, categorías y banners | Pendiente |
@@ -117,10 +117,11 @@ el parámetro `p_cupon` se agrega en la fase 8.
 
 Pendiente, en el dashboard:
 
-- [ ] Listado de pedidos con filtro por estado y búsqueda por número o nombre.
-- [ ] Detalle con los ítems (snapshot) y botones de estado vía `cambiar_estado_pedido`.
-- [ ] Probar con un admin real: confirmar descuenta el stock exacto; confirmar sin stock
-      falla con el mensaje; cancelar un confirmado lo repone.
+- [x] Listado de pedidos con filtro por estado y búsqueda por número o nombre.
+- [x] Detalle con los ítems (snapshot) y botones de estado vía `cambiar_estado_pedido`.
+- [x] Probado con un admin real: confirmar descuenta el stock exacto y cancelar un
+      confirmado lo repone. (Confirmar sin stock suficiente: cubierto por la función, no
+      probado de punta a punta.)
 
 **Listo cuando:** un pedido enviado aparece en el dashboard con el mismo total que
 mostró el carrito, y confirmarlo descuenta el stock de las variantes exactas.

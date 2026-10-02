@@ -22,7 +22,7 @@ import { Suspense, useState } from "react";
 const SECCIONES = [
   { href: "/admin", titulo: "Inicio", icono: House, listo: true },
   { href: "/admin/productos", titulo: "Productos", icono: Box, listo: true },
-  { href: "/admin/pedidos", titulo: "Pedidos", icono: Receipt, listo: false },
+  { href: "/admin/pedidos", titulo: "Pedidos", icono: Receipt, listo: true },
   { href: "/admin/combos", titulo: "Combos", icono: LayoutHeaderCells, listo: false },
   { href: "/admin/promociones", titulo: "Promociones", icono: Percent, listo: false },
   { href: "/admin/cupones", titulo: "Cupones", icono: Tag, listo: false },

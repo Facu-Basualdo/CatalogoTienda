@@ -123,6 +123,21 @@ las acciones (`acciones.ts`). Componentes en `components/admin/productos/`.
 | Guardar una descripción con tabla o título: "contenido no soportado" | ProseMirror crea `attrs` con `Object.create(null)`; React los manda al action como referencias opacas | El JSON del editor viaja como **string** (`JSON.stringify`) y se parsea en el action. Ver [descripcion-rica](descripcion-rica.md#guardado) |
 | Campos dentro de una `Table` de HeroUI no aceptan flechas ni espacio | `Table` es un grid de React Aria que captura el teclado | Filas editables (variantes) en una grilla de `div`, no en `Table` |
 
+## Pedidos
+
+`app/admin/(panel)/pedidos/`: listado (por defecto "activos" = pendientes y confirmados;
+búsqueda por número exacto o por nombre) y detalle con los ítems guardados (snapshot) y
+los botones de estado de `components/admin/pedidos/acciones-pedido.tsx`.
+
+- **Cada cambio de estado pasa por `cambiar_estado_pedido`**, que descuenta o repone
+  stock (ver [carrito (supabase)](../supabase/carrito.md#estados-y-stock)). Las
+  transiciones que tocan stock piden confirmación con el efecto explicado.
+- Los mensajes de error de la función se muestran tal cual ("No hay stock suficiente
+  de …").
+- Después de cambiar el estado se invalidan `productos`, `facetas` y la ficha de cada
+  producto del pedido: la tienda deja de mostrar unidades que ya no hay.
+- No hay teléfono del cliente: el contacto sigue por el WhatsApp que el cliente inició.
+
 ## Secciones
 
 `components/admin/navegacion-admin.tsx` lista todas; las que no existen van con
