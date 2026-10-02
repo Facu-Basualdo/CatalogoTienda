@@ -80,6 +80,8 @@ async function Ficha({ params }: { params: PageProps<"/p/[slug]">["params"] }) {
               nombre={p.nombre}
               url={`${SITIO.url}/p/${p.slug}`}
               precioAnterior={p.precioAnterior}
+              promoUnitaria={p.promoUnitaria}
+              promoCantidad={p.promoCantidad}
               grupos={p.gruposVariante}
               variantes={p.variantes}
             />

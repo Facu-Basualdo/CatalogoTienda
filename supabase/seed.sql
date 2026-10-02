@@ -440,5 +440,13 @@ Estuche rígido incluido', 85000, 99000,
   insert into public.producto_etiquetas (producto_id, etiqueta_id) values (v_id, (select e.id from public.etiquetas e join public.grupos_etiqueta g on g.id = e.grupo_id where g.slug = 'panel' and e.slug = 'ips'));
   update public.producto_variantes set stock = 2, sku = 'MONITOR-34-ULTRAWIDE' where producto_id = v_id;
 
+  -- Promociones de demo
+  insert into public.promociones (nombre, tipo, valor) values ('20% off en monitores', 'porcentaje', 20) returning id into v_id;
+  insert into public.promocion_alcance (promocion_id, categoria_id) select v_id, id from public.categorias where slug = 'monitores';
+  insert into public.promociones (nombre, tipo, lleva, paga) values ('3x2 en remeras', 'nxm', 3, 2) returning id into v_id;
+  insert into public.promocion_alcance (promocion_id, categoria_id) select v_id, id from public.categorias where slug = 'remeras';
+  insert into public.promociones (nombre, tipo, valor) values ('2da unidad al 50% en buzos', 'segunda_unidad', 50) returning id into v_id;
+  insert into public.promocion_alcance (promocion_id, categoria_id) select v_id, id from public.categorias where slug = 'buzos';
+
 end;
 $seed$;

@@ -64,13 +64,21 @@ export function TarjetaProducto({
                 Oferta
               </Chip>
             )}
+            {producto.disponible && producto.promo && (
+              <Chip size="sm" variant="primary">
+                {producto.promo}
+              </Chip>
+            )}
           </div>
         )}
       </NextLink>
 
       <div className="flex min-w-0 flex-1 flex-col gap-2 p-3 sm:p-4">
-        {producto.marca && (
-          <p className="text-[11px] font-medium uppercase tracking-wider text-muted">{producto.marca}</p>
+        {(producto.marca || (horizontal && producto.promo)) && (
+          <p className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-wider text-muted">
+            {producto.marca}
+            {horizontal && producto.promo && <span className="rounded bg-foreground px-1.5 py-0.5 text-background">{producto.promo}</span>}
+          </p>
         )}
         <h3 className="line-clamp-2 text-sm leading-snug">
           <NextLink href={`/p/${producto.slug}`} className="outline-none hover:underline hover:underline-offset-4 focus-visible:underline">

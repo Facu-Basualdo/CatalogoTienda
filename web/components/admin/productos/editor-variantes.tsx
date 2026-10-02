@@ -240,9 +240,11 @@ export function EditorVariantes({
                       </NumberField.Group>
                     </NumberField>
                     <Switch aria-label={`${nombre} activa`} size="sm" isSelected={v.activa} onChange={(activa) => fijar(ids, { activa })}>
-                      <Switch.Control>
-                        <Switch.Thumb />
-                      </Switch.Control>
+                      <Switch.Content>
+                        <Switch.Control>
+                          <Switch.Thumb />
+                        </Switch.Control>
+                      </Switch.Content>
                     </Switch>
                   </div>
                 );

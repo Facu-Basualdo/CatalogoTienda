@@ -38,14 +38,14 @@ Tienda de portfolio con catálogo genérico (ropa, electrónica, lo que sea):
 | 3 — Auth y estructura del dashboard | ✅ Hecha: login, guardia, navegación, patrón de acciones, "Refrescar tienda", `SubidaImagen` (sin usar todavía) |
 | 4 — ABM de productos | ✅ Hecha: listado, alta, datos, marca y características, galería con recorte, variantes y stock, descripción con tablas, borrado |
 | 5 — Carrito y pedidos | ✅ Hecha: carrito, cotización, pedido por WhatsApp y dashboard de pedidos con estados y stock |
-| 6 — Promociones | Pendiente — **siguiente** |
-| 7 — Combos | Pendiente |
+| 6 — Promociones | ✅ Hecha: motor en `cotizar`, precios con promo en la tienda, ABM en el dashboard |
+| 7 — Combos | Pendiente — **siguiente** |
 | 8 — Cupones | Pendiente |
 | 9 — Etiquetas, categorías y banners | Pendiente |
 | 10 — SEO, rendimiento y producción | Pendiente |
 
-Orden acordado: rediseño y carrito primero (hecho); dashboard: fases 3 y 4 hechas, ahora la parte
-admin de 5), después promociones, combos y cupones.
+Orden acordado: rediseño y carrito primero, después el dashboard (3, 4 y 5) y
+promociones (hecho); ahora combos, cupones y el resto del dashboard.
 
 ## Decisiones de arquitectura
 
@@ -128,23 +128,27 @@ mostró el carrito, y confirmarlo descuenta el stock de las variantes exactas.
 
 ### Fase 6 — Promociones
 
-- `promociones`: `nombre`, `tipo` (`porcentaje` · `monto_fijo` · `nxm` ·
-  `segunda_unidad`), `valor`, `lleva`/`paga` (N×M), `desde`/`hasta`, `activa`.
-- `promocion_alcance`: una fila por producto, categoría o etiqueta (exactamente una
-  de las tres, con `check`), o `alcance_todo = true` explícito. Sin alcance no aplica
-  a nada (evita un 20% global por error).
-- **No se acumulan**: cada unidad recibe la promoción que más descuenta. Las unidades
-  dentro de un combo no reciben promociones.
-- `porcentaje` / `monto_fijo` cambian el precio que se muestra: `buscar_productos` y la
-  ficha devuelven precio con promo y precio sin promo (tachado). `nxm` y
-  `segunda_unidad` no cambian el precio unitario: se muestran como `Chip` ("3×2",
-  "2da al 50%") y se aplican en el carrito.
-- **Ventanas de fecha y caché**: como con los banners, nadie muta nada cuando una promo
-  empieza o termina. Las lecturas con precios pasan a `cacheLife` de 5 minutos. El
-  carrito cotiza siempre en vivo, así que la compra nunca usa un precio vencido.
-- Redondeo a pesos enteros por línea.
-- Dashboard: ABM con selector de alcance (productos, categorías o etiquetas con
-  `ComboBox`), vista previa de a qué productos aplica.
+Hecha (ver [promociones web](../claude/web/promociones.md) y
+[promociones supabase](../claude/supabase/promociones.md)).
+
+- [x] `promociones` + `promocion_alcance` (uno de producto/categoría/etiqueta por fila, o
+      `alcance_todo` explícito), RLS y grants.
+- [x] Sin acumulación: mejor promo unitaria por unidad; por cantidad (N×M, 2da al X%)
+      sólo si gana más, elegidas de a una dentro de `cotizar`.
+- [x] Tienda: precio con promo y lista tachada en tarjeta, ofertas y ficha; chips
+      "3x2" / "2da al 50%"; descuento y nombre de la promo por línea en el carrito y en
+      el WhatsApp.
+- [x] Caché: tag `promociones` en toda lectura con precio y vida de 5 minutos.
+- [x] Dashboard: listado con estado y switch, alta/edición con tipo, valores, fechas por
+      día, activa y alcance (`ComboBox` de categorías, etiquetas y productos), borrado;
+      guardado atómico con `guardar_promocion`.
+- [ ] Vista previa de a qué productos aplica (quedó afuera: el listado del alcance ya
+      dice cuántos de cada tipo).
+
+**Listo cuando:** crear un 15% sobre un producto cambia su precio en la tienda y la
+ficha, pausarlo lo devuelve, y un 3x2 descuenta la unidad más barata en el carrito. ✅
+Verificado en el navegador (crear, pausar desde el listado, editar, borrar, carrito con
+3x2) y por REST (mezcla de variantes en el 3x2, 2da al 50%, sin promo con 2 unidades).
 
 ### Fase 7 — Combos
 
@@ -158,6 +162,9 @@ mostró el carrito, y confirmarlo descuenta el stock de las variantes exactas.
 - Listado `/combos` y sección en la home. No se mezclan en la grilla del catálogo:
   romperían facetas y paginación.
 - Dashboard: ABM con buscador de productos, cantidades, precio y cálculo del ahorro.
+- Al reescribir `crear_pedido` para las líneas de combo, sumar `pedido_items.promo` (el
+  nombre de la promoción aplicada; hoy sólo se guarda el `descuento`) y mostrarlo en el
+  detalle del pedido.
 
 ### Fase 8 — Cupones
 
@@ -196,7 +203,6 @@ Se crean cuando exista el código, no antes:
 |---|---|---|
 | 3 | `claude/web/dashboard.md` | Patrón de Server Action, `requerirAdmin`, toasts, `SubidaImagen` |
 | 5 | (ya escritas: `claude/*/carrito.md`) | Agregar el dashboard de pedidos cuando exista |
-| 6 | `claude/supabase/promociones.md` + `claude/web/promociones.md` | Tipos, alcance, no acumulación, caché por fecha |
 | 7 | `claude/supabase/combos.md` + `claude/web/combos.md` | Disponibilidad, variantes por ítem, ahorro |
 | 8 | `claude/supabase/cupones.md` | Sin grants, validación dentro de `cotizar`, usos atómicos |
 

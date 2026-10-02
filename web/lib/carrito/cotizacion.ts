@@ -17,8 +17,14 @@ export type LineaCotizada = {
   imagen_path: string | null;
   cantidad: number;
   stock: number;
+  /** Precio de lista por unidad. */
   precio_unitario: number;
+  /** Precio por unidad con la promo unitaria (si la línea no quedó en una promo por cantidad). */
+  precio_promo: number;
+  /** Descuento total de la línea por promociones. */
   descuento: number;
+  /** Nombre de la promoción aplicada a la línea. */
+  promo: string | null;
   subtotal: number;
   estado: EstadoLinea;
 };

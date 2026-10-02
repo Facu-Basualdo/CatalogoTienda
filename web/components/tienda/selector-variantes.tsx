@@ -19,6 +19,8 @@ type Props = {
   nombre: string;
   url: string;
   precioAnterior: number | null;
+  promoUnitaria: string | null;
+  promoCantidad: string | null;
   grupos: GrupoVariante[];
   variantes: VarianteFicha[];
 };
@@ -27,7 +29,7 @@ function varianteInicial(variantes: VarianteFicha[], id: string | null) {
   return variantes.find((v) => v.id === id) ?? variantes.find((v) => v.stock > 0) ?? variantes[0];
 }
 
-export function SelectorVariantes({ nombre, url, precioAnterior, grupos, variantes }: Props) {
+export function SelectorVariantes({ nombre, url, precioAnterior, promoUnitaria, promoCantidad, grupos, variantes }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const actual = varianteInicial(variantes, useSearchParams().get("variante"));
@@ -54,6 +56,9 @@ export function SelectorVariantes({ nombre, url, precioAnterior, grupos, variant
   }
 
   const disponible = actual.stock > 0;
+  // Tachado: el precio de lista si una promo lo bajó (o el anterior manual si es mayor).
+  const conPromo = actual.precioLista > actual.precio;
+  const tachado = conPromo ? Math.max(actual.precioLista, precioAnterior ?? 0) : precioAnterior;
   const maximo = Math.min(actual.stock, 20);
   const mensaje = encodeURIComponent(
     `Hola, tengo una consulta sobre: ${nombre}${actual.etiquetas ? ` — ${actual.etiquetas}` : ""}\n${url}`,
@@ -63,7 +68,17 @@ export function SelectorVariantes({ nombre, url, precioAnterior, grupos, variant
     <div className="flex flex-col gap-5">
       <div className="rounded-xl border border-border p-4 sm:p-5">
         <p className="mb-1 text-xs text-muted">Precio</p>
-        <Precio valor={actual.precio} anterior={precioAnterior} tamano="lg" />
+        <Precio valor={actual.precio} anterior={tachado} tamano="lg" />
+        {(conPromo || promoCantidad) && (
+          <div className="mt-3 flex flex-wrap gap-2 text-xs">
+            {conPromo && promoUnitaria && <span className="rounded-md border border-border px-2 py-1">{promoUnitaria}</span>}
+            {promoCantidad && (
+              <span className="rounded-md bg-foreground px-2 py-1 font-medium text-background">
+                Promo {promoCantidad}: se aplica en el carrito
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       {grupos.map((g) => (

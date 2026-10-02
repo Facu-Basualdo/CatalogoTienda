@@ -121,6 +121,7 @@ las acciones (`acciones.ts`). Componentes en `components/admin/productos/`.
 | `/admin/productos` en blanco, log: *Functions cannot be passed directly to Client Components* | `renderEmptyState={() => …}` en `Table.Body` desde un server component | Desde server components, sólo props serializables a HeroUI. El estado vacío va afuera de la tabla |
 | El build falla en `/admin/productos/[id]`: *usePathname() … outside of Suspense* | La navegación lateral (client) lee la ruta, y en una ruta dinámica eso es dato de URL | `usePathname`/`useSearchParams` dentro de un `Suspense` con fallback; ver `navegacion-admin.tsx` |
 | Guardar una descripción con tabla o título: "contenido no soportado" | ProseMirror crea `attrs` con `Object.create(null)`; React los manda al action como referencias opacas | El JSON del editor viaja como **string** (`JSON.stringify`) y se parsea en el action. Ver [descripcion-rica](descripcion-rica.md#guardado) |
+| El switch "Visible" del listado no hacía nada al tocarlo | `Switch.Control` fuera de `Switch.Content`: se dibuja sin input | Anatomía de 3.2 en [heroui](heroui.md#cómo-es-la-v3) |
 | Campos dentro de una `Table` de HeroUI no aceptan flechas ni espacio | `Table` es un grid de React Aria que captura el teclado | Filas editables (variantes) en una grilla de `div`, no en `Table` |
 
 ## Pedidos

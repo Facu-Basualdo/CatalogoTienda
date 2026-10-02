@@ -32,12 +32,13 @@ cacheTag(TAGS.productos);  // constantes de lib/catalogo/tags.ts, nunca strings 
 
 | Tag | Lo llevan | Lo invalidan |
 |---|---|---|
-| `productos` | listado, destacados, facetas, slugs para `generateStaticParams` | alta/edición/borrado de cualquier producto, publicar/despublicar, cambios de stock o variantes, promociones |
+| `productos` | listado, destacados, facetas, slugs para `generateStaticParams` | alta/edición/borrado de cualquier producto, publicar/despublicar, cambios de stock o variantes |
 | `producto:{slug}` | ficha | edición de ese producto, sus imágenes, etiquetas, variantes o stock |
 | `facetas` | panel de filtros | cambios de etiquetas de productos, grupos o etiquetas, **y de stock** (las facetas de talle/color cuentan sólo variantes con stock) |
 | `etiquetas` | ficha (características, selector) | ABM de grupos y etiquetas |
 | `categorias` | menú, subcategorías, home | ABM de categorías |
 | `banners` | carrusel de la home | ABM y reorden de banners |
+| `promociones` | **toda lectura con precio**: listado, destacados, ofertas, ficha | ABM de promociones, activar/pausar |
 
 Las facetas llevan `facetas` **y** `productos`: publicar un producto cambia los conteos.
 
@@ -73,9 +74,22 @@ además del tag, y la ventana la evalúa el RPC `banners_vigentes()` con `now()`
 Consecuencia visible en el build: `/` revalida cada 1 minuto (la vida más corta de
 una página manda). Es aceptable: es una consulta por minuto como mucho.
 
+## Promociones y fechas
+
+Una promo cambia precios en muchos productos a la vez, así que **las lecturas con precio
+llevan el tag `promociones`** (no se invalida producto por producto) y las acciones de
+promociones sólo hacen `updateTag(TAGS.promociones)`.
+
+El comienzo o fin de una promo no muta nada (igual que los banners): por eso esas
+lecturas usan `VIDA_PRECIOS` (5 minutos) en `lib/catalogo/lecturas.ts` en vez de
+`"max"`. Una promo que vence puede seguir viéndose hasta 5 minutos en la tienda; el
+carrito cotiza en vivo y ya no la aplica. En el build, `/ofertas` y las fichas
+prerenderizadas figuran con revalidación de 5 m.
+
 ## Ver también
 
 - [Catálogo](catalogo.md)
 - [Clientes de Supabase](clientes-supabase.md)
 - [Etiquetas y filtros](etiquetas.md)
 - [Arquitectura](../general/arquitectura.md)
+- [Promociones (web)](promociones.md)

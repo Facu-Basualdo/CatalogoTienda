@@ -164,11 +164,22 @@ function Linea({ linea: l }: { linea: LineaCotizada }) {
             </NumberField>
             <div className="text-right">
               <p className="text-xs text-muted tabular-nums">{formatearPrecio(l.precio_unitario)} c/u</p>
+              {l.descuento > 0 && (
+                <p className="text-xs text-muted line-through tabular-nums">{formatearPrecio(l.precio_unitario * l.cantidad)}</p>
+              )}
               <p className="font-semibold tabular-nums">{formatearPrecio(l.subtotal || l.precio_unitario * l.cantidad)}</p>
             </div>
           </div>
         ) : null}
 
+        {l.estado === "ok" && l.promo && l.descuento > 0 && (
+          <p className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="rounded bg-ahorro px-1.5 py-0.5 font-semibold text-ahorro-foreground tabular-nums">
+              -{formatearPrecio(l.descuento)}
+            </span>
+            <span className="text-muted">{l.promo}</span>
+          </p>
+        )}
         {l.estado === "stock_insuficiente" && (
           <p className="flex flex-wrap items-center gap-2 text-xs">
             <span className="text-danger">
@@ -188,11 +199,13 @@ function Linea({ linea: l }: { linea: LineaCotizada }) {
 
 function mensajeWhatsapp(p: PedidoCreado & { nombre: string; notas: string }) {
   const lineas = p.lineas.map(
-    (l) => `• ${l.cantidad} × ${l.nombre}${l.detalle ? ` (${l.detalle})` : ""} — ${formatearPrecio(l.subtotal)}`,
+    (l) =>
+      `• ${l.cantidad} × ${l.nombre}${l.detalle ? ` (${l.detalle})` : ""} — ${formatearPrecio(l.subtotal)}${l.promo && l.descuento > 0 ? ` (${l.promo})` : ""}`,
   );
   return [
     `Hola! Quiero hacer el pedido #${p.numero}:`,
     ...lineas,
+    ...(p.descuento_promociones > 0 ? [`Promociones: -${formatearPrecio(p.descuento_promociones)}`] : []),
     `Total: ${formatearPrecio(p.total)}`,
     `Nombre: ${p.nombre}`,
     ...(p.notas ? [`Notas: ${p.notas}`] : []),

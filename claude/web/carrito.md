@@ -62,6 +62,7 @@ piden quitarla. **El botón de enviar queda deshabilitado mientras haya avisos**
 ## Ver también
 
 - [Carrito (supabase)](../supabase/carrito.md)
+- [Promociones](promociones.md) — qué muestra cada línea con descuento
 - [Variantes y stock](variantes-y-stock.md)
 - [Catálogo](catalogo.md)
 - [Clientes de Supabase](clientes-supabase.md)

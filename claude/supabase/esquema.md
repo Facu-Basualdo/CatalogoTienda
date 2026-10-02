@@ -12,6 +12,7 @@ categorias ─┐
 grupos_etiqueta ─< etiquetas ─< producto_etiquetas >─┘                         │
                     └──────────────────────────────────────────────────────┘
 pedidos ─< pedido_items ··> producto_variantes (set null: el ítem es snapshot)
+promociones ─< promocion_alcance ··> productos | categorias | etiquetas (uno por fila)
 banners
 admins ── auth.users
 ```
@@ -87,7 +88,8 @@ un banner que vence a las 00:00 sigue visible hasta la próxima revalidación �
 
 | Función | Rol | Para qué |
 |---|---|---|
-| `buscar_productos(p_filtros, p_categoria, p_q, p_orden, p_limite, p_offset, p_destacados, p_ofertas)` | anon | Listado paginado: marca, precio desde, stock, `variante_id` (variante única) y primera imagen |
+| `buscar_productos(p_filtros, p_categoria, p_q, p_orden, p_limite, p_offset, p_destacados, p_ofertas)` | anon | Listado paginado: marca, precio desde (con promo), stock, `variante_id` (variante única), `promo` y primera imagen |
+| `precios_producto(p_producto_id)` | anon | Precio de lista y con promo por variante (ver [promociones](promociones.md#contratos-con-la-web)) |
 | `facetas_productos(p_filtros, p_categoria, p_q)` | anon | Opciones de filtro con cantidad |
 | `banners_vigentes()` | anon | Banners activos dentro de su ventana, por `now()` |
 | `cotizar_carrito(p_items)` | anon | Precios del carrito (ver [carrito](carrito.md)) |
@@ -95,16 +97,24 @@ un banner que vence a las 00:00 sigue visible hasta la próxima revalidación �
 | `cambiar_estado_pedido(p_pedido_id, p_estado)` | authenticated (+ admin) | Confirmar descuenta stock, cancelar lo repone |
 | `guardar_variantes(p_producto_id, p_variantes)` | authenticated (+RLS admin) | Reemplaza todas las variantes |
 | `reordenar_imagenes(p_producto_id, p_ids)` | authenticated (+RLS admin) | Reescribe `orden` |
+| `guardar_promocion(p_id, p_promo, p_alcance)` | authenticated (+RLS admin) | Promo + alcance en una transacción |
 | `es_admin()` | authenticated | ¿El usuario actual es admin? |
 
 Helpers en el schema `private` (no expuesto): `productos_filtrados`, `filtros_validos`,
-`variante_cumple`, `cotizar`, `es_admin` y los triggers.
+`variante_cumple`, `cotizar`, `promociones_aplicables`, `promo_unitaria`,
+`promo_cantidad_texto`, `es_admin` y los triggers.
 
 ## pedidos · pedido_items
 
 Pedidos del carrito con `numero` secuencial, `estado` (enum `estado_pedido`) y totales;
 `pedido_items` es un snapshot (nombre, detalle, SKU, precio). Sin grants para `anon`.
 Ver [carrito](carrito.md).
+
+## promociones · promocion_alcance
+
+Descuentos automáticos (enum `tipo_promocion`) con ventana `desde/hasta` y alcance por
+producto, categoría o etiqueta, o `alcance_todo`. Anon lee sólo las activas. Ver
+[promociones](promociones.md).
 
 ## admins
 
@@ -115,4 +125,5 @@ Ver [carrito](carrito.md).
 
 - [Seguridad y RLS](seguridad-rls.md)
 - [Migraciones](migraciones.md)
+- [Promociones](promociones.md)
 - [Arquitectura](../general/arquitectura.md)

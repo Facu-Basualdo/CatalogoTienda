@@ -58,7 +58,11 @@ columnas viejas y el error aparece en runtime. Las **columnas generadas** (por e
 si ya hay productos). Lo corre `supabase db reset` en local; en este proyecto de demo
 se aplicó una vez con `db query -f supabase/seed.sql`. Cubre a propósito los casos
 difíciles: combinaciones agotadas, variantes con precio distinto, un producto sin
-stock y un borrador.
+stock, un borrador y las tres promociones de demo.
+
+**No se edita a mano: se genera** con `node supabase/generar-seed.mjs supabase/seed.sql`.
+Como es idempotente, regenerarlo no cambia una base que ya tiene productos: lo que se
+agrega después (una promo nueva de demo) va también por SQL aparte o por el dashboard.
 
 Las imágenes de demo no están en el SQL: las genera y sube
 `web/scripts/sembrar-imagenes.mjs` (ver [imagenes](imagenes.md#imágenes-de-demo)).

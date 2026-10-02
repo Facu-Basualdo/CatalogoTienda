@@ -24,7 +24,8 @@ export async function refrescarTienda(): Promise<Resultado<{ productos: number }
   const { data, error: e } = await supabase.from("productos").select("slug");
   if (e) return fallo("No pudimos leer los productos.");
 
-  for (const tag of [TAGS.productos, TAGS.facetas, TAGS.etiquetas, TAGS.categorias, TAGS.banners]) updateTag(tag);
+  // Todos los tags fijos (los string de TAGS); los por-slug, uno por producto.
+  for (const tag of Object.values(TAGS)) if (typeof tag === "string") updateTag(tag);
   for (const { slug } of data) updateTag(TAGS.producto(slug));
 
   return ok({ productos: data.length });

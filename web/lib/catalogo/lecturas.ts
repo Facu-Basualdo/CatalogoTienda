@@ -6,6 +6,10 @@ import { TAGS } from "./tags";
 // Lecturas del catálogo público: siempre supabasePublico() dentro de 'use cache'.
 // Ninguna página lee Supabase directo. Ver claude/web/cache-y-revalidacion.md
 
+// Las lecturas con PRECIOS revalidan cada 5 minutos además de por tag: una promoción
+// que empieza o vence por fecha no dispara ninguna mutación (mismo caso que los banners).
+const VIDA_PRECIOS = { stale: 300, revalidate: 300, expire: 86400 };
+
 export type TarjetaProducto = {
   id: string;
   slug: string;
@@ -16,6 +20,8 @@ export type TarjetaProducto = {
   precioDesde: number;
   precioVaria: boolean;
   precioAnterior: number | null;
+  /** Promo por cantidad vigente ("3x2", "2da al 50%"): se aplica en el carrito. */
+  promo: string | null;
   disponible: boolean;
   imagen: { path: string; alt: string; ancho: number | null; alto: number | null } | null;
 };
@@ -31,6 +37,7 @@ type FilaBusqueda = {
   precio_desde: number;
   precio_varia: boolean;
   precio_anterior: number | null;
+  promo: string | null;
   disponible: boolean;
   imagen_path: string | null;
   imagen_alt: string | null;
@@ -49,6 +56,7 @@ function aTarjeta(f: FilaBusqueda): TarjetaProducto {
     precioDesde: Number(f.precio_desde),
     precioVaria: f.precio_varia,
     precioAnterior: f.precio_anterior === null ? null : Number(f.precio_anterior),
+    promo: f.promo,
     disponible: f.disponible,
     imagen: f.imagen_path
       ? { path: f.imagen_path, alt: f.imagen_alt ?? f.nombre, ancho: f.imagen_ancho, alto: f.imagen_alto }
@@ -58,8 +66,8 @@ function aTarjeta(f: FilaBusqueda): TarjetaProducto {
 
 export async function buscarProductos(filtros: Filtros): Promise<ResultadoBusqueda> {
   "use cache";
-  cacheLife("max");
-  cacheTag(TAGS.productos);
+  cacheLife(VIDA_PRECIOS);
+  cacheTag(TAGS.productos, TAGS.promociones);
 
   const { data, error } = await supabasePublico().rpc("buscar_productos", {
     p_filtros: filtros.etiquetas,
@@ -78,8 +86,8 @@ export async function buscarProductos(filtros: Filtros): Promise<ResultadoBusque
 
 export async function obtenerDestacados(limite = 8, categoria: string | null = null): Promise<TarjetaProducto[]> {
   "use cache";
-  cacheLife("max");
-  cacheTag(TAGS.productos);
+  cacheLife(VIDA_PRECIOS);
+  cacheTag(TAGS.productos, TAGS.promociones);
 
   const { data, error } = await supabasePublico().rpc("buscar_productos", {
     p_destacados: true,
@@ -93,8 +101,8 @@ export async function obtenerDestacados(limite = 8, categoria: string | null = n
 
 export async function obtenerOfertas(limite = 12, pagina = 1): Promise<ResultadoBusqueda> {
   "use cache";
-  cacheLife("max");
-  cacheTag(TAGS.productos);
+  cacheLife(VIDA_PRECIOS);
+  cacheTag(TAGS.productos, TAGS.promociones);
 
   const { data, error } = await supabasePublico().rpc("buscar_productos", {
     p_ofertas: true,
@@ -226,7 +234,10 @@ export type GrupoVariante = { slug: string; nombre: string; opciones: EtiquetaFi
 export type VarianteFicha = {
   id: string;
   sku: string | null;
+  /** Precio final, con la promo unitaria aplicada. */
   precio: number;
+  /** Precio de lista (sin promo). Si es mayor que `precio`, se muestra tachado. */
+  precioLista: number;
   stock: number;
   /** grupo-slug → etiqueta-slug */
   opciones: Record<string, string>;
@@ -249,6 +260,10 @@ export type FichaProducto = {
   descripcionTexto: string;
   precio: number;
   precioAnterior: number | null;
+  /** Nombre de la promo unitaria vigente ("20% off en monitores"). */
+  promoUnitaria: string | null;
+  /** Chip de la promo por cantidad ("3x2"). */
+  promoCantidad: string | null;
   categoria: { slug: string; nombre: string; padre: { slug: string; nombre: string } | null } | null;
   imagenes: { id: string; path: string; alt: string; ancho: number | null; alto: number | null }[];
   caracteristicas: Caracteristica[];
@@ -258,9 +273,9 @@ export type FichaProducto = {
 
 export async function obtenerProducto(slug: string): Promise<FichaProducto | null> {
   "use cache";
-  cacheLife("max");
+  cacheLife(VIDA_PRECIOS);
   // `etiquetas`: renombrar una etiqueta o grupo cambia la ficha de muchos productos.
-  cacheTag(TAGS.producto(slug), TAGS.etiquetas);
+  cacheTag(TAGS.producto(slug), TAGS.etiquetas, TAGS.promociones);
 
   const { data: p, error } = await supabasePublico()
     .from("productos")
@@ -276,6 +291,11 @@ export async function obtenerProducto(slug: string): Promise<FichaProducto | nul
     .maybeSingle();
   if (error) throw new Error(`producto ${slug}: ${error.message}`);
   if (!p) return null;
+
+  // Precios con promoción: los calcula la base (mismo motor que el carrito), no la web.
+  const { data: precios, error: ePrecios } = await supabasePublico().rpc("precios_producto", { p_producto_id: p.id });
+  if (ePrecios) throw new Error(`precios ${slug}: ${ePrecios.message}`);
+  const precioDe = new Map((precios ?? []).map((x) => [x.variante_id, x]));
 
   // Especificaciones: grupos visibles en ficha. La marca va aparte (arriba del título).
   const porGrupo = new Map<string, Caracteristica & { orden: number }>();
@@ -328,7 +348,8 @@ export async function obtenerProducto(slug: string): Promise<FichaProducto | nul
       return {
         id: v.id,
         sku: v.sku,
-        precio: Number(v.precio ?? p.precio),
+        precio: Number(precioDe.get(v.id)?.precio ?? v.precio ?? p.precio),
+        precioLista: Number(precioDe.get(v.id)?.precio_lista ?? v.precio ?? p.precio),
         stock: v.stock,
         opciones,
         etiquetas: nombres.join(" / "),
@@ -352,6 +373,8 @@ export async function obtenerProducto(slug: string): Promise<FichaProducto | nul
     descripcionTexto: p.descripcion_texto,
     precio: Number(p.precio),
     precioAnterior: p.precio_anterior === null ? null : Number(p.precio_anterior),
+    promoUnitaria: precios?.find((x) => x.promo_unitaria && Number(x.precio) < Number(x.precio_lista))?.promo_unitaria ?? null,
+    promoCantidad: precios?.[0]?.promo_cantidad ?? null,
     categoria,
     imagenes: [...p.imagenes]
       .sort((a, b) => a.orden - b.orden)

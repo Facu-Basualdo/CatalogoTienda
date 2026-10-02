@@ -7,4 +7,5 @@ export const TAGS = {
   etiquetas: "etiquetas",
   categorias: "categorias",
   banners: "banners",
+  promociones: "promociones",
 } as const;

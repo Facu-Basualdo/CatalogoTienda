@@ -22,6 +22,11 @@ Tailwind con `themes`. La documentación completa para agentes está en
 - **Checkbox y Radio cambiaron en 3.2**: `<Checkbox value>` → `<Checkbox.Content>` →
   `<Checkbox.Control><Checkbox.Indicator/></Checkbox.Control>` + texto. Referencia:
   `components/tienda/filtros/panel-filtros.tsx`.
+- **Switch también: `Switch.Control` va DENTRO de `Switch.Content`** (que es el botón con
+  el input): `<Switch>` → `<Switch.Content>` → `<Switch.Control><Switch.Thumb/></Switch.Control>`
+  + `<Label>`. Con el control afuera, el switch se dibuja pero no tiene input: sin texto
+  (el del listado de productos) no responde al clic; con texto, sólo responde el texto.
+  La anatomía de la doc que pone `Control` como hermano de `Content` está desactualizada.
 - **`onPress`, no `onClick`** (React Aria): unifica mouse, touch y teclado.
 - Variantes de `Button`: `primary` (default) · `secondary` · `tertiary` · `outline` ·
   `ghost` · `danger` · `danger-soft`. No hay prop `color`.

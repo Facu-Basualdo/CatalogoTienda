@@ -22,9 +22,11 @@ export function SwitchVisible({ id, publicado, nombre }: { id: string; publicado
         })
       }
     >
-      <Switch.Control>
-        <Switch.Thumb />
-      </Switch.Control>
+      <Switch.Content>
+        <Switch.Control>
+          <Switch.Thumb />
+        </Switch.Control>
+      </Switch.Content>
     </Switch>
   );
 }

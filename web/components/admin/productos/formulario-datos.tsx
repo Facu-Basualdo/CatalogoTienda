@@ -150,18 +150,18 @@ export function FormularioDatos({
 
         <div className="flex flex-col justify-end gap-3">
           <Switch isSelected={publicado} onChange={setPublicado}>
-            <Switch.Control>
-              <Switch.Thumb />
-            </Switch.Control>
             <Switch.Content>
+              <Switch.Control>
+                <Switch.Thumb />
+              </Switch.Control>
               <Label>Visible en la tienda</Label>
             </Switch.Content>
           </Switch>
           <Switch isSelected={destacado} onChange={setDestacado}>
-            <Switch.Control>
-              <Switch.Thumb />
-            </Switch.Control>
             <Switch.Content>
+              <Switch.Control>
+                <Switch.Thumb />
+              </Switch.Control>
               <Label>Destacado en la home</Label>
             </Switch.Content>
           </Switch>

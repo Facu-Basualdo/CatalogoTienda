@@ -461,6 +461,101 @@ export type Database = {
           },
         ];
       };
+      promocion_alcance: {
+        Row: {
+          categoria_id: string | null;
+          etiqueta_id: string | null;
+          id: string;
+          producto_id: string | null;
+          promocion_id: string;
+        };
+        Insert: {
+          categoria_id?: string | null;
+          etiqueta_id?: string | null;
+          id?: string;
+          producto_id?: string | null;
+          promocion_id: string;
+        };
+        Update: {
+          categoria_id?: string | null;
+          etiqueta_id?: string | null;
+          id?: string;
+          producto_id?: string | null;
+          promocion_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "promocion_alcance_categoria_id_fkey";
+            columns: ["categoria_id"];
+            isOneToOne: false;
+            referencedRelation: "categorias";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "promocion_alcance_etiqueta_id_fkey";
+            columns: ["etiqueta_id"];
+            isOneToOne: false;
+            referencedRelation: "etiquetas";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "promocion_alcance_producto_id_fkey";
+            columns: ["producto_id"];
+            isOneToOne: false;
+            referencedRelation: "productos";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "promocion_alcance_promocion_id_fkey";
+            columns: ["promocion_id"];
+            isOneToOne: false;
+            referencedRelation: "promociones";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      promociones: {
+        Row: {
+          activa: boolean;
+          alcance_todo: boolean;
+          creado_en: string;
+          desde: string | null;
+          hasta: string | null;
+          id: string;
+          lleva: number | null;
+          nombre: string;
+          paga: number | null;
+          tipo: Database["public"]["Enums"]["tipo_promocion"];
+          valor: number | null;
+        };
+        Insert: {
+          activa?: boolean;
+          alcance_todo?: boolean;
+          creado_en?: string;
+          desde?: string | null;
+          hasta?: string | null;
+          id?: string;
+          lleva?: number | null;
+          nombre: string;
+          paga?: number | null;
+          tipo: Database["public"]["Enums"]["tipo_promocion"];
+          valor?: number | null;
+        };
+        Update: {
+          activa?: boolean;
+          alcance_todo?: boolean;
+          creado_en?: string;
+          desde?: string | null;
+          hasta?: string | null;
+          id?: string;
+          lleva?: number | null;
+          nombre?: string;
+          paga?: number | null;
+          tipo?: Database["public"]["Enums"]["tipo_promocion"];
+          valor?: number | null;
+        };
+        Relationships: [];
+      };
       variante_etiquetas: {
         Row: {
           etiqueta_id: string;
@@ -545,6 +640,7 @@ export type Database = {
           precio_anterior: number;
           precio_desde: number;
           precio_varia: boolean;
+          promo: string;
           slug: string;
           stock_total: number;
           total: number;
@@ -580,9 +676,23 @@ export type Database = {
           seleccionada: boolean;
         }[];
       };
+      guardar_promocion: {
+        Args: { p_alcance: Json; p_id: string; p_promo: Json };
+        Returns: string;
+      };
       guardar_variantes: {
         Args: { p_producto_id: string; p_variantes: Json };
         Returns: undefined;
+      };
+      precios_producto: {
+        Args: { p_producto_id: string };
+        Returns: {
+          precio: number;
+          precio_lista: number;
+          promo_cantidad: string;
+          promo_unitaria: string;
+          variante_id: string;
+        }[];
       };
       reordenar_imagenes: {
         Args: { p_ids: string[]; p_producto_id: string };
@@ -592,6 +702,7 @@ export type Database = {
     };
     Enums: {
       estado_pedido: "pendiente" | "confirmado" | "entregado" | "cancelado";
+      tipo_promocion: "porcentaje" | "monto_fijo" | "nxm" | "segunda_unidad";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -720,6 +831,7 @@ export const Constants = {
   public: {
     Enums: {
       estado_pedido: ["pendiente", "confirmado", "entregado", "cancelado"],
+      tipo_promocion: ["porcentaje", "monto_fijo", "nxm", "segunda_unidad"],
     },
   },
 } as const;
