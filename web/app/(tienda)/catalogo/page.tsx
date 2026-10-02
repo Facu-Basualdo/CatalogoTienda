@@ -59,7 +59,7 @@ async function Catalogo({ searchParams }: { searchParams: PageProps<"/catalogo">
   const fueraDeRango = resultado.total > 0 && filtros.pagina > resultado.paginas;
 
   return (
-    <div className="mx-auto max-w-7xl px-3 py-5 sm:px-6 sm:py-8">
+    <div className="contenedor py-5 sm:py-8">
       <header className="mb-6 flex flex-col gap-4">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-3 border-b border-border pb-4">
           <NextLink

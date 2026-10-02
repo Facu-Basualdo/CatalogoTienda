@@ -150,3 +150,15 @@
   --toggle-button-bg-selected-pressed: var(--accent-hover);
   --toggle-button-fg-selected: var(--accent-foreground);
 }
+
+/*
+ * Contenedor de la tienda: casi todo el ancho en escritorio (hasta 1920px) con un
+ * margen lateral proporcional. Encabezado, contenido y pie usan el mismo para quedar
+ * alineados; en el catálogo deja los filtros contra el borde izquierdo.
+ */
+@utility contenedor {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 1920px;
+  padding-inline: clamp(0.75rem, 2.2vw, 2.5rem);
+}

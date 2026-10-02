@@ -57,7 +57,7 @@ export function CarruselBanners({ banners }: { banners: Banner[] }) {
                   />
                 </div>
                 {(b.titulo || b.subtitulo) && (
-                  <div className="absolute inset-0 mx-auto flex max-w-7xl flex-col justify-start gap-3 px-6 pt-12 sm:justify-center sm:pt-0">
+                  <div className="absolute inset-0 flex flex-col justify-start gap-3 px-6 pt-12 sm:justify-center sm:px-12 sm:pt-0 lg:px-16">
                     {b.titulo && (
                       <h2 className={`max-w-md text-4xl font-semibold tracking-tight sm:text-6xl ${oscuro ? "text-white" : "text-black"}`}>
                         {b.titulo}

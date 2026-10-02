@@ -72,7 +72,7 @@ export function ContenedorVista({ children }: { children: React.ReactNode }) {
   return (
     <ul
       data-vista={vista}
-      className="group/vista grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4 data-[vista=lista]:sm:grid-cols-1"
+      className="group/vista grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 data-[vista=lista]:sm:grid-cols-1"
     >
       {children}
     </ul>

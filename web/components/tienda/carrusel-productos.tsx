@@ -25,7 +25,7 @@ export function CarruselProductos({ titulo, children }: { titulo: React.ReactNod
       <div className="-mx-1 overflow-hidden px-1 py-1" ref={ref}>
         <div className="flex gap-3 sm:gap-4">
           {Children.map(children, (hijo) => (
-            <div className="min-w-0 flex-[0_0_70%] sm:flex-[0_0_40%] lg:flex-[0_0_calc(25%-0.75rem)]">{hijo}</div>
+            <div className="min-w-0 flex-[0_0_70%] sm:flex-[0_0_40%] lg:flex-[0_0_calc(25%-0.75rem)] 2xl:flex-[0_0_calc(20%-0.8rem)]">{hijo}</div>
           ))}
         </div>
       </div>

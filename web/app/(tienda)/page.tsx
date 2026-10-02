@@ -35,7 +35,7 @@ export default async function Inicio() {
   ]);
 
   return (
-    <div className="mx-auto flex max-w-7xl flex-col gap-12 px-3 pb-8 pt-3 sm:gap-16 sm:px-6 sm:pt-5">
+    <div className="contenedor flex flex-col gap-12 pb-8 pt-3 sm:gap-16 sm:pt-5">
       <CarruselBanners banners={banners} />
 
       <section className="flex flex-col gap-5" aria-labelledby="destacados">
@@ -49,7 +49,7 @@ export default async function Inicio() {
               id: d.id,
               titulo: d.titulo,
               contenido: (
-                <ul className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
+                <ul className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 2xl:grid-cols-4">
                   {d.productos.map((p) => (
                     <li key={p.id}>
                       <TarjetaProducto producto={p} horizontal />

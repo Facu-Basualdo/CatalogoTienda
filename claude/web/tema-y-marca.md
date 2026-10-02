@@ -28,6 +28,7 @@ exponen a Tailwind en `@theme inline`.
 |---|---|
 | `--background` (gris 96.5%) | Fondo de página. **No es blanco**: el contenido va en superficies |
 | `--surface` → `bg-surface` | Tarjetas, paneles, filtros, carrito |
+| `contenedor` (utilidad en `globals.css`) | Ancho de la tienda: hasta 1920 px con margen lateral `clamp()`. **Encabezado, contenido y pie usan el mismo** para quedar alineados; no uses `max-w-7xl` en la tienda (el panel de admin sí lo usa) |
 | `--radio-tarjeta` → `rounded-tarjeta` (1.25rem) | Todo contenedor de página. Los controles usan `--radius` (0.625rem) |
 | `--encabezado` → `bg-encabezado` | Encabezado y franja "cómo comprar". **Oscuro también en tema claro** |
 | `--accent` | Negro (blanco en oscuro): botón principal y seleccionado |

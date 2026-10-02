@@ -14,7 +14,7 @@ export async function Encabezado() {
 
   return (
     <header className="sticky top-0 z-40 bg-encabezado text-encabezado-foreground [--logo-contraste:var(--encabezado)]">
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6 lg:gap-8">
+      <div className="contenedor flex h-16 items-center gap-3 lg:gap-8">
         <MenuMovil categorias={categorias} />
         <NextLink href="/" aria-label="Inicio" className="shrink-0">
           <Logo />
@@ -37,7 +37,7 @@ export async function Encabezado() {
       </div>
 
       <nav aria-label="Categorías" className="hidden border-t border-white/10 md:block">
-        <div className="mx-auto flex h-11 max-w-7xl items-center gap-6 px-6 text-sm">
+        <div className="contenedor flex h-11 items-center gap-6 text-sm">
           <NextLink href="/catalogo" className="text-white/75 transition-colors hover:text-white">
             Productos
           </NextLink>

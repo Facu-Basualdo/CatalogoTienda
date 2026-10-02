@@ -36,7 +36,7 @@ function Campo({ autoFocus, alBuscar }: { autoFocus?: boolean; alBuscar?: () => 
   return (
     <Form
       role="search"
-      className="flex w-full max-w-2xl items-center gap-2"
+      className="flex w-full max-w-3xl items-center gap-2"
       onSubmit={(e) => {
         e.preventDefault();
         enviar(valor);

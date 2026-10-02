@@ -49,7 +49,7 @@ async function Ficha({ params }: { params: PageProps<"/p/[slug]">["params"] }) {
   const principales = p.caracteristicas.filter((c) => !c.esVariante).slice(0, 4);
 
   return (
-    <article className="mx-auto flex max-w-7xl flex-col gap-4 px-3 py-4 sm:px-6 sm:py-6">
+    <article className="contenedor flex flex-col gap-4 py-4 sm:py-6">
       <section className="grid gap-8 rounded-tarjeta border border-border bg-surface p-4 sm:p-8 lg:grid-cols-2 lg:gap-12">
         <Galeria imagenes={p.imagenes} />
 

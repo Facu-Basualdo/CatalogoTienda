@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 // clave reservada que ningún grupo de etiquetas podría usar.
 export default function PaginaOfertas() {
   return (
-    <div className="mx-auto max-w-7xl px-3 py-6 sm:px-6 sm:py-10">
+    <div className="contenedor py-6 sm:py-10">
       <header className="mb-6 flex items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight">Ofertas</h1>
