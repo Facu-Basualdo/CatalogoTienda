@@ -2,11 +2,13 @@ import { Breadcrumbs } from "@heroui/react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { JsonLd } from "@/components/json-ld";
 import { Descripcion } from "@/components/tienda/descripcion";
 import { EsqueletoFicha } from "@/components/tienda/esqueletos";
 import { Galeria } from "@/components/tienda/galeria";
 import { SelectorCombo } from "@/components/tienda/selector-combo";
 import { obtenerCombo, obtenerSlugsCombos } from "@/lib/catalogo/combos";
+import { SITIO } from "@/lib/sitio";
 import { urlPublica } from "@/lib/supabase/storage";
 
 export async function generateStaticParams() {
@@ -45,8 +47,24 @@ async function Ficha({ params }: { params: PageProps<"/combo/[slug]">["params"] 
     ? c.imagenes
     : c.items.flatMap((i, n) => (i.imagen ? [{ id: `item-${n}`, ...i.imagen, ancho: null, alto: null }] : []));
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: c.nombre,
+    description: (c.descripcionTexto || c.items.map((i) => i.nombre).join(" + ")).slice(0, 500),
+    image: imagenes.map((i) => urlPublica(i.path)),
+    offers: {
+      "@type": "Offer",
+      priceCurrency: SITIO.moneda,
+      price: c.precio,
+      availability: c.disponible ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      url: `${SITIO.url}/combo/${c.slug}`,
+    },
+  };
+
   return (
     <article className="contenedor flex flex-col gap-4 py-4 sm:py-6">
+      <JsonLd datos={jsonLd} />
       <section className="grid gap-8 rounded-tarjeta border border-border bg-surface p-4 sm:p-8 lg:grid-cols-2 lg:gap-12">
         <Galeria imagenes={imagenes} />
         <div className="flex flex-col gap-5">

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import NextLink from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { JsonLd } from "@/components/json-ld";
 import { Descripcion } from "@/components/tienda/descripcion";
 import { EsqueletoFicha } from "@/components/tienda/esqueletos";
 import { Galeria } from "@/components/tienda/galeria";
@@ -45,11 +46,37 @@ async function Ficha({ params }: { params: PageProps<"/p/[slug]">["params"] }) {
   const p = await obtenerProducto(slug);
   if (!p) notFound();
 
+  // Datos para buscadores: precio con promo (el que se cobra) y stock de cualquier variante.
+  const precios = p.variantes.map((v) => v.precio);
+  const disponibilidad = p.variantes.some((v) => v.stock > 0) ? "https://schema.org/InStock" : "https://schema.org/OutOfStock";
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: p.nombre,
+    description: p.descripcionTexto.slice(0, 500) || undefined,
+    image: p.imagenes.map((i) => urlPublica(i.path)),
+    sku: p.variantes.length === 1 ? (p.variantes[0].sku ?? undefined) : undefined,
+    brand: p.marca ? { "@type": "Brand", name: p.marca.valor } : undefined,
+    category: p.categoria?.nombre,
+    offers:
+      new Set(precios).size > 1
+        ? {
+            "@type": "AggregateOffer",
+            priceCurrency: SITIO.moneda,
+            lowPrice: Math.min(...precios),
+            highPrice: Math.max(...precios),
+            offerCount: p.variantes.length,
+            availability: disponibilidad,
+          }
+        : { "@type": "Offer", priceCurrency: SITIO.moneda, price: precios[0], availability: disponibilidad, url: `${SITIO.url}/p/${p.slug}` },
+  };
+
   // Las 4 primeras especificaciones no-variante van como resumen con íconos junto al precio.
   const principales = p.caracteristicas.filter((c) => !c.esVariante).slice(0, 4);
 
   return (
     <article className="contenedor flex flex-col gap-4 py-4 sm:py-6">
+      <JsonLd datos={jsonLd} />
       <section className="grid gap-8 rounded-tarjeta border border-border bg-surface p-4 sm:p-8 lg:grid-cols-2 lg:gap-12">
         <Galeria imagenes={p.imagenes} />
 

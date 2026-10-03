@@ -10,7 +10,7 @@ Todas en `web/.env` (ignorado por git; el molde es `web/.env.example`).
 |---|---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | Sí | URL del proyecto. También arma `images.remotePatterns` en `next.config.ts` |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Sí | Key pública (`sb_publishable_…`). Viaja al navegador por diseño: la protección son grants + RLS |
-| `NEXT_PUBLIC_SITIO_URL` | Sí (Production) | URL canónica: metadata, Open Graph, links de WhatsApp |
+| `NEXT_PUBLIC_SITIO_URL` | Sí (Production) | URL canónica: metadata, Open Graph, sitemap, robots, JSON-LD, links de WhatsApp. Sin ella todo apunta a `localhost:3000` |
 | `NEXT_PUBLIC_WHATSAPP` | Sí | Número para los pedidos, internacional sin `+` (`5491100000000`). Sin él no aparece el botón |
 | `DATABASE_URL` | **No** | Sólo la CLI de Supabase en local (migraciones, tipos, advisors). Session pooler, puerto 5432 |
 | `SUPABASE_SECRET_KEY` | **No** | Sólo los scripts locales (`sembrar-imagenes.mjs`, `crear-admin.mjs`). **La app no la importa** |

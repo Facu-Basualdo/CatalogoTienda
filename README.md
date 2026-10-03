@@ -40,13 +40,21 @@ a compragamer.com, llevada a blanco y negro y pensada primero para el celular.
   no muestra una remera que sólo tiene XL blanca y L negra.
 - Seguridad resuelta en la base: grants explícitos + Row Level Security. Los
   borradores no salen por la API; `anon` no puede escribir.
-- Datos de demo: 20 productos de dos rubros con imágenes generadas.
+- **Promociones** (% o monto por producto, categoría o etiqueta; 3x2; 2da unidad al X%)
+  que no se acumulan: cada unidad recibe la que más descuenta, calculado en la base.
+- **Combos**: varios productos a un precio, eligiendo talle y color de cada uno; el
+  pedido descuenta el stock de las variantes exactas.
+- **Cupones** que se validan en la base sin exponer la tabla, con mínimo de compra y
+  usos limitados.
+- **Dashboard**: productos (variantes, stock, imágenes con recorte obligatorio,
+  descripción con tablas), pedidos con estados que mueven el stock, promociones,
+  combos, cupones, banners con vista previa, etiquetas (con fusión de duplicadas) y
+  categorías.
+- SEO: sitemap, robots, datos estructurados `Product` e imagen para compartir.
+- Datos de demo: 20 productos de dos rubros, 3 combos, 3 promociones y 3 cupones, con
+  imágenes generadas.
 
-**En camino** (ver [el plan](docs/plan-implementacion.md))
-
-- Dashboard: productos, variantes y stock, imágenes con recorte obligatorio, pedidos,
-  etiquetas, categorías y banners.
-- Promociones (% o monto, N×M, 2da unidad), combos y cupones de descuento.
+Pendiente: el deploy en Vercel (ver [el plan](docs/plan-implementacion.md)).
 
 ## Estructura
 

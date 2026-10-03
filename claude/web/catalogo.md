@@ -76,6 +76,13 @@ Lo mismo para client components con `useSearchParams` (`Buscador`,
   comportamiento esperado de Next con streaming, no un bug; no intentes "arreglarlo"
   sacando el Suspense.
 - Un borrador (`publicado = false`) da not-found: RLS no lo devuelve a `anon`.
+- `app/sitemap.ts` lista sólo lo indexable (home, categorías, fichas, combos) con las
+  mismas lecturas cacheadas de la tienda; `app/robots.ts` excluye `/admin` y `/carrito`.
+  **Las URLs salen de `NEXT_PUBLIC_SITIO_URL`**: sin ella en Vercel, el sitemap y el
+  Open Graph apuntan a `localhost:3000`.
+- Ficha y combo llevan JSON-LD `Product` (`components/json-ld.tsx`, escapa `<`) con el
+  precio que se cobra (con promo) y la disponibilidad. `app/opengraph-image.tsx` es la
+  imagen por defecto al compartir; las fichas usan la foto del producto.
 
 ## Home
 

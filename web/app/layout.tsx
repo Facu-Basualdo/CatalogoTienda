@@ -18,6 +18,8 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITIO.url),
   title: { default: SITIO.nombre, template: `%s · ${SITIO.nombre}` },
   description: SITIO.descripcion,
+  // La imagen por defecto la arma app/opengraph-image.tsx; las fichas usan la del producto.
+  openGraph: { siteName: SITIO.nombre, locale: "es_AR", type: "website" },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -42,7 +42,7 @@ Tienda de portfolio con catálogo genérico (ropa, electrónica, lo que sea):
 | 7 — Combos | ✅ Hecha: ficha con variantes por producto, línea de combo en `cotizar`, pedido padre + hijas, ABM |
 | 8 — Cupones | ✅ Hecha: evaluación en la base sin exponer la tabla, campo en el carrito, usos, ABM |
 | 9 — Etiquetas, categorías y banners | ✅ Hecha: ABM completos, claves de variantes al día, color del texto del banner |
-| 10 — SEO, rendimiento y producción | Pendiente — **siguiente** |
+| 10 — SEO, rendimiento y producción | SEO y bundle ✅ · **falta el deploy en Vercel** (pasos en la fase 10) |
 
 Orden acordado: rediseño y carrito primero, después el dashboard (3, 4 y 5) y
 promociones, combos, cupones y el resto del dashboard (hecho); ahora producción.
@@ -217,18 +217,25 @@ carpeta de Storage) y las claves por SQL en una transacción revertida.
 
 ### Fase 10 — SEO, rendimiento y producción
 
-- [ ] `sitemap.ts`, `robots.ts`, JSON-LD `Product` en la ficha, Open Graph.
-- [ ] Revisar LCP y peso del bundle de la tienda (TipTap editor no debe entrar).
-- [ ] Deploy en Vercel, dominio, Redirect URLs de Supabase Auth.
+- [x] `sitemap.ts`, `robots.ts`, JSON-LD `Product` en la ficha y el combo, Open Graph
+      con imagen por defecto (ver [catalogo](../claude/web/catalogo.md#seo)).
+- [x] Bundle de la tienda: el editor TipTap no entra (ficha, home y catálogo sin
+      ProseMirror) y el cliente de Supabase sólo se carga en `/carrito`. Cada página baja
+      ~950 KB de JS sin comprimir (~300 KB gzip), casi todo React y React Aria (HeroUI).
+- [x] LCP: la primera imagen de la ficha y el primer banner con `priority` (preload).
+- [ ] **Deploy en Vercel** (lo hace el dueño de la cuenta):
+  1. Importar el repo con **Root Directory `web`**.
+  2. Variables: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`,
+     `NEXT_PUBLIC_SITIO_URL` (el dominio final) y `NEXT_PUBLIC_WHATSAPP`. Nada más
+     (ver [entorno-y-deploy](../claude/general/entorno-y-deploy.md)).
+  3. Supabase → Auth → URL Configuration: el dominio y el patrón de los previews.
+  4. Supabase → Auth: deshabilitar sign-ups. Rotar la contraseña de la base.
+  5. Probar en producción: login del panel, un pedido con cupón y su WhatsApp.
 
 ## Notas del grafo por escribir
 
-Se crean cuando exista el código, no antes:
-
-| Fase | Nota | Qué va a tener |
-|---|---|---|
-| 3 | `claude/web/dashboard.md` | Patrón de Server Action, `requerirAdmin`, toasts, `SubidaImagen` |
-| 5 | (ya escritas: `claude/*/carrito.md`) | Agregar el dashboard de pedidos cuando exista |
+Ninguna: todas las features construidas tienen su nota en `claude/` (ver los índices).
+Una feature nueva crea la suya cuando exista el código, no antes.
 
 ## Riesgos
 
