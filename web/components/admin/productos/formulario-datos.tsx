@@ -1,13 +1,13 @@
 "use client";
 
-import { Alert, Button, Description, Form, Input, Label, ListBox, NumberField, Select, Switch, TextField, toast } from "@heroui/react";
+import { Button, Description, Form, Input, Label, ListBox, NumberField, Select, Switch, TextField, toast } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { guardarDatos } from "@/app/admin/(panel)/productos/acciones";
 import type { ProductoAdmin } from "@/lib/admin/productos";
 import { SITIO } from "@/lib/sitio";
-import { slugify } from "@/lib/slug";
 import { Seccion } from "../seccion";
+import { useCategoriaProducto } from "./categoria-producto";
 
 const SIN_CATEGORIA = "sin-categoria";
 const formatoPrecio = { style: "currency", currency: SITIO.moneda, maximumFractionDigits: 0 } as const;
@@ -22,22 +22,17 @@ export function FormularioDatos({
   const router = useRouter();
   const [pendiente, iniciar] = useTransition();
   const [nombre, setNombre] = useState(producto.nombre === "Producto nuevo" ? "" : producto.nombre);
-  const [slug, setSlug] = useState(producto.slug);
-  // Mientras sea un borrador con slug automático, el slug sigue al nombre.
-  const [slugManual, setSlugManual] = useState(!producto.slug.startsWith("borrador-"));
   const [precio, setPrecio] = useState(producto.precio);
   const [precioAnterior, setPrecioAnterior] = useState<number | null>(producto.precioAnterior);
   const [categoriaId, setCategoriaId] = useState<string | null>(producto.categoriaId);
+  const { setCategoriaId: avisarCategoria } = useCategoriaProducto();
   const [destacado, setDestacado] = useState(producto.destacado);
   const [publicado, setPublicado] = useState(producto.publicado);
-
-  const cambiaSlugPublicado = producto.publicado && slug !== producto.slug;
 
   function guardar() {
     iniciar(async () => {
       const r = await guardarDatos(producto.id, {
         nombre,
-        slug,
         precio: Math.round(precio || 0),
         precioAnterior: precioAnterior === null || Number.isNaN(precioAnterior) ? null : Math.round(precioAnterior),
         categoriaId,
@@ -65,42 +60,19 @@ export function FormularioDatos({
         <TextField
           isRequired
           value={nombre}
-          onChange={(v) => {
-            setNombre(v);
-            if (!slugManual) setSlug(slugify(v) || producto.slug);
-          }}
+          onChange={setNombre}
           maxLength={120}
           className="md:col-span-2"
         >
           <Label>Nombre</Label>
           <Input placeholder="Remera básica" />
-        </TextField>
-
-        <TextField
-          isRequired
-          value={slug}
-          onChange={(v) => {
-            setSlugManual(true);
-            setSlug(slugify(v));
-          }}
-          className="md:col-span-2"
-        >
-          <Label>Slug (URL)</Label>
-          <Input />
+          {/* El slug lo arma el servidor con el nombre: ver claude/web/dashboard.md#slugs */}
           <Description>
-            {SITIO.url.replace(/^https?:\/\//, "")}/p/{slug || "…"}
+            {producto.slug.startsWith("borrador-")
+              ? "La dirección en la tienda se arma sola con el nombre."
+              : `Dirección en la tienda: ${SITIO.url.replace(/^https?:\/\//, "")}/p/${producto.slug}${producto.publicado ? "" : " (sigue al nombre hasta que lo publiques)"}`}
           </Description>
         </TextField>
-        {cambiaSlugPublicado && (
-          <Alert status="warning" className="md:col-span-2">
-            <Alert.Indicator />
-            <Alert.Content>
-              <Alert.Description>
-                El producto ya está visible: cambiar el slug rompe los links que ya se compartieron.
-              </Alert.Description>
-            </Alert.Content>
-          </Alert>
-        )}
 
         <NumberField isRequired value={precio} onChange={(v) => setPrecio(v ?? 0)} minValue={0} formatOptions={formatoPrecio}>
           <Label>Precio</Label>
@@ -125,7 +97,11 @@ export function FormularioDatos({
 
         <Select
           value={categoriaId ?? SIN_CATEGORIA}
-          onChange={(v) => setCategoriaId(v === SIN_CATEGORIA || typeof v !== "string" ? null : v)}
+          onChange={(v) => {
+            const id = v === SIN_CATEGORIA || typeof v !== "string" ? null : v;
+            setCategoriaId(id);
+            avisarCategoria(id);
+          }}
         >
           <Label>Categoría</Label>
           <Select.Trigger>

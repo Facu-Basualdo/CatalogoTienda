@@ -72,6 +72,66 @@ export type Database = {
         };
         Relationships: [];
       };
+      categoria_grupos: {
+        Row: {
+          categoria_id: string;
+          grupo_id: string;
+        };
+        Insert: {
+          categoria_id: string;
+          grupo_id: string;
+        };
+        Update: {
+          categoria_id?: string;
+          grupo_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "categoria_grupos_categoria_id_fkey";
+            columns: ["categoria_id"];
+            isOneToOne: false;
+            referencedRelation: "categorias";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "categoria_grupos_grupo_id_fkey";
+            columns: ["grupo_id"];
+            isOneToOne: false;
+            referencedRelation: "grupos_etiqueta";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      categoria_plantillas: {
+        Row: {
+          categoria_id: string;
+          plantilla_id: string;
+        };
+        Insert: {
+          categoria_id: string;
+          plantilla_id: string;
+        };
+        Update: {
+          categoria_id?: string;
+          plantilla_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "categoria_plantillas_categoria_id_fkey";
+            columns: ["categoria_id"];
+            isOneToOne: false;
+            referencedRelation: "categorias";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "categoria_plantillas_plantilla_id_fkey";
+            columns: ["plantilla_id"];
+            isOneToOne: false;
+            referencedRelation: "plantillas";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       categorias: {
         Row: {
           creado_en: string;
@@ -308,6 +368,7 @@ export type Database = {
       };
       grupos_etiqueta: {
         Row: {
+          con_color: boolean;
           creado_en: string;
           es_marca: boolean;
           es_variante: boolean;
@@ -320,6 +381,7 @@ export type Database = {
           visible_en_filtros: boolean;
         };
         Insert: {
+          con_color?: boolean;
           creado_en?: string;
           es_marca?: boolean;
           es_variante?: boolean;
@@ -332,6 +394,7 @@ export type Database = {
           visible_en_filtros?: boolean;
         };
         Update: {
+          con_color?: boolean;
           creado_en?: string;
           es_marca?: boolean;
           es_variante?: boolean;
@@ -490,6 +553,54 @@ export type Database = {
             referencedColumns: ["id"];
           },
         ];
+      };
+      plantilla_grupos: {
+        Row: {
+          grupo_id: string;
+          plantilla_id: string;
+        };
+        Insert: {
+          grupo_id: string;
+          plantilla_id: string;
+        };
+        Update: {
+          grupo_id?: string;
+          plantilla_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "plantilla_grupos_grupo_id_fkey";
+            columns: ["grupo_id"];
+            isOneToOne: false;
+            referencedRelation: "grupos_etiqueta";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "plantilla_grupos_plantilla_id_fkey";
+            columns: ["plantilla_id"];
+            isOneToOne: false;
+            referencedRelation: "plantillas";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      plantillas: {
+        Row: {
+          creado_en: string;
+          id: string;
+          nombre: string;
+        };
+        Insert: {
+          creado_en?: string;
+          id?: string;
+          nombre: string;
+        };
+        Update: {
+          creado_en?: string;
+          id?: string;
+          nombre?: string;
+        };
+        Relationships: [];
       };
       producto_etiquetas: {
         Row: {
@@ -905,6 +1016,15 @@ export type Database = {
       guardar_combo_items: {
         Args: { p_combo_id: string; p_items: Json };
         Returns: undefined;
+      };
+      guardar_plantilla: {
+        Args: {
+          p_categorias: string[];
+          p_grupos: string[];
+          p_id: string;
+          p_nombre: string;
+        };
+        Returns: string;
       };
       guardar_promocion: {
         Args: { p_alcance: Json; p_id: string; p_promo: Json };

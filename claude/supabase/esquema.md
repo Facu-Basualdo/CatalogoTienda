@@ -16,6 +16,8 @@ combos ─┬─< combo_items >── productos (restrict)
         └─< combo_imagenes
 pedido_items ─< pedido_items (padre_id: hijas de un combo)
 cupones ─< pedidos (cupon_id, set null)
+categorias ─< categoria_grupos >─ grupos_etiqueta (qué pide cada categoría en el panel)
+categorias ─< categoria_plantillas >─ plantillas ─< plantilla_grupos >─ grupos_etiqueta
 promociones ─< promocion_alcance ··> productos | categorias | etiquetas (uno por fila)
 banners
 admins ── auth.users
@@ -58,7 +60,7 @@ lo resuelve, no el cliente.
 
 Ver [etiquetas](etiquetas.md). Es el corazón de los filtros. `etiquetas.slug` es una
 columna generada desde `valor`; `etiquetas.color_hex` es la muestra para grupos de color.
-`grupos_etiqueta.es_marca` marca el grupo "Marca" (uno solo, nunca de variante) y
+`grupos_etiqueta.con_color` indica que sus valores son colores (el panel ofrece la muestra). `grupos_etiqueta.es_marca` marca el grupo "Marca" (uno solo, nunca de variante) y
 `grupos_etiqueta.icono` es el nombre de un ícono de `@gravity-ui/icons` para la ficha.
 
 ## producto_variantes · variante_etiquetas

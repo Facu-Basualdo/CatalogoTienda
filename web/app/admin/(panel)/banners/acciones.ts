@@ -5,7 +5,19 @@ import { z } from "zod";
 import { adminParaAccion, fallo, ok, type Resultado } from "@/lib/admin/accion";
 import { finDia, inicioDia } from "@/lib/admin/fechas";
 import { TAGS } from "@/lib/catalogo/tags";
+import { SITIO } from "@/lib/sitio";
 import { BUCKET } from "@/lib/supabase/storage";
+
+/** Un link pegado de la propia tienda (https://dominio/p/x) se guarda como ruta (/p/x). */
+function aRutaPropia(enlace: string) {
+  try {
+    const u = new URL(enlace);
+    if (u.origin === new URL(SITIO.url).origin) return `${u.pathname}${u.search}` || "/";
+  } catch {
+    // No es una URL absoluta: queda como está.
+  }
+  return enlace;
+}
 
 // Server Actions de banners. Patrón en claude/web/dashboard.md#patrón-de-server-action
 // Las imágenes se suben directo a Storage en `banners/{id}/` ANTES de guardar (el id de
@@ -32,14 +44,16 @@ const esquema = z
     subtitulo: texto(120),
     textoBoton: texto(30),
     // Ruta interna (/catalogo?cat=ropa) o URL https.
-    enlace: texto(300).refine((e) => e === null || /^\/(?!\/)/.test(e) || /^https:\/\//.test(e), "El enlace es una ruta que empieza con / o una URL https://."),
+    enlace: texto(300)
+      .transform((e) => (e ? aRutaPropia(e) : e))
+      .refine((e) => e === null || /^\/(?!\/)/.test(e) || /^https:\/\//.test(e), "El link tiene que ser una página de la tienda o empezar con https://"),
     textoClaro: z.boolean(),
     activo: z.boolean(),
     desde: dia,
     hasta: dia,
   })
   .superRefine((b, ctx) => {
-    if (b.textoBoton && !b.enlace) ctx.addIssue({ code: "custom", message: "El botón necesita un enlace." });
+    if (b.enlace && !b.textoBoton) ctx.addIssue({ code: "custom", message: "Escribí el texto del botón (por ejemplo «Ver más»)." });
     if (b.desde && b.hasta && b.hasta < b.desde) ctx.addIssue({ code: "custom", message: "La fecha de fin es anterior a la de inicio." });
   });
 export type DatosBanner = z.input<typeof esquema>;

@@ -43,7 +43,6 @@ export function ListaGrupos({ grupos }: { grupos: GrupoListado[] }) {
             <NextLink href={`/admin/etiquetas/${g.id}`} className="font-medium hover:underline">
               {g.nombre}
             </NextLink>
-            <span className="font-mono text-xs text-muted">?{g.slug}=</span>
           </div>
           <div className="flex flex-wrap gap-1.5">
             {g.esMarca && <Chip size="sm">Marca</Chip>}

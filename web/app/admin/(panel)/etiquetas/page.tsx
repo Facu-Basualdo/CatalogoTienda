@@ -5,8 +5,9 @@ import type { Metadata } from "next";
 import NextLink from "next/link";
 import { Suspense } from "react";
 import { ListaGrupos } from "@/components/admin/etiquetas/lista-grupos";
+import { Plantillas } from "@/components/admin/etiquetas/plantillas";
 import { requerirAdmin } from "@/lib/auth";
-import { listarGrupos } from "@/lib/admin/etiquetas";
+import { categoriasParaGrupos, listarGrupos, listarPlantillas } from "@/lib/admin/etiquetas";
 
 export const metadata: Metadata = { title: "Etiquetas" };
 
@@ -33,9 +34,22 @@ export default function PaginaEtiquetas() {
 
 async function Listado() {
   const { supabase } = await requerirAdmin();
-  const grupos = await listarGrupos(supabase);
+  const [grupos, plantillas, categorias] = await Promise.all([
+    listarGrupos(supabase),
+    listarPlantillas(supabase),
+    categoriasParaGrupos(supabase),
+  ]);
   if (!grupos.length) {
     return <p className="rounded-tarjeta border border-border bg-surface p-8 text-center text-muted">Todavía no hay grupos.</p>;
   }
-  return <ListaGrupos grupos={grupos} />;
+  return (
+    <>
+      <ListaGrupos grupos={grupos} />
+      <Plantillas
+        plantillas={plantillas}
+        grupos={grupos.filter((g) => !g.esMarca).map((g) => ({ id: g.id, nombre: g.nombre, esVariante: g.esVariante }))}
+        categorias={categorias}
+      />
+    </>
+  );
 }

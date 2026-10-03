@@ -5,6 +5,7 @@ import NextLink from "next/link";
 import { Suspense } from "react";
 import { FormularioBanner } from "@/components/admin/banners/formulario-banner";
 import { requerirAdmin } from "@/lib/auth";
+import { destinosBanner } from "@/lib/admin/banners";
 
 export const metadata: Metadata = { title: "Nuevo banner" };
 
@@ -25,11 +26,12 @@ export default function PaginaNuevoBanner() {
 // El id se genera acá (después de leer la sesión): las imágenes necesitan su carpeta
 // `banners/{id}/` antes de que exista la fila.
 async function Formulario() {
-  await requerirAdmin();
+  const { supabase } = await requerirAdmin();
   const id = crypto.randomUUID();
   return (
     <FormularioBanner
       nuevo
+      categorias={await destinosBanner(supabase)}
       banner={{
         id,
         titulo: null,

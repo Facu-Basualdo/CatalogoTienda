@@ -20,6 +20,7 @@ import { guardarVariantes, type FilaVariante } from "@/app/admin/(panel)/product
 import type { EtiquetaAdmin, GrupoAdmin, VarianteAdmin } from "@/lib/admin/productos";
 import { SITIO } from "@/lib/sitio";
 import { Seccion } from "../seccion";
+import { AvisoCategoria, useGruposPermitidos } from "./categoria-producto";
 import { SelectorEtiquetas } from "./selector-etiquetas";
 
 // Reglas: claude/web/variantes-y-stock.md#dashboard
@@ -104,7 +105,9 @@ export function EditorVariantes({
     });
   }
 
-  const disponibles = grupos.filter((g) => !(g.id in elegidos));
+  const permitidos = useGruposPermitidos();
+  // Para agregar, sólo los grupos de variante de la categoría; los ya usados siguen arriba.
+  const disponibles = grupos.filter((g) => !(g.id in elegidos) && (!permitidos || permitidos.has(g.id)));
   const agregarEtiqueta = (grupoId: string, e: EtiquetaAdmin) =>
     setGrupos((gs) => gs.map((g) => (g.id === grupoId ? { ...g, etiquetas: [...g.etiquetas, e] } : g)));
 
@@ -120,6 +123,7 @@ export function EditorVariantes({
       }
     >
       <div className="flex flex-col gap-4">
+        <AvisoCategoria que="las opciones" />
         {activos.map((g) => (
           <div key={g.id} className="flex items-start gap-2">
             <div className="flex-1">

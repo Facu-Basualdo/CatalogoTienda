@@ -5,6 +5,7 @@ import NextLink from "next/link";
 import { Suspense } from "react";
 import { FormularioGrupo } from "@/components/admin/etiquetas/formulario-grupo";
 import { requerirAdmin } from "@/lib/auth";
+import { categoriasParaGrupos } from "@/lib/admin/etiquetas";
 
 export const metadata: Metadata = { title: "Nuevo grupo" };
 
@@ -23,6 +24,6 @@ export default function PaginaNuevoGrupo() {
 }
 
 async function Formulario() {
-  await requerirAdmin();
-  return <FormularioGrupo grupo={null} />;
+  const { supabase } = await requerirAdmin();
+  return <FormularioGrupo grupo={null} categorias={await categoriasParaGrupos(supabase)} />;
 }

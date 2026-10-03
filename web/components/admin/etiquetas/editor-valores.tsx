@@ -12,14 +12,12 @@ import {
   reordenarEtiquetas,
 } from "@/app/admin/(panel)/etiquetas/acciones";
 import type { EtiquetaConUso } from "@/lib/admin/etiquetas";
-import { slugify } from "@/lib/slug";
 import { Seccion } from "../seccion";
-
-const HEX = /^#[0-9a-f]{6}$/;
+import { SelectorColor } from "../selector-color";
 
 /**
- * Valores de un grupo. Renombrar cambia el slug (y lo que ya filtró por el viejo deja de
- * coincidir); si dos valores son lo mismo, se fusionan. Ver claude/web/etiquetas.md#en-el-dashboard
+ * Valores de un grupo. Si dos valores son lo mismo, se fusionan.
+ * Ver claude/web/etiquetas.md#en-el-dashboard
  */
 export function EditorValores({ grupoId, conColor, etiquetas }: { grupoId: string; conColor: boolean; etiquetas: EtiquetaConUso[] }) {
   const router = useRouter();
@@ -48,7 +46,7 @@ export function EditorValores({ grupoId, conColor, etiquetas }: { grupoId: strin
   return (
     <Seccion
       titulo="Valores"
-      descripcion={`El orden es el de los filtros y del selector de la ficha. "144Hz" y "144 Hz" son el mismo valor: el sistema no deja crear el segundo.`}
+      descripcion={`El orden es el de los filtros y del selector de la ficha. "144Hz" y "144 Hz" cuentan como el mismo valor: no se puede cargar dos veces.`}
     >
       {orden.length > 0 && (
         <ol className="flex flex-col divide-y divide-separator rounded-xl border border-border">
@@ -74,16 +72,6 @@ export function EditorValores({ grupoId, conColor, etiquetas }: { grupoId: strin
   );
 }
 
-function Muestra({ color }: { color: string }) {
-  return (
-    <span
-      aria-hidden
-      className="size-6 shrink-0 rounded-full ring-1 ring-muted/60"
-      style={{ backgroundColor: HEX.test(color) ? color : "transparent" }}
-    />
-  );
-}
-
 function FilaValor({
   etiqueta: e,
   conColor,
@@ -104,23 +92,14 @@ function FilaValor({
   const [color, setColor] = useState(e.colorHex ?? "");
   const [pendiente, iniciar] = useTransition();
   const cambio = valor.trim() !== e.valor || (color || null) !== e.colorHex;
-  const slugNuevo = slugify(valor);
 
   return (
-    <li className="flex flex-wrap items-end gap-3 p-3">
+    <li className="flex flex-wrap items-center gap-3 p-3">
       <TextField aria-label={`Valor de ${e.valor}`} value={valor} onChange={setValor} maxLength={60} className="min-w-40 flex-1">
         <Input />
       </TextField>
-      {conColor && (
-        <div className="flex items-center gap-2">
-          <Muestra color={color} />
-          <TextField aria-label={`Color de ${e.valor}`} value={color} onChange={(v) => setColor(v.toLowerCase())} maxLength={7} className="w-28">
-            <Input placeholder="#000000" className="font-mono" />
-          </TextField>
-        </div>
-      )}
-      <div className="flex min-w-32 flex-col text-xs text-muted">
-        <span className="font-mono">{cambio && slugNuevo !== e.slug ? `${e.slug} → ${slugNuevo}` : e.slug}</span>
+      {conColor && <SelectorColor valor={color || null} onChange={(c) => setColor(c ?? "")} etiqueta={`Color de ${e.valor}`} />}
+      <div className="flex w-40 shrink-0 flex-col text-xs text-muted">
         <span>{e.usos ? `En ${e.usos} ${e.usos === 1 ? "producto o variante" : "productos o variantes"}` : "Sin uso"}</span>
       </div>
       {cambio && (
@@ -293,15 +272,7 @@ function NuevoValor({ grupoId, conColor }: { grupoId: string; conColor: boolean 
         <Label>Nuevo valor</Label>
         <Input placeholder="Ej: 165 Hz" />
       </TextField>
-      {conColor && (
-        <div className="flex items-end gap-2">
-          <Muestra color={color} />
-          <TextField value={color} onChange={(v) => setColor(v.toLowerCase())} maxLength={7} className="w-28">
-            <Label>Color</Label>
-            <Input placeholder="#000000" className="font-mono" />
-          </TextField>
-        </div>
-      )}
+      {conColor && <SelectorColor valor={color || null} onChange={(c) => setColor(c ?? "")} etiqueta="Color del valor nuevo" />}
       <Button type="submit" variant="outline" isPending={pendiente}>
         Agregar
       </Button>

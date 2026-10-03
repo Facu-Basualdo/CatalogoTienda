@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Description, Form, Input, Label, Switch, TextField, toast } from "@heroui/react";
+import { Button, Form, Input, Label, Switch, TextField, toast } from "@heroui/react";
 import { parseDate, type CalendarDate } from "@internationalized/date";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -11,6 +11,7 @@ import { urlPublica } from "@/lib/supabase/storage";
 import { Seccion } from "../seccion";
 import { SelectorFecha } from "../selector-fecha";
 import { SubidaImagen } from "../subida-imagen";
+import { DestinoBanner, type CategoriaDestino } from "./destino-banner";
 
 export type BannerAdmin = {
   id: string;
@@ -46,7 +47,15 @@ function Interruptor({ valor, onChange, titulo, ayuda }: { valor: boolean; onCha
  * Alta (`nuevo`, con un id que ya generó la página) y edición. Las imágenes suben a
  * `banners/{id}/` al elegirlas; el banner se guarda recién con "Guardar". Ver claude/web/banners.md
  */
-export function FormularioBanner({ banner, nuevo }: { banner: BannerAdmin; nuevo: boolean }) {
+export function FormularioBanner({
+  banner,
+  nuevo,
+  categorias,
+}: {
+  banner: BannerAdmin;
+  nuevo: boolean;
+  categorias: CategoriaDestino[];
+}) {
   const router = useRouter();
   const [pendiente, iniciar] = useTransition();
   const [imagenPath, setImagenPath] = useState(banner.imagenPath);
@@ -78,7 +87,8 @@ export function FormularioBanner({ banner, nuevo }: { banner: BannerAdmin; nuevo
         imagenMobilePath,
         titulo,
         subtitulo,
-        textoBoton,
+        // Sin destino no hay botón: no se guarda un texto que no se va a ver.
+        textoBoton: enlace.trim() ? textoBoton : "",
         enlace,
         textoClaro,
         activo,
@@ -140,7 +150,7 @@ export function FormularioBanner({ banner, nuevo }: { banner: BannerAdmin; nuevo
         </div>
       </Seccion>
 
-      <Seccion titulo="Texto y enlace" descripcion="Todo opcional: un banner puede ser sólo imagen.">
+      <Seccion titulo="Texto y botón" descripcion="Todo opcional: un banner puede ser sólo imagen.">
         <div className="grid gap-5 md:grid-cols-2">
           <TextField value={titulo} onChange={setTitulo} maxLength={60}>
             <Label>Título</Label>
@@ -150,15 +160,15 @@ export function FormularioBanner({ banner, nuevo }: { banner: BannerAdmin; nuevo
             <Label>Subtítulo</Label>
             <Input placeholder="Remeras y buzos de algodón" />
           </TextField>
-          <TextField value={textoBoton} onChange={setTextoBoton} maxLength={30}>
-            <Label>Texto del botón</Label>
-            <Input placeholder="Ver ropa" />
-          </TextField>
-          <TextField value={enlace} onChange={setEnlace} maxLength={300}>
-            <Label>Enlace</Label>
-            <Input placeholder="/catalogo?cat=ropa" />
-            <Description>Una ruta de la tienda (copiá la URL desde /catalogo con los filtros puestos) o https://…</Description>
-          </TextField>
+          <DestinoBanner enlace={enlace} onChange={setEnlace} categorias={categorias} />
+          {enlace ? (
+            <TextField value={textoBoton} onChange={setTextoBoton} maxLength={30}>
+              <Label>Texto del botón</Label>
+              <Input placeholder="Ver ropa" />
+            </TextField>
+          ) : (
+            <div />
+          )}
           <Interruptor
             valor={textoClaro}
             onChange={setTextoClaro}

@@ -81,12 +81,15 @@ export async function obtenerProductoAdmin(supabase: Cliente, id: string): Promi
 }
 
 export async function obtenerCatalogosAdmin(supabase: Cliente) {
-  const [categorias, grupos] = await Promise.all([
+  const [categorias, grupos, vinculos, conPlantilla, deCadaPlantilla] = await Promise.all([
     supabase.from("categorias").select("id, nombre, padre_id, orden").order("orden"),
     supabase
       .from("grupos_etiqueta")
       .select("id, slug, nombre, orden, es_variante, es_marca, etiquetas(id, valor, slug, orden, color_hex)")
       .order("orden"),
+    supabase.from("categoria_grupos").select("categoria_id, grupo_id"),
+    supabase.from("categoria_plantillas").select("categoria_id, plantilla_id"),
+    supabase.from("plantilla_grupos").select("plantilla_id, grupo_id"),
   ]);
 
   const cats = categorias.data ?? [];
@@ -109,5 +112,18 @@ export async function obtenerCatalogosAdmin(supabase: Cliente) {
       .map((e) => ({ id: e.id, valor: e.valor, slug: e.slug ?? "", orden: e.orden, colorHex: e.color_hex })),
   }));
 
-  return { categorias: listaCategorias, grupos: listaGrupos };
+  // Grupos que pide cada categoría: los sueltos, los de sus plantillas y los mismos de su
+  // categoría padre. Ver claude/web/dashboard.md#características-por-categoría
+  const gruposDePlantilla = new Map<string, string[]>();
+  for (const v of deCadaPlantilla.data ?? []) gruposDePlantilla.set(v.plantilla_id, [...(gruposDePlantilla.get(v.plantilla_id) ?? []), v.grupo_id]);
+  const propios = new Map<string, string[]>();
+  const sumar = (categoriaId: string, ids: string[]) => propios.set(categoriaId, [...(propios.get(categoriaId) ?? []), ...ids]);
+  for (const v of vinculos.data ?? []) sumar(v.categoria_id, [v.grupo_id]);
+  for (const v of conPlantilla.data ?? []) sumar(v.categoria_id, gruposDePlantilla.get(v.plantilla_id) ?? []);
+  const gruposPorCategoria: Record<string, string[]> = {};
+  for (const c of cats) {
+    gruposPorCategoria[c.id] = [...new Set([...(c.padre_id ? (propios.get(c.padre_id) ?? []) : []), ...(propios.get(c.id) ?? [])])];
+  }
+
+  return { categorias: listaCategorias, grupos: listaGrupos, gruposPorCategoria };
 }

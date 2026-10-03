@@ -7,6 +7,7 @@ import { Suspense } from "react";
 import { BorrarBanner } from "@/components/admin/banners/borrar-banner";
 import { FormularioBanner } from "@/components/admin/banners/formulario-banner";
 import { requerirAdmin } from "@/lib/auth";
+import { destinosBanner } from "@/lib/admin/banners";
 import { aDia } from "@/lib/admin/fechas";
 
 export const metadata: Metadata = { title: "Editar banner" };
@@ -55,7 +56,7 @@ async function Edicion({ params }: { params: PageProps<"/admin/banners/[id]">["p
     <>
       <h1 className="text-2xl font-semibold tracking-tight">{b.titulo ?? "Banner sin título"}</h1>
       {/* key: después de guardar, router.refresh() trae los datos nuevos y el formulario se reinicia con ellos. */}
-      <FormularioBanner key={JSON.stringify(banner)} banner={banner} nuevo={false} />
+      <FormularioBanner key={JSON.stringify(banner)} banner={banner} nuevo={false} categorias={await destinosBanner(supabase)} />
       <BorrarBanner id={b.id} nombre={b.titulo ?? "este banner"} />
     </>
   );

@@ -281,6 +281,25 @@ sql += `  -- Promociones de demo
     ('AHORRA5000', 'monto_fijo', 5000, 50000, null),
     ('PRIMEROS50', 'porcentaje', 15, 0, 50);
 
+  -- grupos cuyos valores son colores (los que tienen color_hex)
+  update public.grupos_etiqueta g set con_color = true
+  where exists (select 1 from public.etiquetas e where e.grupo_id = g.id and e.color_hex is not null);
+
+  -- grupos por categoría: los que usan sus productos (la marca va siempre, no se vincula)
+  insert into public.categoria_grupos (categoria_id, grupo_id)
+  select distinct p.categoria_id, e.grupo_id
+  from public.productos p
+  join (
+    select pe.producto_id, pe.etiqueta_id from public.producto_etiquetas pe
+    union
+    select v.producto_id, ve.etiqueta_id
+    from public.variante_etiquetas ve join public.producto_variantes v on v.id = ve.variante_id
+  ) u on u.producto_id = p.id
+  join public.etiquetas e on e.id = u.etiqueta_id
+  join public.grupos_etiqueta g on g.id = e.grupo_id
+  where p.categoria_id is not null and not g.es_marca
+  on conflict do nothing;
+
 `;
 sql += `end;
 $seed$;

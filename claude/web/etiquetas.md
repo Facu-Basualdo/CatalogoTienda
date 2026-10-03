@@ -73,18 +73,21 @@ En la edición de un producto: `Autocomplete` por grupo con opción "Crear «…
 en `app/admin/(panel)/etiquetas/acciones.ts`; **todas invalidan `etiquetas`, `facetas` y
 `productos`** (los nombres salen en fichas, tarjetas y filtros de muchos productos).
 
-- **Renombrar un valor cambia su slug**: el panel muestra `viejo → nuevo` antes de
-  guardar. Las URLs con el slug viejo dejan de filtrar; la clave de las variantes la
-  recalcula un trigger (ver [etiquetas supabase](../supabase/etiquetas.md#clave-de-las-variantes)).
+- **Renombrar un valor cambia su slug** (columna generada): los links con filtros por
+  el valor viejo dejan de filtrar; la clave de las variantes la recalcula un trigger
+  (ver [etiquetas supabase](../supabase/etiquetas.md#clave-de-las-variantes)). El panel
+  no muestra slugs (ver [slugs](dashboard.md#slugs)).
 - **Duplicados**: el unique por slug rechaza "144 Hz" si existe "144Hz". Los que ya
   existen con distinto slug ("Algodon" y "Algodón 100%") se juntan con **Fusionar**
   (`fusionar_etiquetas`), que mueve productos, variantes y promociones.
 - Borrar un valor lo saca de los productos; si está en una variante, la base lo impide
   y el panel muestra el mensaje.
-- El slug del grupo es la clave de la URL: no acepta las reservadas (`CLAVES_RESERVADAS`,
-  igual que el `check` de la tabla). "Es de variante" se deshabilita si el grupo ya
-  está en uso; la marca no se mueve de la primera posición.
-- La muestra de color aparece en grupos de variante o si algún valor ya tiene `color_hex`.
+- El slug del grupo (la clave de la URL) se arma al crearlo y salta las reservadas
+  (`CLAVES_RESERVADAS`, igual que el `check` de la tabla). "Es de variante" se
+  deshabilita si el grupo ya está en uso; la marca no se mueve de la primera posición.
+- El color se elige con `SelectorColor` (`ColorPicker` de HeroUI con colores típicos de
+  ropa), nunca escribiendo un hex.
+- **La muestra de color depende de "Sus valores son colores"** (`grupos_etiqueta.con_color`), no de "es de variante": la memoria RAM es de variante y no tiene colores. Destildarla borra los `color_hex` del grupo, porque la tienda muestra el círculo siempre que haya uno.
 
 ## Ver también
 

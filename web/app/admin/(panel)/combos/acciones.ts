@@ -5,7 +5,7 @@ import { z } from "zod";
 import { adminParaAccion, fallo, ok, type Resultado } from "@/lib/admin/accion";
 import { procesarDescripcion } from "@/lib/admin/descripcion";
 import { TAGS } from "@/lib/catalogo/tags";
-import { SLUG_VALIDO } from "@/lib/slug";
+import { slugUnico } from "@/lib/admin/slug-unico";
 import { BUCKET } from "@/lib/supabase/storage";
 
 // Server Actions de combos. Patrón en claude/web/dashboard.md#patrón-de-server-action
@@ -62,7 +62,6 @@ export async function borrarCombo(id: string): Promise<Resultado> {
 
 const esquemaDatos = z.object({
   nombre: z.string().trim().min(1, "Poné un nombre.").max(120, "Máximo 120 caracteres."),
-  slug: z.string().regex(SLUG_VALIDO, "El slug sólo admite minúsculas, números y guiones."),
   precio: z.number().int().positive("El precio tiene que ser mayor a 0."),
   publicado: z.boolean(),
   destacado: z.boolean(),
@@ -76,8 +75,11 @@ export async function guardarDatosCombo(id: string, entrada: DatosCombo): Promis
   if (!r.success) return fallo(r.error.issues[0]?.message ?? "Datos inválidos.");
   const d = r.data;
 
-  const antes = await slugDe(supabase, id);
-  if (!antes) return fallo("El combo no existe.");
+  const { data: actual } = await supabase.from("combos").select("slug, publicado").eq("id", id).maybeSingle();
+  if (!actual) return fallo("El combo no existe.");
+  const antes = actual.slug;
+  // Igual que productos: sigue al nombre mientras está oculto y queda fijo al publicarse.
+  const slug = actual.publicado ? actual.slug : await slugUnico(supabase, "combos", d.nombre, { excluirId: id, porDefecto: "combo" });
   if (d.publicado) {
     const { count } = await supabase.from("combo_items").select("id", { count: "exact", head: true }).eq("combo_id", id);
     if (!count) return fallo("Agregá los productos del combo antes de publicarlo.");
@@ -85,12 +87,11 @@ export async function guardarDatosCombo(id: string, entrada: DatosCombo): Promis
 
   const { error: e } = await supabase
     .from("combos")
-    .update({ nombre: d.nombre, slug: d.slug, precio: d.precio, publicado: d.publicado, destacado: d.destacado })
+    .update({ nombre: d.nombre, slug, precio: d.precio, publicado: d.publicado, destacado: d.destacado })
     .eq("id", id);
-  if (e?.code === "23505") return fallo("Ese slug ya lo usa otro combo.");
   if (e) return fallo("No se pudieron guardar los datos.");
-  invalidar(antes, d.slug);
-  return ok({ slug: d.slug });
+  invalidar(antes, slug);
+  return ok({ slug });
 }
 
 export async function cambiarVisibilidadCombo(id: string, publicado: boolean): Promise<Resultado> {

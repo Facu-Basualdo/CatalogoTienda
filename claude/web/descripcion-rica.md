@@ -68,6 +68,11 @@ El Server Action guarda dos columnas:
 - **Cada tabla va dentro de un contenedor `overflow-x-auto`.** Una tabla de talles de
   8 columnas en un celular desborda y genera scroll horizontal de toda la página.
 
+## Links
+
+El botón de link abre un `Modal` de HeroUI (no `window.prompt`); "www.ejemplo.com"
+se completa con `https://`.
+
 ## Ver también
 
 - [HeroUI](heroui.md#excepciones-lo-que-heroui-no-trae)

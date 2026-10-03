@@ -8,7 +8,7 @@ import { BorrarGrupo } from "@/components/admin/etiquetas/borrar-grupo";
 import { EditorValores } from "@/components/admin/etiquetas/editor-valores";
 import { FormularioGrupo } from "@/components/admin/etiquetas/formulario-grupo";
 import { requerirAdmin } from "@/lib/auth";
-import { obtenerGrupo } from "@/lib/admin/etiquetas";
+import { categoriasParaGrupos, obtenerGrupo } from "@/lib/admin/etiquetas";
 
 export const metadata: Metadata = { title: "Editar grupo" };
 
@@ -36,16 +36,16 @@ async function Edicion({ params }: { params: PageProps<"/admin/etiquetas/[id]">[
   const { id } = await params;
   const { supabase } = await requerirAdmin();
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
-  const datos = await obtenerGrupo(supabase, id);
+  const [datos, categorias] = await Promise.all([obtenerGrupo(supabase, id), categoriasParaGrupos(supabase)]);
   if (!datos) notFound();
   const { grupo, etiquetas, enUso } = datos;
 
   return (
     <>
       <h1 className="text-2xl font-semibold tracking-tight">{grupo.nombre}</h1>
-      <FormularioGrupo key={JSON.stringify(grupo)} grupo={grupo} enUso={enUso} />
-      {/* Muestra de color: en los grupos de variante (color) o si algún valor ya la tiene. */}
-      <EditorValores grupoId={grupo.id} conColor={grupo.esVariante || etiquetas.some((e) => e.colorHex)} etiquetas={etiquetas} />
+      <FormularioGrupo key={JSON.stringify(grupo)} grupo={grupo} enUso={enUso} categorias={categorias} />
+      {/* Muestra de color sólo si el grupo lo pide ("Sus valores son colores"). */}
+      <EditorValores grupoId={grupo.id} conColor={grupo.conColor} etiquetas={etiquetas} />
       <BorrarGrupo id={grupo.id} nombre={grupo.nombre} />
     </>
   );

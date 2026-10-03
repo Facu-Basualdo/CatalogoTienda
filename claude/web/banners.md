@@ -23,8 +23,10 @@ después de leer la sesión y `guardarBanner(id, nuevo: true, …)` inserta con 
 - **El color del texto es un dato del banner (`texto_claro`)**, no la posición en el
   carrusel. Antes el carrusel alternaba negro y blanco por índice, que sólo servía para
   las imágenes de demo.
-- El enlace es una ruta interna que empieza con `/` o una URL `https://`. El botón
-  necesita enlace.
+- **El destino del botón se elige, no se escribe**: `DestinoBanner` ofrece "Todos los
+  productos", ofertas, combos y cada categoría; "Otra página" deja pegar un link. Un
+  link pegado de la propia tienda (`https://dominio/p/x`) se guarda como ruta (`/p/x`)
+  en `guardarBanner`, así sobrevive a un cambio de dominio. Sin destino no hay botón.
 - Fechas por día con `SelectorFecha` (ver [promociones](promociones.md#fechas)). La
   tienda filtra la ventana en la base con `banners_vigentes()` y la home revalida cada
   minuto (ver [caché](cache-y-revalidacion.md#banners-y-ventanas-de-fecha)).

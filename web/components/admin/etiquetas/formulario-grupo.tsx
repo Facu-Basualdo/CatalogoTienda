@@ -1,15 +1,26 @@
 "use client";
 
-import { Button, Checkbox, Description, Form, Input, Label, TextField, toast, ToggleButton, ToggleButtonGroup } from "@heroui/react";
+import {
+  Button,
+  Checkbox,
+  CheckboxGroup,
+  Description,
+  Form,
+  Input,
+  Label,
+  TextField,
+  toast,
+  ToggleButton,
+  ToggleButtonGroup,
+} from "@heroui/react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { crearGrupo, guardarGrupo } from "@/app/admin/(panel)/etiquetas/acciones";
 import type { GrupoListado } from "@/lib/admin/etiquetas";
 import { ICONOS_GRUPO, IconoGrupo } from "@/lib/iconos";
-import { slugify } from "@/lib/slug";
 import { Seccion } from "../seccion";
 
-type Grupo = Omit<GrupoListado, "etiquetas">;
+type Grupo = Omit<GrupoListado, "etiquetas"> & { categoriaIds: string[] };
 const SIN_ICONO = "sin-icono";
 
 function Casilla({
@@ -41,21 +52,29 @@ function Casilla({
 }
 
 /** Alta (`grupo` null) y edición de un grupo. Ver claude/web/etiquetas.md#en-el-dashboard */
-export function FormularioGrupo({ grupo, enUso = false }: { grupo: Grupo | null; enUso?: boolean }) {
+export function FormularioGrupo({
+  grupo,
+  enUso = false,
+  categorias,
+}: {
+  grupo: Grupo | null;
+  enUso?: boolean;
+  categorias: { id: string; nombre: string }[];
+}) {
   const router = useRouter();
   const [pendiente, iniciar] = useTransition();
   const [nombre, setNombre] = useState(grupo?.nombre ?? "");
-  const [slug, setSlug] = useState(grupo?.slug ?? "");
-  const [slugManual, setSlugManual] = useState(!!grupo);
   const [icono, setIcono] = useState<string | null>(grupo?.icono ?? null);
   const [visibleEnFiltros, setVisibleEnFiltros] = useState(grupo?.visibleEnFiltros ?? true);
   const [visibleEnFicha, setVisibleEnFicha] = useState(grupo?.visibleEnFicha ?? true);
   const [esVariante, setEsVariante] = useState(grupo?.esVariante ?? false);
   const [esMarca, setEsMarca] = useState(grupo?.esMarca ?? false);
+  const [conColor, setConColor] = useState(grupo?.conColor ?? false);
+  const [categoriaIds, setCategoriaIds] = useState(grupo?.categoriaIds ?? []);
 
   function guardar() {
     iniciar(async () => {
-      const datos = { nombre, slug, icono, visibleEnFiltros, visibleEnFicha, esVariante, esMarca };
+      const datos = { nombre, icono, visibleEnFiltros, visibleEnFicha, esVariante, esMarca, conColor, categoriaIds };
       if (grupo) {
         const r = await guardarGrupo(grupo.id, datos);
         if (!r.ok) return void toast.danger(r.error);
@@ -83,29 +102,12 @@ export function FormularioGrupo({ grupo, enUso = false }: { grupo: Grupo | null;
           isRequired
           value={nombre}
           maxLength={40}
-          onChange={(v) => {
-            setNombre(v);
-            if (!slugManual) setSlug(slugify(v));
-          }}
+          onChange={setNombre}
+          className="md:col-span-2"
         >
           <Label>Nombre</Label>
           <Input placeholder="Tasa de refresco" />
         </TextField>
-        <TextField
-          isRequired
-          value={slug}
-          onChange={(v) => {
-            setSlugManual(true);
-            setSlug(v);
-          }}
-        >
-          <Label>Slug</Label>
-          <Input />
-          <Description>
-            Es la clave del filtro en la URL (/catalogo?{slug || "…"}=…). {grupo ? "Cambiarlo rompe los links ya compartidos." : ""}
-          </Description>
-        </TextField>
-
         <div className="flex flex-col gap-2 md:col-span-2">
           <Label className="text-sm font-medium">Ícono en la ficha</Label>
           <ToggleButtonGroup
@@ -148,7 +150,34 @@ export function FormularioGrupo({ grupo, enUso = false }: { grupo: Grupo | null;
             titulo="Es la marca"
             ayuda="Se muestra en la tarjeta y va primero en los filtros. Uno solo."
           />
+          <Casilla
+            valor={conColor}
+            onChange={setConColor}
+            titulo="Sus valores son colores"
+            ayuda={grupo?.conColor && !conColor ? "Al guardar se borran los colores ya cargados." : "Cada valor lleva un círculo de color en la ficha y en los filtros."}
+          />
         </div>
+
+        {!esMarca && (
+          <CheckboxGroup value={categoriaIds} onChange={setCategoriaIds} className="flex flex-col gap-2 md:col-span-2">
+            <Label>En qué categorías se usa</Label>
+            <Description>
+              Al cargar un producto de estas categorías aparece este campo. Las subcategorías heredan lo de su categoría principal. También se puede sumar con una plantilla (más abajo, en Etiquetas).
+            </Description>
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {categorias.map((c) => (
+                <Checkbox key={c.id} value={c.id}>
+                  <Checkbox.Content>
+                    <Checkbox.Control>
+                      <Checkbox.Indicator />
+                    </Checkbox.Control>
+                    {c.nombre}
+                  </Checkbox.Content>
+                </Checkbox>
+              ))}
+            </div>
+          </CheckboxGroup>
+        )}
 
         <div className="flex justify-end md:col-span-2">
           <Button type="submit" isPending={pendiente}>

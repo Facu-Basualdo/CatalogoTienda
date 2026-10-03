@@ -43,6 +43,22 @@ grupo**.
   Un `check` en la tabla lo impide; si agregás una clave reservada nueva en la web,
   agregala también al `check` en una migración.
 
+## Grupos por categoría
+
+`categoria_grupos (categoria_id, grupo_id)` dice qué grupos pide cada categoría al cargar
+un producto en el panel (ver [dashboard](../web/dashboard.md#características-por-categoría)).
+**Es sólo una guía del formulario, no una restricción**: un producto puede tener
+etiquetas de cualquier grupo y la base no lo valida. Las subcategorías heredan los
+grupos de su padre (lo resuelve la web). La marca no se vincula: se muestra siempre.
+Lectura pública; escritura admin. La migración la rellenó con los grupos que ya usaban
+los productos de cada categoría.
+
+**Plantillas** (`plantillas`, `plantilla_grupos`, `categoria_plantillas`): conjuntos con
+nombre de grupos que se vinculan a varias categorías. Los grupos de una categoría son
+los sueltos de `categoria_grupos` más los de sus plantillas (y lo mismo del padre).
+`guardar_plantilla(p_id, p_nombre, p_grupos, p_categorias)` reemplaza todo en una
+transacción. Igual que `categoria_grupos`, no restringe nada en la base.
+
 ## Clave de las variantes
 
 `producto_variantes.clave` son los slugs de sus etiquetas ordenados por grupo

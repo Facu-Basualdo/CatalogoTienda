@@ -98,13 +98,13 @@ guarda en 1200×1500).
 las acciones (`acciones.ts`). Componentes en `components/admin/productos/`.
 
 - **"Nuevo producto" crea el borrador y abre su edición** (`crearBorrador`): slug
-  `borrador-xxxxxxxx`, oculto, con su variante única (la crea el trigger). Mientras el
-  slug siga siendo `borrador-…`, el formulario lo deriva del nombre.
+  `borrador-xxxxxxxx`, oculto, con su variante única (la crea el trigger). El slug real
+  lo pone `guardarDatos` con el nombre (ver [slugs](#slugs)).
 - La edición son secciones independientes, **cada una con su propio Guardar** y su
   acción: datos, imágenes, marca y características, variantes, descripción, borrar.
   Después de guardar, `router.refresh()`; las secciones con estado propio llevan un
   `key` derivado de los datos para reiniciarse con lo nuevo.
-- **El slugify del cliente (`lib/slug.ts`) replica el de la base**: "Remera e2e" da
+- **El slugify de la web (`lib/slug.ts`) replica el de la base**: "Remera e2e" da
   `remera-e2-e` (separa número de letra). Si se cambia uno, cambiar el otro.
 - `guardarEtiquetas` **agrega antes de quitar**: si algo falla a mitad, sobra una
   etiqueta en vez de faltar la marca.
@@ -138,6 +138,50 @@ los botones de estado de `components/admin/pedidos/acciones-pedido.tsx`.
 - Después de cambiar el estado se invalidan `productos`, `facetas` y la ficha de cada
   producto del pedido: la tienda deja de mostrar unidades que ya no hay.
 - No hay teléfono del cliente: el contacto sigue por el WhatsApp que el cliente inició.
+
+## Características por categoría
+
+**Al cargar un producto se ven sólo los grupos de etiquetas de su categoría**, no todos:
+una remera pide talle, color y material; un monitor, refresco, panel y resolución.
+
+- La categoría se elige en "Datos" y **las secciones de abajo cambian al instante, sin
+  guardar**: `ProveedorCategoria` (`components/admin/productos/categoria-producto.tsx`)
+  comparte la categoría elegida; `EditorEtiquetas` y `EditorVariantes` filtran con
+  `useGruposPermitidos()`.
+- Los grupos permitidos son los sueltos de la categoría, **los de sus plantillas** y lo
+  mismo de su categoría principal (`gruposPorCategoria` en `obtenerCatalogosAdmin`).
+- **Plantillas** (sección al pie de Etiquetas, `components/admin/etiquetas/plantillas.tsx`):
+  un conjunto con nombre ("Notebook") de grupos que se asigna a varias categorías de una
+  vez, desde la plantilla o desde el modal de la categoría. Es un vínculo, no una copia:
+  sumarle un grupo lo suma en todas sus categorías. Se guarda con `guardar_plantilla`
+  (una transacción). En el modal de la categoría, los grupos que vienen de una plantilla
+  o del padre se ven tildados y bloqueados con su origen ("de Notebook").
+- **La marca va siempre.** Un grupo en el que el producto ya tiene valores se sigue
+  mostrando aunque no sea de la categoría: filtrar no puede esconder datos guardados.
+- Sin categoría, o con una categoría a la que todavía no se le eligieron grupos, se
+  muestran todos (con un aviso que lleva a Categorías).
+- Se configura desde los dos lados: en el modal de cada categoría (características y
+  opciones con stock; las heredadas se ven tildadas y bloqueadas) y en cada grupo de
+  etiquetas ("En qué categorías se usa"). **Un grupo nuevo sin categorías no aparece al
+  cargar productos de categorías configuradas.**
+- No afecta la tienda: los filtros salen de los productos, no de esta configuración.
+
+## Slugs
+
+**El admin nunca escribe un slug ni lo ve como campo.** El panel es para el dueño de la
+tienda, no para un desarrollador: lo arma el servidor con `slugUnico()`
+(`lib/admin/slug-unico.ts`): `slugify(nombre)` y, si otra fila de la tabla lo usa,
+`-2`, `-3`… El formulario sólo muestra la dirección resultante como texto.
+
+| Entidad | Cuándo se arma | Después |
+|---|---|---|
+| Producto, combo | Al guardar los datos **mientras está oculto** (sigue al nombre) | **Fijo desde que se publica**: renombrar no rompe los links ya compartidos |
+| Categoría | Al crearla | Fijo (es el `?cat=`) |
+| Grupo de etiquetas | Al crearlo, saltando las claves reservadas (`orden` → `orden-2`) | Fijo (es la clave del filtro en la URL) |
+| Valor de etiqueta | Columna generada en la base | Cambia al renombrar (ver [etiquetas](etiquetas.md#en-el-dashboard)) |
+
+No volver a agregar un campo "Slug" a un formulario: si hace falta cambiar una URL
+publicada, es un caso para redirecciones, no para el admin.
 
 ## Secciones
 

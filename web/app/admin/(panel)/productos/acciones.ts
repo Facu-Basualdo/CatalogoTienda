@@ -3,9 +3,10 @@
 import { updateTag } from "next/cache";
 import { z } from "zod";
 import { adminParaAccion, fallo, ok, type Resultado } from "@/lib/admin/accion";
+import { slugUnico } from "@/lib/admin/slug-unico";
 import { procesarDescripcion } from "@/lib/admin/descripcion";
 import { TAGS } from "@/lib/catalogo/tags";
-import { SLUG_VALIDO, slugify } from "@/lib/slug";
+import { slugify } from "@/lib/slug";
 import { BUCKET } from "@/lib/supabase/storage";
 
 // Server Actions de productos. Patrón en claude/web/dashboard.md#patrón-de-server-action
@@ -70,7 +71,6 @@ export async function borrarProducto(id: string): Promise<Resultado> {
 
 const esquemaDatos = z.object({
   nombre: z.string().trim().min(1, "El nombre es obligatorio").max(120),
-  slug: z.string().trim().regex(SLUG_VALIDO, "El slug sólo admite minúsculas, números y guiones"),
   precio: z.number().int("Sin decimales").min(0),
   precioAnterior: z.number().int().min(0).nullable(),
   categoriaId: uuid.nullable(),
@@ -89,14 +89,17 @@ export async function guardarDatos(id: string, entrada: DatosProducto): Promise<
     return fallo("El precio anterior tiene que ser mayor que el precio (o quedar vacío).");
   }
 
-  const { data: antes } = await supabase.from("productos").select("slug").eq("id", id).maybeSingle();
+  const { data: antes } = await supabase.from("productos").select("slug, publicado").eq("id", id).maybeSingle();
   if (!antes) return fallo("El producto no existe.");
+  // El slug lo arma el sistema: sigue al nombre mientras el producto está oculto y queda
+  // fijo una vez publicado (cambiarlo rompería los links ya compartidos).
+  const slug = antes.publicado ? antes.slug : await slugUnico(supabase, "productos", d.nombre, { excluirId: id, porDefecto: "producto" });
 
   const { error: e } = await supabase
     .from("productos")
     .update({
       nombre: d.nombre,
-      slug: d.slug,
+      slug,
       precio: d.precio,
       precio_anterior: d.precioAnterior,
       categoria_id: d.categoriaId,
@@ -104,12 +107,11 @@ export async function guardarDatos(id: string, entrada: DatosProducto): Promise<
       publicado: d.publicado,
     })
     .eq("id", id);
-  if (e?.code === "23505") return fallo("Ese slug ya lo usa otro producto.");
   if (e) return fallo("No se pudieron guardar los datos.");
 
   // El slug viejo también: si no, la URL vieja sigue sirviendo la ficha cacheada.
-  invalidar(antes.slug, d.slug);
-  return ok({ slug: d.slug });
+  invalidar(antes.slug, slug);
+  return ok({ slug });
 }
 
 export async function cambiarVisibilidad(id: string, publicado: boolean): Promise<Resultado> {

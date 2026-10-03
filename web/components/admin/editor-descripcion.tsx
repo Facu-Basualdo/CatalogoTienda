@@ -10,10 +10,10 @@ import {
   ListUl,
   LayoutHeaderCells,
 } from "@gravity-ui/icons";
-import { Button, Separator, toast, ToggleButton, Toolbar } from "@heroui/react";
+import { Button, Form, Input, Label, Modal, Separator, TextField, toast, ToggleButton, Toolbar } from "@heroui/react";
 import { EditorContent, useEditor, useEditorState, type JSONContent } from "@tiptap/react";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import type { Resultado } from "@/lib/admin/accion";
 import { extensionesDescripcion } from "@/lib/descripcion/extensiones";
 import { Seccion } from "./seccion";
@@ -58,11 +58,19 @@ export function EditorDescripcion({ inicial, guardar }: { inicial: unknown; guar
 
   const c = () => editor!.chain().focus();
 
-  function link() {
+  // Link: sin window.prompt (diálogo nativo); un Modal de HeroUI. "www.x.com" se completa con https://.
+  const [pidiendoLink, setPidiendoLink] = useState(false);
+  const [link, setLink] = useState("");
+  function alternarLink() {
     if (!editor) return;
     if (editor.isActive("link")) return void c().unsetLink().run();
-    const url = window.prompt("URL del link (https://…)");
-    if (url && /^https?:\/\//.test(url)) c().setLink({ href: url }).run();
+    setLink("");
+    setPidiendoLink(true);
+  }
+  function aplicarLink() {
+    const limpio = link.trim();
+    if (limpio) c().setLink({ href: /^https?:\/\//.test(limpio) ? limpio : `https://${limpio}` }).run();
+    setPidiendoLink(false);
   }
 
   return (
@@ -109,7 +117,7 @@ export function EditorDescripcion({ inicial, guardar }: { inicial: unknown; guar
           <ToggleButton size="sm" isIconOnly aria-label="Lista numerada" isSelected={!!estado?.numerada} onChange={() => c().toggleOrderedList().run()}>
             <ListOl />
           </ToggleButton>
-          <ToggleButton size="sm" isIconOnly aria-label="Link" isSelected={!!estado?.link} onChange={link}>
+          <ToggleButton size="sm" isIconOnly aria-label="Link" isSelected={!!estado?.link} onChange={alternarLink}>
             <IconoLink />
           </ToggleButton>
           <Separator orientation="vertical" className="mx-1 h-6" />
@@ -148,6 +156,36 @@ export function EditorDescripcion({ inicial, guardar }: { inicial: unknown; guar
         </Toolbar>
         <EditorContent editor={editor} />
       </div>
+      <Modal.Backdrop isOpen={pidiendoLink} onOpenChange={setPidiendoLink}>
+        <Modal.Container>
+          <Modal.Dialog>
+            <Form
+              onSubmit={(e) => {
+                e.preventDefault();
+                aplicarLink();
+              }}
+            >
+              <Modal.Header>
+                <Modal.Heading>Agregar link</Modal.Heading>
+              </Modal.Header>
+              <Modal.Body>
+                <TextField autoFocus value={link} onChange={setLink}>
+                  <Label>Link</Label>
+                  <Input placeholder="Pegá el link (por ejemplo www.ejemplo.com)" />
+                </TextField>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="ghost" onPress={() => setPidiendoLink(false)}>
+                  Cancelar
+                </Button>
+                <Button type="submit" isDisabled={!link.trim()}>
+                  Agregar
+                </Button>
+              </Modal.Footer>
+            </Form>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
     </Seccion>
   );
 }
