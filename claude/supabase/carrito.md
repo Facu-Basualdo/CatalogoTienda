@@ -15,14 +15,14 @@ Migración: `*_carrito_y_pedidos.sql`.
 | Función | Rol | Seguridad | Qué hace |
 |---|---|---|---|
 | `private.cotizar(p_items)` | — | invoker | Desglose: líneas con precio, estado y subtotal; totales |
-| `cotizar_carrito(p_items)` | anon, authenticated | invoker | Wrapper para el carrito. No escribe nada |
-| `crear_pedido(p_items, p_nombre, p_notas)` | anon, authenticated | **definer** | Vuelve a cotizar, valida y guarda pedido + ítems |
+| `cotizar_carrito(p_items, p_cupon)` | anon, authenticated | invoker | Cotización + cupón para el carrito. No escribe nada |
+| `crear_pedido(p_items, p_nombre, p_notas, p_cupon)` | anon, authenticated | **definer** | Vuelve a cotizar, valida y guarda pedido + ítems |
 | `cambiar_estado_pedido(p_pedido_id, p_estado)` | authenticated (+ admin) | invoker | Cambia estado; descuenta o repone stock |
 
 `p_items`: `[{ "tipo": "variante", "variante_id": uuid, "cantidad": int }]`. Las promociones
 y los combos ya entran adentro (ver [promociones](promociones.md#no-se-acumulan) y
-[combos](combos.md#cotización)); los cupones van a entrar **dentro de `cotizar`**, no en
-funciones paralelas.
+[combos](combos.md#cotización)). El cupón se evalúa encima, en `cotizar_con_cupon` (ver
+[cupones](cupones.md)): `cotizar` no sabe de cupones.
 
 ## Reglas de `cotizar`
 
@@ -77,6 +77,7 @@ pedido no cambia el stock.
 - [Carrito (web)](../web/carrito.md)
 - [Promociones](promociones.md) — la parte de `cotizar` que descuenta
 - [Combos](combos.md) — líneas de combo y pedido padre + hijas
+- [Cupones](cupones.md) — `p_cupon` en `cotizar_carrito` y `crear_pedido`, usos
 - [Variantes y stock](variantes-y-stock.md)
 - [Seguridad y RLS](seguridad-rls.md)
 - [Esquema](esquema.md#funciones-rpc)

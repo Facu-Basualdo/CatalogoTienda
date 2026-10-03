@@ -15,6 +15,7 @@ pedidos ─< pedido_items ··> producto_variantes (set null: el ítem es snapsh
 combos ─┬─< combo_items >── productos (restrict)
         └─< combo_imagenes
 pedido_items ─< pedido_items (padre_id: hijas de un combo)
+cupones ─< pedidos (cupon_id, set null)
 promociones ─< promocion_alcance ··> productos | categorias | etiquetas (uno por fila)
 banners
 admins ── auth.users
@@ -95,8 +96,8 @@ un banner que vence a las 00:00 sigue visible hasta la próxima revalidación �
 | `precios_producto(p_producto_id)` | anon | Precio de lista y con promo por variante (ver [promociones](promociones.md#contratos-con-la-web)) |
 | `facetas_productos(p_filtros, p_categoria, p_q)` | anon | Opciones de filtro con cantidad |
 | `banners_vigentes()` | anon | Banners activos dentro de su ventana, por `now()` |
-| `cotizar_carrito(p_items)` | anon | Precios del carrito (ver [carrito](carrito.md)) |
-| `crear_pedido(p_items, p_nombre, p_notas)` | anon | Guarda el pedido (security definer) |
+| `cotizar_carrito(p_items, p_cupon)` | anon | Precios del carrito (ver [carrito](carrito.md)) |
+| `crear_pedido(p_items, p_nombre, p_notas, p_cupon)` | anon | Guarda el pedido (security definer) |
 | `cambiar_estado_pedido(p_pedido_id, p_estado)` | authenticated (+ admin) | Confirmar descuenta stock, cancelar lo repone |
 | `guardar_variantes(p_producto_id, p_variantes)` | authenticated (+RLS admin) | Reemplaza todas las variantes |
 | `reordenar_imagenes(p_producto_id, p_ids)` | authenticated (+RLS admin) | Reescribe `orden` |
@@ -108,7 +109,7 @@ un banner que vence a las 00:00 sigue visible hasta la próxima revalidación �
 
 Helpers en el schema `private` (no expuesto): `productos_filtrados`, `filtros_validos`,
 `variante_cumple`, `cotizar`, `promociones_aplicables`, `promo_unitaria`,
-`promo_cantidad_texto`, `combo_disponible`, `linea_combo`, `es_admin` y los triggers.
+`promo_cantidad_texto`, `combo_disponible`, `linea_combo`, `evaluar_cupon` (definer), `cotizar_con_cupon`, `es_admin` y los triggers.
 
 ## pedidos · pedido_items
 
@@ -121,6 +122,11 @@ Ver [carrito](carrito.md).
 
 Combos con precio propio; los ítems son productos (la variante la elige el cliente) y
 `producto_id` es `restrict`. Ver [combos](combos.md).
+
+## cupones
+
+Códigos de descuento (enum `tipo_cupon`). **Sin grants para anon**: se evalúan sólo
+dentro de `cotizar_con_cupon`. Ver [cupones](cupones.md).
 
 ## promociones · promocion_alcance
 
@@ -139,4 +145,5 @@ producto, categoría o etiqueta, o `alcance_todo`. Anon lee sólo las activas. V
 - [Migraciones](migraciones.md)
 - [Promociones](promociones.md)
 - [Combos](combos.md)
+- [Cupones](cupones.md)
 - [Arquitectura](../general/arquitectura.md)

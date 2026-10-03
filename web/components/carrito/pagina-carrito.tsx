@@ -1,12 +1,12 @@
 "use client";
 
-import { CircleCheck, Comment, ShoppingCart, TrashBin } from "@gravity-ui/icons";
+import { CircleCheck, Comment, ShoppingCart, Tag, TrashBin } from "@gravity-ui/icons";
 import { Button, Form, Input, Label, NumberField, Skeleton, TextArea, TextField, toast } from "@heroui/react";
 import { buttonVariants } from "@heroui/styles";
 import Image from "next/image";
 import NextLink from "next/link";
 import { useState } from "react";
-import { carrito, claveItem, useCarrito } from "@/lib/carrito/almacen";
+import { carrito, claveItem, fijarCupon, useCarrito, useCupon } from "@/lib/carrito/almacen";
 import { aItemsRpc, useCotizacion, type LineaCotizada, type PedidoCreado } from "@/lib/carrito/cotizacion";
 import { formatearPrecio } from "@/lib/formato";
 import { SITIO } from "@/lib/sitio";
@@ -17,7 +17,8 @@ import { urlPublica } from "@/lib/supabase/storage";
 // Ver claude/web/carrito.md
 export function PaginaCarrito() {
   const items = useCarrito();
-  const { cotizacion, cargando, error } = useCotizacion(items);
+  const cupon = useCupon();
+  const { cotizacion, cargando, error } = useCotizacion(items, cupon);
   const [pedido, setPedido] = useState<(PedidoCreado & { nombre: string; notas: string }) | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [nombre, setNombre] = useState("");
@@ -39,6 +40,8 @@ export function PaginaCarrito() {
   }
 
   const hayProblemas = cotizacion?.lineas.some((l) => l.estado !== "ok") ?? false;
+  // Un cupón que no vale bloquea el envío: crear_pedido no cambia el total por su cuenta.
+  const cuponInvalido = !!cupon && !!cotizacion?.cupon_error;
 
   async function enviar() {
     setEnviando(true);
@@ -46,6 +49,7 @@ export function PaginaCarrito() {
       p_items: aItemsRpc(items),
       p_nombre: nombre,
       p_notas: notas || undefined,
+      p_cupon: cupon || undefined,
     });
     setEnviando(false);
     if (e) {
@@ -55,6 +59,7 @@ export function PaginaCarrito() {
     }
     setPedido({ ...(data as unknown as PedidoCreado), nombre: nombre.trim(), notas: notas.trim() });
     carrito.vaciar();
+    fijarCupon("");
   }
 
   return (
@@ -89,11 +94,19 @@ export function PaginaCarrito() {
               <dd className="tabular-nums">-{formatearPrecio(cotizacion.descuento_promociones)}</dd>
             </div>
           )}
+          {cotizacion?.cupon && (
+            <div className="flex justify-between">
+              <dt className="text-muted">Cupón {cotizacion.cupon.codigo}</dt>
+              <dd className="tabular-nums">-{formatearPrecio(cotizacion.cupon.descuento)}</dd>
+            </div>
+          )}
           <div className="flex justify-between border-t border-border pt-3 text-base font-semibold">
             <dt>Total</dt>
             <dd className="tabular-nums">{cotizacion ? formatearPrecio(cotizacion.total) : "…"}</dd>
           </div>
         </dl>
+
+        <CampoCupon cupon={cupon} aplicado={cotizacion?.cupon ?? null} error={cupon ? (cotizacion?.cupon_error ?? null) : null} />
 
         <Form
           className="flex flex-col gap-3"
@@ -110,15 +123,80 @@ export function PaginaCarrito() {
             <Label>Notas (opcional)</Label>
             <TextArea placeholder="Horario, retiro o envío, etc." rows={3} />
           </TextField>
-          <Button type="submit" fullWidth size="lg" isPending={enviando} isDisabled={!cotizacion || cargando || hayProblemas}>
+          <Button type="submit" fullWidth size="lg" isPending={enviando} isDisabled={!cotizacion || cargando || hayProblemas || cuponInvalido}>
             <Comment />
             Enviar pedido por WhatsApp
           </Button>
           {hayProblemas && <p className="text-xs text-muted">Resolvé los avisos del carrito para poder enviar el pedido.</p>}
+          {cuponInvalido && <p className="text-xs text-muted">Quitá o corregí el cupón para poder enviar el pedido.</p>}
           <p className="text-xs text-muted">No se cobra nada ahora: coordinamos el pago y la entrega por WhatsApp.</p>
         </Form>
       </aside>
     </div>
+  );
+}
+
+// El código se guarda tal cual (en mayúsculas); si vale lo dice cotizar_carrito.
+function CampoCupon({
+  cupon,
+  aplicado,
+  error,
+}: {
+  cupon: string;
+  aplicado: { codigo: string; descuento: number } | null;
+  error: string | null;
+}) {
+  const [texto, setTexto] = useState("");
+
+  if (cupon && !error) {
+    return (
+      <div className="flex items-center justify-between gap-3 rounded-xl border border-border px-3 py-2 text-sm">
+        <span className="flex items-center gap-2">
+          <Tag aria-hidden className="size-4" />
+          {/* Un solo span: como ítems sueltos del flex, el gap separa el código de "aplicado". */}
+          <span>
+            {aplicado ? (
+              <>
+                <strong>{aplicado.codigo}</strong> aplicado
+              </>
+            ) : (
+              <>Verificando {cupon}…</>
+            )}
+          </span>
+        </span>
+        <Button size="sm" variant="ghost" onPress={() => fijarCupon("")}>
+          Quitar
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <Form
+      className="flex flex-col gap-2"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (texto.trim()) fijarCupon(texto);
+      }}
+    >
+      <div className="flex items-end gap-2">
+        <TextField value={texto} onChange={setTexto} maxLength={30} name="cupon" className="flex-1" isInvalid={!!error}>
+          <Label>Cupón de descuento</Label>
+          <Input placeholder="Ej: BIENVENIDA10" className="uppercase" />
+        </TextField>
+        <Button type="submit" variant="outline">
+          Aplicar
+        </Button>
+      </div>
+      {error && (
+        <p className="flex items-center justify-between gap-2 text-xs text-danger">
+          {error}
+          <Button size="sm" variant="ghost" onPress={() => fijarCupon("")}>
+            Quitar
+          </Button>
+        </p>
+      )}
+    </Form>
   );
 }
 
@@ -231,6 +309,7 @@ function mensajeWhatsapp(p: PedidoCreado & { nombre: string; notas: string }) {
     `Hola! Quiero hacer el pedido #${p.numero}:`,
     ...lineas,
     ...(p.descuento_promociones > 0 ? [`Promociones: -${formatearPrecio(p.descuento_promociones)}`] : []),
+    ...(p.cupon ? [`Cupón ${p.cupon.codigo}: -${formatearPrecio(p.cupon.descuento)}`] : []),
     `Total: ${formatearPrecio(p.total)}`,
     `Nombre: ${p.nombre}`,
     ...(p.notas ? [`Notas: ${p.notas}`] : []),

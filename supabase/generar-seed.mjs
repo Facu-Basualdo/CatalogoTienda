@@ -275,6 +275,12 @@ sql += `  -- Promociones de demo
   select v_id, p.id, x.c, x.o from (values ('remera-basica', 2, 0), ('medias-pack-x3', 1, 1)) x(s, c, o)
   join public.productos p on p.slug = x.s;
 
+  -- cupones de demo: uno libre, uno con mínimo y uno de uso limitado
+  insert into public.cupones (codigo, tipo, valor, minimo_compra, usos_maximos) values
+    ('BIENVENIDA10', 'porcentaje', 10, 0, null),
+    ('AHORRA5000', 'monto_fijo', 5000, 50000, null),
+    ('PRIMEROS50', 'porcentaje', 15, 0, 50);
+
 `;
 sql += `end;
 $seed$;

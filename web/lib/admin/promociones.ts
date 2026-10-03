@@ -1,5 +1,6 @@
 import "server-only";
 
+import { aDia } from "./fechas";
 import { obtenerCatalogosAdmin } from "./productos";
 import { formatearPrecio } from "@/lib/formato";
 import type { supabaseServidor } from "@/lib/supabase/servidor";
@@ -7,18 +8,6 @@ import type { Database } from "@/lib/supabase/database.types";
 
 type Cliente = Awaited<ReturnType<typeof supabaseServidor>>;
 export type TipoPromocion = Database["public"]["Enums"]["tipo_promocion"];
-
-// Las fechas de la promo se eligen por día (hora de Argentina): `desde` arranca a las
-// 00:00 de ese día y `hasta` termina a las 24:00 del suyo. En la base son timestamptz.
-// Ver claude/web/promociones.md#fechas
-export const ZONA = "America/Argentina/Buenos_Aires";
-const diaAr = new Intl.DateTimeFormat("en-CA", { timeZone: ZONA, year: "numeric", month: "2-digit", day: "2-digit" });
-
-/** timestamptz → "YYYY-MM-DD" en hora argentina. `fin`: el día que termina en ese instante. */
-export function aDia(ts: string | null, fin = false) {
-  if (!ts) return null;
-  return diaAr.format(new Date(new Date(ts).getTime() - (fin ? 1 : 0)));
-}
 
 export type AlcanceAdmin = { productos: string[]; categorias: string[]; etiquetas: string[] };
 

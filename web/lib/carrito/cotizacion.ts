@@ -42,6 +42,10 @@ export type Cotizacion = {
   descuento_promociones: number;
   descuento_cupon: number;
   total: number;
+  /** Cupón aplicado (si el que mandó el cliente vale). */
+  cupon: { codigo: string; descuento: number } | null;
+  /** Por qué no se aplicó el cupón ("no es válido o ya venció", "requiere una compra mínima…"). */
+  cupon_error: string | null;
 };
 
 export type PedidoCreado = Cotizacion & { id: string; numero: number };
@@ -58,18 +62,21 @@ export function aItemsRpc(items: ItemCarrito[]) {
  * Cotiza en vivo contra la base (nunca desde caché: stock y precios cambian).
  * `cargando` es true mientras la cotización mostrada no corresponde a `items`.
  */
-export function useCotizacion(items: ItemCarrito[]) {
+export function useCotizacion(items: ItemCarrito[], cupon = "") {
   const [estado, setEstado] = useState<{ clave: string; cotizacion: Cotizacion | null; error: string | null }>({
     clave: "",
     cotizacion: null,
     error: null,
   });
-  const clave = JSON.stringify(items);
+  const clave = JSON.stringify([items, cupon]);
 
   useEffect(() => {
     let vigente = true;
     const t = setTimeout(async () => {
-      const { data, error } = await supabaseNavegador().rpc("cotizar_carrito", { p_items: aItemsRpc(items) });
+      const { data, error } = await supabaseNavegador().rpc("cotizar_carrito", {
+        p_items: aItemsRpc(items),
+        p_cupon: cupon || undefined,
+      });
       if (!vigente) return;
       setEstado({
         clave,
@@ -81,7 +88,7 @@ export function useCotizacion(items: ItemCarrito[]) {
       vigente = false;
       clearTimeout(t);
     };
-    // `clave` representa a `items`.
+    // `clave` representa a `items` y `cupon`.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clave]);
 

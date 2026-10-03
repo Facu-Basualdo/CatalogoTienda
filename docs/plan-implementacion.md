@@ -40,12 +40,12 @@ Tienda de portfolio con catálogo genérico (ropa, electrónica, lo que sea):
 | 5 — Carrito y pedidos | ✅ Hecha: carrito, cotización, pedido por WhatsApp y dashboard de pedidos con estados y stock |
 | 6 — Promociones | ✅ Hecha: motor en `cotizar`, precios con promo en la tienda, ABM en el dashboard |
 | 7 — Combos | ✅ Hecha: ficha con variantes por producto, línea de combo en `cotizar`, pedido padre + hijas, ABM |
-| 8 — Cupones | Pendiente — **siguiente** |
-| 9 — Etiquetas, categorías y banners | Pendiente |
+| 8 — Cupones | ✅ Hecha: evaluación en la base sin exponer la tabla, campo en el carrito, usos, ABM |
+| 9 — Etiquetas, categorías y banners | Pendiente — **siguiente** |
 | 10 — SEO, rendimiento y producción | Pendiente |
 
 Orden acordado: rediseño y carrito primero, después el dashboard (3, 4 y 5) y
-promociones y combos (hecho); ahora cupones y el resto del dashboard.
+promociones, combos y cupones (hecho); ahora el resto del dashboard y producción.
 
 ## Decisiones de arquitectura
 
@@ -176,18 +176,24 @@ publicación, ficha en la tienda y borrado.
 
 ### Fase 8 — Cupones
 
-- `cupones`: `codigo` (único, sin distinguir mayúsculas), `tipo` (`porcentaje` ·
-  `monto_fijo`), `valor`, `minimo_compra`, `usos_maximos` (null = ilimitado), `usos`,
-  `desde`/`hasta`, `activo`.
-- **Sin grants para `anon`**: si la tabla fuera legible, cualquiera listaría los
-  códigos. Se validan sólo dentro de `cotizar`, que ante cualquier fallo responde
-  "cupón inválido" sin decir por qué (no expira, no existe, no alcanza el mínimo → el
-  mínimo sí se informa, porque el cliente lo puede corregir).
-- Un cupón por pedido, sobre el subtotal **después** de promociones y combos.
-- `usos` se incrementa en `crear_pedido` con
-  `update … set usos = usos + 1 where id = … and (usos_maximos is null or usos < usos_maximos)`:
-  atómico, sin carreras. Cancelar el pedido lo devuelve.
-- Dashboard: ABM, generador de código aleatorio, usos / máximo, pedidos que lo usaron.
+Hecha (ver [cupones web](../claude/web/cupones.md) y
+[cupones supabase](../claude/supabase/cupones.md)).
+
+- [x] `cupones` sin grants para `anon`; evaluación en `private.evaluar_cupon` (definer)
+      con error genérico salvo el mínimo de compra.
+- [x] Un cupón por pedido, sobre el subtotal después de promociones y combos.
+- [x] `cotizar_carrito` y `crear_pedido` con `p_cupon`; usos atómicos al crear el
+      pedido, devueltos al cancelarlo.
+- [x] Carrito: campo de cupón que se guarda con el carrito, fila en el resumen y en el
+      WhatsApp; un cupón inválido bloquea el envío.
+- [x] Dashboard: listado con usos y estado, alta/edición con generador de código,
+      fechas por día, pedidos que lo usaron, borrado.
+
+**Listo cuando:** un cupón con mínimo avisa cuánto falta, uno válido baja el total del
+carrito y del pedido, y cancelar el pedido devuelve el uso. ✅ Verificado: por REST
+(anon no lee la tabla, código en minúsculas, inexistente, mínimo, después de una promo,
+pedido con cupón inválido rechazado) y en el navegador (aplicar, recargar, enviar, uso
+1 → cancelar → 0, generar un código desde el panel).
 
 ### Fase 9 — Etiquetas, categorías y banners
 
@@ -211,7 +217,6 @@ Se crean cuando exista el código, no antes:
 |---|---|---|
 | 3 | `claude/web/dashboard.md` | Patrón de Server Action, `requerirAdmin`, toasts, `SubidaImagen` |
 | 5 | (ya escritas: `claude/*/carrito.md`) | Agregar el dashboard de pedidos cuando exista |
-| 8 | `claude/supabase/cupones.md` | Sin grants, validación dentro de `cotizar`, usos atómicos |
 
 ## Riesgos
 

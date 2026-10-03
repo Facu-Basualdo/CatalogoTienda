@@ -9,8 +9,8 @@ Next.js 16 + HeroUI v3 en Vercel, datos e imágenes en Supabase.
 
 **Estado:** hechos la base, el modelo de datos con demo, el catálogo público con el
 rediseño estilo compragamer, el carrito con pedido por WhatsApp, el dashboard de
-productos y pedidos, las promociones y los combos. Faltan cupones y el ABM de etiquetas,
-categorías y banners: orden y diseño en
+productos y pedidos, las promociones, los combos y los cupones. Falta el ABM de
+etiquetas, categorías y banners, y la puesta en producción: orden y diseño en
 [docs/plan-implementacion.md](docs/plan-implementacion.md). Las notas de `claude/`
 describen lo construido; si el código se aparta, gana el código y la nota se corrige
 con `/docs`.
@@ -61,9 +61,7 @@ grep -rn "updateTag" web/             # después, el código
 | Carrito y pedidos | [carrito](claude/web/carrito.md) | [carrito](claude/supabase/carrito.md) |
 | Promociones | [promociones](claude/web/promociones.md) | [promociones](claude/supabase/promociones.md) |
 | Combos | [combos](claude/web/combos.md) | [combos](claude/supabase/combos.md) |
-
-Cupones todavía no tiene notas: su diseño está en el
-[plan](docs/plan-implementacion.md#fase-8--cupones).
+| Cupones | [cupones](claude/web/cupones.md) | [cupones](claude/supabase/cupones.md) |
 
 ## Reglas de workflow
 
@@ -107,4 +105,4 @@ Cupones todavía no tiene notas: su diseño está en el
 `claude/` es contexto permanente. Planes, investigaciones, auditorías y borradores van
 en `docs/` y se leen a demanda:
 
-- [docs/plan-implementacion.md](docs/plan-implementacion.md) — estado por fase y diseño de lo que falta (cupones, etiquetas, categorías, banners, producción).
+- [docs/plan-implementacion.md](docs/plan-implementacion.md) — estado por fase y diseño de lo que falta (etiquetas, categorías, banners, producción).

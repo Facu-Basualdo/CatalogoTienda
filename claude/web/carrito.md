@@ -67,6 +67,7 @@ piden quitarla. **El botón de enviar queda deshabilitado mientras haya avisos**
 
 - [Carrito (supabase)](../supabase/carrito.md)
 - [Combos](combos.md) — líneas de combo y su clave
+- [Cupones](cupones.md) — el código que se guarda junto al carrito
 - [Promociones](promociones.md) — qué muestra cada línea con descuento
 - [Variantes y stock](variantes-y-stock.md)
 - [Catálogo](catalogo.md)

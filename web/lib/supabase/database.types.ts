@@ -223,6 +223,48 @@ export type Database = {
         };
         Relationships: [];
       };
+      cupones: {
+        Row: {
+          activo: boolean;
+          codigo: string;
+          creado_en: string;
+          desde: string | null;
+          hasta: string | null;
+          id: string;
+          minimo_compra: number;
+          tipo: Database["public"]["Enums"]["tipo_cupon"];
+          usos: number;
+          usos_maximos: number | null;
+          valor: number;
+        };
+        Insert: {
+          activo?: boolean;
+          codigo: string;
+          creado_en?: string;
+          desde?: string | null;
+          hasta?: string | null;
+          id?: string;
+          minimo_compra?: number;
+          tipo: Database["public"]["Enums"]["tipo_cupon"];
+          usos?: number;
+          usos_maximos?: number | null;
+          valor: number;
+        };
+        Update: {
+          activo?: boolean;
+          codigo?: string;
+          creado_en?: string;
+          desde?: string | null;
+          hasta?: string | null;
+          id?: string;
+          minimo_compra?: number;
+          tipo?: Database["public"]["Enums"]["tipo_cupon"];
+          usos?: number;
+          usos_maximos?: number | null;
+          valor?: number;
+        };
+        Relationships: [];
+      };
       etiquetas: {
         Row: {
           color_hex: string | null;
@@ -395,6 +437,7 @@ export type Database = {
           actualizado_en: string;
           creado_en: string;
           cupon_codigo: string | null;
+          cupon_id: string | null;
           descuento_cupon: number;
           descuento_promociones: number;
           estado: Database["public"]["Enums"]["estado_pedido"];
@@ -409,6 +452,7 @@ export type Database = {
           actualizado_en?: string;
           creado_en?: string;
           cupon_codigo?: string | null;
+          cupon_id?: string | null;
           descuento_cupon?: number;
           descuento_promociones?: number;
           estado?: Database["public"]["Enums"]["estado_pedido"];
@@ -423,6 +467,7 @@ export type Database = {
           actualizado_en?: string;
           creado_en?: string;
           cupon_codigo?: string | null;
+          cupon_id?: string | null;
           descuento_cupon?: number;
           descuento_promociones?: number;
           estado?: Database["public"]["Enums"]["estado_pedido"];
@@ -433,7 +478,15 @@ export type Database = {
           subtotal?: number;
           total?: number;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "pedidos_cupon_id_fkey";
+            columns: ["cupon_id"];
+            isOneToOne: false;
+            referencedRelation: "cupones";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       producto_etiquetas: {
         Row: {
@@ -811,9 +864,17 @@ export type Database = {
         };
         Returns: undefined;
       };
-      cotizar_carrito: { Args: { p_items: Json }; Returns: Json };
+      cotizar_carrito: {
+        Args: { p_cupon?: string; p_items: Json };
+        Returns: Json;
+      };
       crear_pedido: {
-        Args: { p_items: Json; p_nombre: string; p_notas?: string };
+        Args: {
+          p_cupon?: string;
+          p_items: Json;
+          p_nombre: string;
+          p_notas?: string;
+        };
         Returns: Json;
       };
       es_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
@@ -867,6 +928,7 @@ export type Database = {
     };
     Enums: {
       estado_pedido: "pendiente" | "confirmado" | "entregado" | "cancelado";
+      tipo_cupon: "porcentaje" | "monto_fijo";
       tipo_promocion: "porcentaje" | "monto_fijo" | "nxm" | "segunda_unidad";
     };
     CompositeTypes: {
@@ -996,6 +1058,7 @@ export const Constants = {
   public: {
     Enums: {
       estado_pedido: ["pendiente", "confirmado", "entregado", "cancelado"],
+      tipo_cupon: ["porcentaje", "monto_fijo"],
       tipo_promocion: ["porcentaje", "monto_fijo", "nxm", "segunda_unidad"],
     },
   },

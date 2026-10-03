@@ -88,3 +88,4 @@ carrito cotiza en vivo: la compra nunca usa un precio vencido.
 - [Seguridad y RLS](seguridad-rls.md)
 - [Esquema](esquema.md)
 - [Combos](combos.md)
+- [Cupones](cupones.md) — se aplican después de las promociones

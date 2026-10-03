@@ -3,6 +3,7 @@
 import { updateTag } from "next/cache";
 import { z } from "zod";
 import { adminParaAccion, fallo, ok, type Resultado } from "@/lib/admin/accion";
+import { finDia, inicioDia } from "@/lib/admin/fechas";
 import { TAGS } from "@/lib/catalogo/tags";
 
 // Server Actions de promociones. Patrón en claude/web/dashboard.md#patrón-de-server-action
@@ -51,15 +52,6 @@ export type DatosPromocion = z.input<typeof esquema>;
 function invalidar() {
   updateTag(TAGS.promociones);
 }
-
-// Días en hora argentina (UTC-3, sin horario de verano): desde 00:00, hasta 24:00.
-const inicioDia = (d: string | null) => (d ? `${d}T00:00:00-03:00` : null);
-const finDia = (d: string | null) => {
-  if (!d) return null;
-  const siguiente = new Date(`${d}T00:00:00Z`);
-  siguiente.setUTCDate(siguiente.getUTCDate() + 1);
-  return `${siguiente.toISOString().slice(0, 10)}T00:00:00-03:00`;
-};
 
 export async function guardarPromocion(id: string | null, datos: DatosPromocion): Promise<Resultado<{ id: string }>> {
   const { supabase, error } = await adminParaAccion();

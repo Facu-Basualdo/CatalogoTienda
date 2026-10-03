@@ -120,3 +120,42 @@ export const carrito = {
     escribir(VACIO);
   },
 };
+
+// ---------------------------------------------------------------- cupón
+// Sólo el código que escribió el cliente. Si vale y cuánto descuenta lo dice cotizar:
+// la tabla de cupones no es legible desde el navegador. Ver claude/web/cupones.md
+const CLAVE_CUPON = "carrito:cupon";
+let cupon: string | null = null;
+const oyentesCupon = new Set<() => void>();
+
+function leerCupon(): string {
+  if (cupon !== null) return cupon;
+  try {
+    cupon = (window.localStorage.getItem(CLAVE_CUPON) ?? "").slice(0, 30);
+  } catch {
+    cupon = "";
+  }
+  return cupon;
+}
+
+export function useCupon(): string {
+  return useSyncExternalStore(
+    (f) => {
+      oyentesCupon.add(f);
+      return () => oyentesCupon.delete(f);
+    },
+    leerCupon,
+    () => "",
+  );
+}
+
+export function fijarCupon(codigo: string) {
+  cupon = codigo.trim().toUpperCase().slice(0, 30);
+  try {
+    if (cupon) window.localStorage.setItem(CLAVE_CUPON, cupon);
+    else window.localStorage.removeItem(CLAVE_CUPON);
+  } catch {
+    // Sin almacenamiento: dura lo que la pestaña.
+  }
+  oyentesCupon.forEach((f) => f());
+}

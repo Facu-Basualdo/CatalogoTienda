@@ -6,11 +6,10 @@ import NextLink from "next/link";
 import { Suspense } from "react";
 import { SwitchActiva } from "@/components/admin/promociones/switch-activa";
 import { requerirAdmin } from "@/lib/auth";
-import { ZONA, describirPromo } from "@/lib/admin/promociones";
+import { CHIP_VIGENCIA as CHIP, vigencia } from "@/lib/admin/fechas";
+import { describirPromo } from "@/lib/admin/promociones";
 
 export const metadata: Metadata = { title: "Promociones" };
-
-const fecha = new Intl.DateTimeFormat("es-AR", { dateStyle: "short", timeZone: ZONA });
 
 // Shell estático + datos en su propio Suspense. Ver claude/web/dashboard.md#páginas-del-panel
 export default function PaginaPromociones() {
@@ -34,33 +33,6 @@ export default function PaginaPromociones() {
     </div>
   );
 }
-
-type Vigencia = { texto: string; estado: "vigente" | "programada" | "vencida" | "pausada" };
-
-function vigencia(p: { activa: boolean; desde: string | null; hasta: string | null }, ahora: number): Vigencia {
-  const desde = p.desde ? new Date(p.desde) : null;
-  // `hasta` es el instante en que termina (24:00 del último día): mostramos ese último día.
-  const hasta = p.hasta ? new Date(new Date(p.hasta).getTime() - 1) : null;
-  const texto =
-    desde && hasta
-      ? `${fecha.format(desde)} al ${fecha.format(hasta)}`
-      : desde
-        ? `Desde ${fecha.format(desde)}`
-        : hasta
-          ? `Hasta ${fecha.format(hasta)}`
-          : "Sin fechas";
-  if (!p.activa) return { texto, estado: "pausada" };
-  if (desde && desde.getTime() > ahora) return { texto, estado: "programada" };
-  if (p.hasta && new Date(p.hasta).getTime() <= ahora) return { texto, estado: "vencida" };
-  return { texto, estado: "vigente" };
-}
-
-const CHIP: Record<Vigencia["estado"], { texto: string; variante: "primary" | "secondary" | "tertiary" }> = {
-  vigente: { texto: "Vigente", variante: "primary" },
-  programada: { texto: "Programada", variante: "secondary" },
-  vencida: { texto: "Vencida", variante: "tertiary" },
-  pausada: { texto: "Pausada", variante: "tertiary" },
-};
 
 async function Listado() {
   const { supabase } = await requerirAdmin();

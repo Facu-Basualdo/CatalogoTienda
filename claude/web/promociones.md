@@ -50,7 +50,8 @@ y fichas.
 
 ### Fechas
 
-**El admin elige días, la base guarda instantes.** `DatePicker` sin hora; la acción
+**El admin elige días, la base guarda instantes.** `SelectorFecha` (`DatePicker` sin hora,
+compartido con cupones); los helpers están en `lib/admin/fechas.ts` y la acción
 convierte `desde` a las 00:00 y `hasta` a las 24:00 (00:00 del día siguiente) de
 Argentina, con offset fijo `-03:00` (no hay horario de verano). Al leer, `aDia(ts, true)`
 resta 1 ms para mostrar el último día incluido. Si se escribe `hasta` con otra hora por
@@ -61,4 +62,5 @@ SQL, el panel muestra el día en que termina.
 - [Promociones (supabase)](../supabase/promociones.md) — motor, alcance, contratos
 - [Carrito](carrito.md) — la cotización que muestra el descuento por línea
 - [Dashboard](dashboard.md) — patrón de Server Action y páginas del panel
+- [Cupones](cupones.md) — mismas fechas por día
 - [Caché y revalidación](cache-y-revalidacion.md#promociones-y-fechas)
