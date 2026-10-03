@@ -47,6 +47,9 @@ Tienda de portfolio con catálogo genérico (ropa, electrónica, lo que sea):
 Orden acordado: rediseño y carrito primero, después el dashboard (3, 4 y 5) y
 promociones, combos, cupones y el resto del dashboard (hecho); ahora producción.
 
+Siguiente producto sobre la misma base: punto de venta de escritorio y clientes con
+login en la web, en [plan-punto-de-venta.md](plan-punto-de-venta.md).
+
 ## Decisiones de arquitectura
 
 | Tema | Decisión | Alternativa descartada y por qué | Nota |

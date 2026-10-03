@@ -106,3 +106,4 @@ grep -rn "updateTag" web/             # después, el código
 en `docs/` y se leen a demanda:
 
 - [docs/plan-implementacion.md](docs/plan-implementacion.md) — estado por fase y diseño de lo que falta (SEO, rendimiento, producción).
+- [docs/plan-punto-de-venta.md](docs/plan-punto-de-venta.md) — punto de venta de escritorio en Python (`.exe`, varias cajas, caja, facturación ARCA) y clientes unificados con login en la web.
