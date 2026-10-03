@@ -104,6 +104,125 @@ export type Database = {
           },
         ];
       };
+      combo_imagenes: {
+        Row: {
+          alt: string;
+          alto: number | null;
+          ancho: number | null;
+          combo_id: string;
+          creado_en: string;
+          id: string;
+          orden: number;
+          path: string;
+        };
+        Insert: {
+          alt?: string;
+          alto?: number | null;
+          ancho?: number | null;
+          combo_id: string;
+          creado_en?: string;
+          id?: string;
+          orden?: number;
+          path: string;
+        };
+        Update: {
+          alt?: string;
+          alto?: number | null;
+          ancho?: number | null;
+          combo_id?: string;
+          creado_en?: string;
+          id?: string;
+          orden?: number;
+          path?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "combo_imagenes_combo_id_fkey";
+            columns: ["combo_id"];
+            isOneToOne: false;
+            referencedRelation: "combos";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      combo_items: {
+        Row: {
+          cantidad: number;
+          combo_id: string;
+          id: string;
+          orden: number;
+          producto_id: string;
+        };
+        Insert: {
+          cantidad?: number;
+          combo_id: string;
+          id?: string;
+          orden?: number;
+          producto_id: string;
+        };
+        Update: {
+          cantidad?: number;
+          combo_id?: string;
+          id?: string;
+          orden?: number;
+          producto_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "combo_items_combo_id_fkey";
+            columns: ["combo_id"];
+            isOneToOne: false;
+            referencedRelation: "combos";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "combo_items_producto_id_fkey";
+            columns: ["producto_id"];
+            isOneToOne: false;
+            referencedRelation: "productos";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      combos: {
+        Row: {
+          actualizado_en: string;
+          creado_en: string;
+          descripcion: Json | null;
+          descripcion_texto: string;
+          destacado: boolean;
+          id: string;
+          nombre: string;
+          precio: number;
+          publicado: boolean;
+          slug: string;
+        };
+        Insert: {
+          actualizado_en?: string;
+          creado_en?: string;
+          descripcion?: Json | null;
+          descripcion_texto?: string;
+          destacado?: boolean;
+          id?: string;
+          nombre: string;
+          precio?: number;
+          publicado?: boolean;
+          slug: string;
+        };
+        Update: {
+          actualizado_en?: string;
+          creado_en?: string;
+          descripcion?: Json | null;
+          descripcion_texto?: string;
+          destacado?: boolean;
+          id?: string;
+          nombre?: string;
+          precio?: number;
+          publicado?: boolean;
+          slug?: string;
+        };
+        Relationships: [];
+      };
       etiquetas: {
         Row: {
           color_hex: string | null;
@@ -184,47 +303,70 @@ export type Database = {
       pedido_items: {
         Row: {
           cantidad: number;
+          combo_id: string | null;
           descripcion: string;
           descuento: number;
           detalle: string | null;
           id: string;
           orden: number;
+          padre_id: string | null;
           pedido_id: string;
           precio_unitario: number;
           producto_id: string | null;
+          promo: string | null;
           sku: string | null;
           subtotal: number;
           variante_id: string | null;
         };
         Insert: {
           cantidad: number;
+          combo_id?: string | null;
           descripcion: string;
           descuento?: number;
           detalle?: string | null;
           id?: string;
           orden?: number;
+          padre_id?: string | null;
           pedido_id: string;
           precio_unitario: number;
           producto_id?: string | null;
+          promo?: string | null;
           sku?: string | null;
           subtotal: number;
           variante_id?: string | null;
         };
         Update: {
           cantidad?: number;
+          combo_id?: string | null;
           descripcion?: string;
           descuento?: number;
           detalle?: string | null;
           id?: string;
           orden?: number;
+          padre_id?: string | null;
           pedido_id?: string;
           precio_unitario?: number;
           producto_id?: string | null;
+          promo?: string | null;
           sku?: string | null;
           subtotal?: number;
           variante_id?: string | null;
         };
         Relationships: [
+          {
+            foreignKeyName: "pedido_items_combo_id_fkey";
+            columns: ["combo_id"];
+            isOneToOne: false;
+            referencedRelation: "combos";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "pedido_items_padre_id_fkey";
+            columns: ["padre_id"];
+            isOneToOne: false;
+            referencedRelation: "pedido_items";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "pedido_items_pedido_id_fkey";
             columns: ["pedido_id"];
@@ -617,6 +759,21 @@ export type Database = {
           isSetofReturn: true;
         };
       };
+      buscar_combos: {
+        Args: { p_destacados?: boolean; p_limite?: number; p_offset?: number };
+        Returns: {
+          disponible: boolean;
+          id: string;
+          imagen_alt: string;
+          imagen_path: string;
+          nombre: string;
+          precio: number;
+          precio_items: number;
+          productos: number;
+          slug: string;
+          total: number;
+        }[];
+      };
       buscar_productos: {
         Args: {
           p_categoria?: string;
@@ -676,6 +833,10 @@ export type Database = {
           seleccionada: boolean;
         }[];
       };
+      guardar_combo_items: {
+        Args: { p_combo_id: string; p_items: Json };
+        Returns: undefined;
+      };
       guardar_promocion: {
         Args: { p_alcance: Json; p_id: string; p_promo: Json };
         Returns: string;
@@ -696,6 +857,10 @@ export type Database = {
       };
       reordenar_imagenes: {
         Args: { p_ids: string[]; p_producto_id: string };
+        Returns: undefined;
+      };
+      reordenar_imagenes_combo: {
+        Args: { p_combo_id: string; p_ids: string[] };
         Returns: undefined;
       };
       slugify: { Args: { texto: string }; Returns: string };

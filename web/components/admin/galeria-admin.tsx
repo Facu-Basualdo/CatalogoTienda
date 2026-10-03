@@ -5,16 +5,27 @@ import { AlertDialog, Button, Chip, Input, TextField, toast } from "@heroui/reac
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { actualizarAlt, borrarImagen, registrarImagen, reordenarImagenes } from "@/app/admin/(panel)/productos/acciones";
+import type { Resultado } from "@/lib/admin/accion";
 import { urlPublica } from "@/lib/supabase/storage";
-import { Seccion } from "../seccion";
-import { SubidaImagen } from "../subida-imagen";
+import { Seccion } from "./seccion";
+import { SubidaImagen } from "./subida-imagen";
 
 type Imagen = { id: string; path: string; alt: string; orden: number };
 
+/**
+ * Server Actions de la entidad (producto o combo), ya ligadas a su id con `.bind` en la
+ * página: la galería no sabe de qué tabla son las imágenes.
+ */
+export type AccionesGaleria = {
+  registrar: (imagen: { path: string; ancho: number; alto: number }) => Promise<Resultado<unknown>>;
+  reordenar: (ids: string[]) => Promise<Resultado>;
+  actualizarAlt: (id: string, alt: string) => Promise<Resultado>;
+  borrar: (id: string) => Promise<Resultado>;
+};
+
 // La principal es la primera (menor `orden`). Reordenar manda la lista completa a
 // reordenar_imagenes. Flechas en vez de drag and drop: accesible con teclado y en touch.
-export function GaleriaAdmin({ productoId, imagenes }: { productoId: string; imagenes: Imagen[] }) {
+export function GaleriaAdmin({ carpeta, imagenes, acciones }: { carpeta: string; imagenes: Imagen[]; acciones: AccionesGaleria }) {
   const router = useRouter();
   const [orden, setOrden] = useState(imagenes.map((i) => i.id));
   const [ordenPrevio, setOrdenPrevio] = useState(imagenes);
@@ -33,7 +44,7 @@ export function GaleriaAdmin({ productoId, imagenes }: { productoId: string; ima
     nuevo.splice(hasta, 0, id);
     setOrden(nuevo);
     iniciar(async () => {
-      const r = await reordenarImagenes(productoId, nuevo);
+      const r = await acciones.reordenar(nuevo);
       if (!r.ok) {
         toast.danger(r.error);
         setOrden(orden);
@@ -81,9 +92,9 @@ export function GaleriaAdmin({ productoId, imagenes }: { productoId: string; ima
                       Hacer principal
                     </Button>
                   )}
-                  <BorrarImagen id={id} />
+                  <BorrarImagen id={id} borrar={acciones.borrar} />
                 </div>
-                <TextoAlternativo id={id} inicial={img.alt} />
+                <TextoAlternativo id={id} inicial={img.alt} actualizar={acciones.actualizarAlt} />
               </li>
             );
           })}
@@ -92,10 +103,10 @@ export function GaleriaAdmin({ productoId, imagenes }: { productoId: string; ima
 
       <SubidaImagen
         formato="producto"
-        carpeta={`productos/${productoId}`}
+        carpeta={carpeta}
         multiple
         onSubida={async (img) => {
-          const r = await registrarImagen(productoId, img);
+          const r = await acciones.registrar(img);
           if (!r.ok) toast.danger(r.error);
           else router.refresh();
         }}
@@ -104,7 +115,7 @@ export function GaleriaAdmin({ productoId, imagenes }: { productoId: string; ima
   );
 }
 
-function TextoAlternativo({ id, inicial }: { id: string; inicial: string }) {
+function TextoAlternativo({ id, inicial, actualizar }: { id: string; inicial: string; actualizar: AccionesGaleria["actualizarAlt"] }) {
   const [alt, setAlt] = useState(inicial);
   const [, iniciar] = useTransition();
   return (
@@ -115,7 +126,7 @@ function TextoAlternativo({ id, inicial }: { id: string; inicial: string }) {
       onBlur={() => {
         if (alt.trim() === inicial) return;
         iniciar(async () => {
-          const r = await actualizarAlt(id, alt);
+          const r = await actualizar(id, alt);
           if (!r.ok) toast.danger(r.error);
         });
       }}
@@ -125,7 +136,7 @@ function TextoAlternativo({ id, inicial }: { id: string; inicial: string }) {
   );
 }
 
-function BorrarImagen({ id }: { id: string }) {
+function BorrarImagen({ id, borrar }: { id: string; borrar: AccionesGaleria["borrar"] }) {
   const router = useRouter();
   const [abierto, setAbierto] = useState(false);
   const [pendiente, iniciar] = useTransition();
@@ -151,7 +162,7 @@ function BorrarImagen({ id }: { id: string }) {
                 isPending={pendiente}
                 onPress={() =>
                   iniciar(async () => {
-                    const r = await borrarImagen(id);
+                    const r = await borrar(id);
                     if (!r.ok) return void toast.danger(r.error);
                     setAbierto(false);
                     router.refresh();

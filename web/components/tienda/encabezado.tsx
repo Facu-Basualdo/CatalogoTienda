@@ -8,7 +8,7 @@ import { MenuMovil } from "./menu-movil";
 import { SelectorTema } from "./selector-tema";
 
 // Encabezado oscuro de dos filas (siempre oscuro, también en tema claro):
-// 1) logo · buscador ancho · tema · carrito   2) categorías · ofertas
+// 1) logo · buscador ancho · tema · carrito   2) categorías · combos · ofertas
 export async function Encabezado() {
   const categorias = await obtenerCategorias();
 
@@ -46,6 +46,9 @@ export async function Encabezado() {
               {c.nombre}
             </NextLink>
           ))}
+          <NextLink href="/combos" className="text-white/75 transition-colors hover:text-white">
+            Combos
+          </NextLink>
           <NextLink href="/ofertas" className="text-white/75 transition-colors hover:text-white">
             Ofertas
           </NextLink>

@@ -23,7 +23,7 @@ const SECCIONES = [
   { href: "/admin", titulo: "Inicio", icono: House, listo: true },
   { href: "/admin/productos", titulo: "Productos", icono: Box, listo: true },
   { href: "/admin/pedidos", titulo: "Pedidos", icono: Receipt, listo: true },
-  { href: "/admin/combos", titulo: "Combos", icono: LayoutHeaderCells, listo: false },
+  { href: "/admin/combos", titulo: "Combos", icono: LayoutHeaderCells, listo: true },
   { href: "/admin/promociones", titulo: "Promociones", icono: Percent, listo: true },
   { href: "/admin/cupones", titulo: "Cupones", icono: Tag, listo: false },
   { href: "/admin/banners", titulo: "Banners", icono: Picture, listo: false },

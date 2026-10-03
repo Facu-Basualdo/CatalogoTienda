@@ -14,13 +14,14 @@ import { Button, Separator, toast, ToggleButton, Toolbar } from "@heroui/react";
 import { EditorContent, useEditor, useEditorState, type JSONContent } from "@tiptap/react";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
-import { guardarDescripcion } from "@/app/admin/(panel)/productos/acciones";
+import type { Resultado } from "@/lib/admin/accion";
 import { extensionesDescripcion } from "@/lib/descripcion/extensiones";
-import { Seccion } from "../seccion";
+import { Seccion } from "./seccion";
 
 // Editor de la descripción: MISMA lista de extensiones que el renderer de la tienda
 // (lib/descripcion/extensiones.ts), o el contenido se pierde. Ver claude/web/descripcion-rica.md
-export function EditorDescripcion({ productoId, inicial }: { productoId: string; inicial: unknown }) {
+/** `guardar`: Server Action ya ligada al producto o combo (`.bind` en la página). */
+export function EditorDescripcion({ inicial, guardar }: { inicial: unknown; guardar: (contenido: string) => Promise<Resultado> }) {
   const router = useRouter();
   const [pendiente, iniciar] = useTransition();
   const editor = useEditor({
@@ -76,7 +77,7 @@ export function EditorDescripcion({ productoId, inicial }: { productoId: string;
           onPress={() =>
             iniciar(async () => {
               // Como string: los attrs de ProseMirror no son objetos planos (ver la acción).
-              const r = await guardarDescripcion(productoId, JSON.stringify(editor!.getJSON()));
+              const r = await guardar(JSON.stringify(editor!.getJSON()));
               if (!r.ok) return void toast.danger(r.error);
               toast("Descripción guardada");
               router.refresh();

@@ -4,11 +4,15 @@ import { useEffect, useState } from "react";
 import { supabaseNavegador } from "@/lib/supabase/navegador";
 import type { ItemCarrito } from "./almacen";
 
-// Forma de la respuesta de private.cotizar (supabase/migrations/*_carrito_y_pedidos.sql).
+// Forma de la respuesta de private.cotizar (última versión en supabase/migrations/*_combos.sql).
 export type EstadoLinea = "ok" | "sin_stock" | "stock_insuficiente" | "no_disponible";
 
 export type LineaCotizada = {
-  variante_id: string;
+  tipo: "variante" | "combo";
+  /** variante_id, o combo:<id>:<variantes>: identifica la línea en el carrito. */
+  clave: string;
+  variante_id: string | null;
+  combo_id?: string;
   producto_id: string | null;
   slug: string | null;
   nombre: string | null;
@@ -25,6 +29,8 @@ export type LineaCotizada = {
   descuento: number;
   /** Nombre de la promoción aplicada a la línea. */
   promo: string | null;
+  /** Sólo combos: lo que se ahorra frente a comprar los productos por separado (precio de lista). */
+  ahorro?: number;
   subtotal: number;
   estado: EstadoLinea;
 };
@@ -41,7 +47,11 @@ export type Cotizacion = {
 export type PedidoCreado = Cotizacion & { id: string; numero: number };
 
 export function aItemsRpc(items: ItemCarrito[]) {
-  return items.map((i) => ({ tipo: i.tipo, variante_id: i.varianteId, cantidad: i.cantidad }));
+  return items.map((i) =>
+    i.tipo === "combo"
+      ? { tipo: i.tipo, combo_id: i.comboId, variantes: i.variantes, cantidad: i.cantidad }
+      : { tipo: i.tipo, variante_id: i.varianteId, cantidad: i.cantidad },
+  );
 }
 
 /**

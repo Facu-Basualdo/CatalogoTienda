@@ -12,6 +12,9 @@ categorias ─┐
 grupos_etiqueta ─< etiquetas ─< producto_etiquetas >─┘                         │
                     └──────────────────────────────────────────────────────┘
 pedidos ─< pedido_items ··> producto_variantes (set null: el ítem es snapshot)
+combos ─┬─< combo_items >── productos (restrict)
+        └─< combo_imagenes
+pedido_items ─< pedido_items (padre_id: hijas de un combo)
 promociones ─< promocion_alcance ··> productos | categorias | etiquetas (uno por fila)
 banners
 admins ── auth.users
@@ -97,18 +100,27 @@ un banner que vence a las 00:00 sigue visible hasta la próxima revalidación �
 | `cambiar_estado_pedido(p_pedido_id, p_estado)` | authenticated (+ admin) | Confirmar descuenta stock, cancelar lo repone |
 | `guardar_variantes(p_producto_id, p_variantes)` | authenticated (+RLS admin) | Reemplaza todas las variantes |
 | `reordenar_imagenes(p_producto_id, p_ids)` | authenticated (+RLS admin) | Reescribe `orden` |
+| `buscar_combos(p_destacados, p_limite, p_offset)` | anon | Combos publicados con precio, `precio_items` (base del ahorro) y disponibilidad |
+| `guardar_combo_items(p_combo_id, p_items)` | authenticated (+RLS admin) | Reemplaza los productos del combo |
+| `reordenar_imagenes_combo(p_combo_id, p_ids)` | authenticated (+RLS admin) | Reescribe `orden` |
 | `guardar_promocion(p_id, p_promo, p_alcance)` | authenticated (+RLS admin) | Promo + alcance en una transacción |
 | `es_admin()` | authenticated | ¿El usuario actual es admin? |
 
 Helpers en el schema `private` (no expuesto): `productos_filtrados`, `filtros_validos`,
 `variante_cumple`, `cotizar`, `promociones_aplicables`, `promo_unitaria`,
-`promo_cantidad_texto`, `es_admin` y los triggers.
+`promo_cantidad_texto`, `combo_disponible`, `linea_combo`, `es_admin` y los triggers.
 
 ## pedidos · pedido_items
 
 Pedidos del carrito con `numero` secuencial, `estado` (enum `estado_pedido`) y totales;
-`pedido_items` es un snapshot (nombre, detalle, SKU, precio). Sin grants para `anon`.
+`pedido_items` es un snapshot (nombre, detalle, SKU, precio, `promo`). Un combo es una
+fila padre + hijas por variante (`padre_id`). Sin grants para `anon`.
 Ver [carrito](carrito.md).
+
+## combos · combo_items · combo_imagenes
+
+Combos con precio propio; los ítems son productos (la variante la elige el cliente) y
+`producto_id` es `restrict`. Ver [combos](combos.md).
 
 ## promociones · promocion_alcance
 
@@ -126,4 +138,5 @@ producto, categoría o etiqueta, o `alcance_todo`. Anon lee sólo las activas. V
 - [Seguridad y RLS](seguridad-rls.md)
 - [Migraciones](migraciones.md)
 - [Promociones](promociones.md)
+- [Combos](combos.md)
 - [Arquitectura](../general/arquitectura.md)

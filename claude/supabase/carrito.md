@@ -20,8 +20,9 @@ Migración: `*_carrito_y_pedidos.sql`.
 | `cambiar_estado_pedido(p_pedido_id, p_estado)` | authenticated (+ admin) | invoker | Cambia estado; descuenta o repone stock |
 
 `p_items`: `[{ "tipo": "variante", "variante_id": uuid, "cantidad": int }]`. Las promociones
-ya se aplican adentro (ver [promociones](promociones.md#no-se-acumulan)); combos y
-cupones van a entrar **dentro de `cotizar`**, no en funciones paralelas.
+y los combos ya entran adentro (ver [promociones](promociones.md#no-se-acumulan) y
+[combos](combos.md#cotización)); los cupones van a entrar **dentro de `cotizar`**, no en
+funciones paralelas.
 
 ## Reglas de `cotizar`
 
@@ -75,6 +76,7 @@ pedido no cambia el stock.
 
 - [Carrito (web)](../web/carrito.md)
 - [Promociones](promociones.md) — la parte de `cotizar` que descuenta
+- [Combos](combos.md) — líneas de combo y pedido padre + hijas
 - [Variantes y stock](variantes-y-stock.md)
 - [Seguridad y RLS](seguridad-rls.md)
 - [Esquema](esquema.md#funciones-rpc)

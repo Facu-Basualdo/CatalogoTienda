@@ -37,12 +37,18 @@ async function Detalle({ params }: { params: PageProps<"/admin/pedidos/[id]">["p
     .from("pedidos")
     .select(
       `id, numero, estado, nombre, notas, subtotal, descuento_promociones, descuento_cupon, total, cupon_codigo, creado_en, actualizado_en,
-       items:pedido_items(id, descripcion, detalle, sku, cantidad, precio_unitario, descuento, subtotal, orden, producto_id)`,
+       items:pedido_items(id, descripcion, detalle, sku, cantidad, precio_unitario, descuento, subtotal, orden, producto_id, combo_id, padre_id, promo)`,
     )
     .eq("id", id)
     .maybeSingle();
   if (!p) notFound();
-  const items = [...p.items].sort((a, b) => a.orden - b.orden);
+  // Un combo es una fila padre (con el precio) y una hija por variante (precio 0, la que
+  // mueve el stock). Las hijas van debajo de su padre. Ver claude/supabase/combos.md
+  const porOrden = (a: { orden: number }, b: { orden: number }) => a.orden - b.orden;
+  const items = p.items
+    .filter((i) => !i.padre_id)
+    .sort(porOrden)
+    .flatMap((i) => [i, ...p.items.filter((h) => h.padre_id === i.id).sort(porOrden)]);
 
   return (
     <>
@@ -69,22 +75,33 @@ async function Detalle({ params }: { params: PageProps<"/admin/pedidos/[id]">["p
                   {items.map((i) => (
                     <Table.Row key={i.id} id={i.id}>
                       <Table.Cell>
-                        <div className="flex flex-col">
-                          {i.producto_id ? (
+                        <div className={`flex flex-col ${i.padre_id ? "border-l-2 border-border pl-3" : ""}`}>
+                          {!i.padre_id && i.combo_id ? (
+                            <NextLink href={`/admin/combos/${i.combo_id}`} className="font-medium hover:underline">
+                              Combo: {i.descripcion}
+                            </NextLink>
+                          ) : i.producto_id ? (
                             <NextLink href={`/admin/productos/${i.producto_id}`} className="font-medium hover:underline">
                               {i.descripcion}
                             </NextLink>
                           ) : (
                             <span className="font-medium">{i.descripcion} (ya no existe)</span>
                           )}
-                          <span className="text-xs text-muted">
-                            {[i.detalle, i.sku && `SKU ${i.sku}`].filter(Boolean).join(" · ")}
-                          </span>
+                          {!(i.combo_id && !i.padre_id) && (
+                            <span className="text-xs text-muted">
+                              {[i.detalle, i.sku && `SKU ${i.sku}`].filter(Boolean).join(" · ")}
+                            </span>
+                          )}
+                          {i.promo && Number(i.descuento) > 0 && (
+                            <span className="text-xs text-muted">
+                              {i.promo}: -{formatearPrecio(i.descuento)}
+                            </span>
+                          )}
                         </div>
                       </Table.Cell>
                       <Table.Cell className="tabular-nums">{i.cantidad}</Table.Cell>
-                      <Table.Cell className="tabular-nums">{formatearPrecio(i.precio_unitario)}</Table.Cell>
-                      <Table.Cell className="tabular-nums">{formatearPrecio(i.subtotal)}</Table.Cell>
+                      <Table.Cell className="tabular-nums">{i.padre_id ? "—" : formatearPrecio(i.precio_unitario)}</Table.Cell>
+                      <Table.Cell className="tabular-nums">{i.padre_id ? "—" : formatearPrecio(i.subtotal)}</Table.Cell>
                     </Table.Row>
                   ))}
                 </Table.Body>

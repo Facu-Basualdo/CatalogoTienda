@@ -8,4 +8,6 @@ export const TAGS = {
   categorias: "categorias",
   banners: "banners",
   promociones: "promociones",
+  combos: "combos",
+  combo: (slug: string) => `combo:${slug}`,
 } as const;

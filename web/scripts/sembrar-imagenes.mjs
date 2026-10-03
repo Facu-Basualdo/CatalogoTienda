@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Genera y sube imágenes de demo (ilustraciones en blanco y negro) para los
-// productos sin imágenes y crea los banners de la home si no hay ninguno.
+// productos y combos sin imágenes y crea los banners de la home si no hay ninguno.
 //
 //   cd web && node scripts/sembrar-imagenes.mjs
 //
@@ -100,6 +100,8 @@ const regenerar = process.argv.includes('--regenerar');
 
 let subidas = 0;
 for (const p of productos) {
+  // Los borradores creados desde el panel ("Nuevo producto") son del admin: no se tocan.
+  if (p.slug.startsWith('borrador-')) continue;
   if (p.producto_imagenes.length > 0 && !regenerar) continue;
   if (regenerar && p.producto_imagenes.length > 0) {
     const { data: archivos } = await supabase.storage.from(BUCKET).list(`productos/${p.id}`);
@@ -122,6 +124,48 @@ for (const p of productos) {
   const { error: e } = await supabase.from('producto_imagenes').insert(filas);
   if (e) throw e;
   console.log(`✓ ${p.slug}`);
+}
+
+// ---------------------------------------------------------------- combos
+// Una imagen por combo sin imágenes: las ilustraciones de sus productos en grilla.
+function svgCombo(fams, oscuro) {
+  const [w, h] = [1200, 1500];
+  const fondo = oscuro ? '#0f0f0f' : '#f4f4f4';
+  const trazo = oscuro ? '#fafafa' : '#0a0a0a';
+  const columnas = fams.length === 1 ? 1 : 2;
+  const filas = Math.ceil(fams.length / columnas);
+  const celdaW = w / columnas;
+  const celdaH = h / filas;
+  const escala = Math.min(celdaW, celdaH) / 200 * 0.7;
+  const dibujos = fams
+    .map((fam, i) => {
+      const x = (i % columnas) * celdaW + (celdaW - 200 * escala) / 2;
+      const y = Math.floor(i / columnas) * celdaH + (celdaH - 200 * escala) / 2;
+      return `<g transform="translate(${x} ${y}) scale(${escala})"><path d="${ILUSTRACIONES[fam]}"/></g>`;
+    })
+    .join('');
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+  <rect width="100%" height="100%" fill="${fondo}"/>
+  <g fill="none" stroke="${trazo}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke">${dibujos}</g>
+</svg>`;
+}
+
+const { data: combos, error: eCombos } = await supabase
+  .from('combos')
+  .select('id, nombre, combo_imagenes(id), combo_items(orden, cantidad, producto:productos(slug, categoria:categorias(slug)))');
+if (eCombos) throw eCombos;
+for (const [n, c] of combos.entries()) {
+  if (c.combo_imagenes.length > 0 || !c.combo_items.length) continue;
+  const fams = [...c.combo_items]
+    .sort((a, b) => a.orden - b.orden)
+    .flatMap((i) => Array(Math.min(i.cantidad, 2)).fill(familia(i.producto.slug, i.producto.categoria?.slug)))
+    .slice(0, 4);
+  const path = `combos/${c.id}/${randomUUID()}.webp`;
+  const { ancho, alto } = await subir(path, svgCombo(fams, n % 2 === 1));
+  const { error: e } = await supabase.from('combo_imagenes').insert({ combo_id: c.id, path, alt: c.nombre, orden: 0, ancho, alto });
+  if (e) throw e;
+  subidas++;
+  console.log(`✓ combo ${c.nombre}`);
 }
 
 // ---------------------------------------------------------------- banners

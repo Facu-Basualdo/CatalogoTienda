@@ -39,6 +39,7 @@ cacheTag(TAGS.productos);  // constantes de lib/catalogo/tags.ts, nunca strings 
 | `categorias` | menú, subcategorías, home | ABM de categorías |
 | `banners` | carrusel de la home | ABM y reorden de banners |
 | `promociones` | **toda lectura con precio**: listado, destacados, ofertas, ficha | ABM de promociones, activar/pausar |
+| `combos` · `combo:{slug}` | listado de combos, carrusel de la home, ficha del combo (que además llevan `productos`) | ABM de combos, sus productos, imágenes y descripción |
 
 Las facetas llevan `facetas` **y** `productos`: publicar un producto cambia los conteos.
 

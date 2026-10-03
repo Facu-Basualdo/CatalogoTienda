@@ -8,8 +8,12 @@ precios y reglas de stock en [carrito (supabase)](../supabase/carrito.md).
 ## Qué guarda el navegador
 
 `lib/carrito/almacen.ts`: `localStorage` clave `carrito:v1`, **sólo ids y cantidades**
-(`{ tipo: 'variante', varianteId, cantidad }`). Nunca precios, nombres ni stock: todo eso
-cambia y el carrito lo pide de nuevo.
+(`{ tipo: 'variante', varianteId, cantidad }` o `{ tipo: 'combo', comboId, variantes, cantidad }`).
+Nunca precios, nombres ni stock: todo eso cambia y el carrito lo pide de nuevo.
+
+- **Las líneas se identifican por `clave`** (`claveItem()`), la misma que devuelve
+  `cotizar`: `quitar` y `fijarCantidad` la reciben, no un `variante_id`. Ver
+  [combos](combos.md).
 
 - Se lee con `useCarrito()` (`useSyncExternalStore`). En el server y antes de hidratar
   devuelve `[]`: el contador del encabezado aparece después de cargar, no hay mismatch.
@@ -62,6 +66,7 @@ piden quitarla. **El botón de enviar queda deshabilitado mientras haya avisos**
 ## Ver también
 
 - [Carrito (supabase)](../supabase/carrito.md)
+- [Combos](combos.md) — líneas de combo y su clave
 - [Promociones](promociones.md) — qué muestra cada línea con descuento
 - [Variantes y stock](variantes-y-stock.md)
 - [Catálogo](catalogo.md)

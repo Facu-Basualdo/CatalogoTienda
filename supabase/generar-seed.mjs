@@ -252,6 +252,29 @@ sql += `  -- Promociones de demo
   insert into public.promociones (nombre, tipo, valor) values ('2da unidad al 50% en buzos', 'segunda_unidad', 50) returning id into v_id;
   insert into public.promocion_alcance (promocion_id, categoria_id) select v_id, id from public.categorias where slug = 'buzos';
 
+  -- combos de demo: precio menor que comprar los productos por separado (con sus promos)
+  insert into public.combos (slug, nombre, precio, publicado, destacado, descripcion_texto)
+  values ('combo-gamer', 'Combo gamer: monitor + teclado + mouse', 319000, true, true,
+          'Monitor de 24 pulgadas a 144 Hz, teclado mecánico y mouse inalámbrico.')
+  returning id into v_id;
+  insert into public.combo_items (combo_id, producto_id, cantidad, orden)
+  select v_id, p.id, 1, x.o from (values ('monitor-24-144-hz-ips', 0), ('teclado-mecanico', 1), ('mouse-inalambrico', 2)) x(s, o)
+  join public.productos p on p.slug = x.s;
+  insert into public.combos (slug, nombre, precio, publicado, destacado, descripcion_texto)
+  values ('combo-abrigo', 'Combo abrigo: buzo + pantalón cargo', 85000, true, true,
+          'Buzo canguro y pantalón cargo. Elegí talle y color de cada uno.')
+  returning id into v_id;
+  insert into public.combo_items (combo_id, producto_id, cantidad, orden)
+  select v_id, p.id, 1, x.o from (values ('buzo-canguro', 0), ('pantalon-cargo', 1)) x(s, o)
+  join public.productos p on p.slug = x.s;
+  insert into public.combos (slug, nombre, precio, publicado, destacado, descripcion_texto)
+  values ('pack-remeras-y-medias', 'Pack 2 remeras básicas + medias', 39900, true, false,
+          'Dos remeras básicas (elegís talle y color) y un pack de 3 pares de medias.')
+  returning id into v_id;
+  insert into public.combo_items (combo_id, producto_id, cantidad, orden)
+  select v_id, p.id, x.c, x.o from (values ('remera-basica', 2, 0), ('medias-pack-x3', 1, 1)) x(s, c, o)
+  join public.productos p on p.slug = x.s;
+
 `;
 sql += `end;
 $seed$;

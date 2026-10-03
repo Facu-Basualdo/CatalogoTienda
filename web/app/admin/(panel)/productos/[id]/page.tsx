@@ -6,13 +6,14 @@ import NextLink from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { BorrarProducto } from "@/components/admin/productos/borrar-producto";
-import { EditorDescripcion } from "@/components/admin/productos/editor-descripcion";
+import { EditorDescripcion } from "@/components/admin/editor-descripcion";
 import { EditorEtiquetas } from "@/components/admin/productos/editor-etiquetas";
 import { EditorVariantes } from "@/components/admin/productos/editor-variantes";
 import { FormularioDatos } from "@/components/admin/productos/formulario-datos";
-import { GaleriaAdmin } from "@/components/admin/productos/galeria-admin";
+import { GaleriaAdmin } from "@/components/admin/galeria-admin";
 import { requerirAdmin } from "@/lib/auth";
 import { obtenerCatalogosAdmin, obtenerProductoAdmin } from "@/lib/admin/productos";
+import { actualizarAlt, borrarImagen, guardarDescripcion, registrarImagen, reordenarImagenes } from "../acciones";
 
 export const metadata: Metadata = { title: "Editar producto" };
 
@@ -64,7 +65,16 @@ async function Edicion({ params }: { params: PageProps<"/admin/productos/[id]">[
 
       {/* key: al guardar, router.refresh() trae datos nuevos y cada sección se reinicia con ellos. */}
       <FormularioDatos key={`datos-${producto.slug}-${producto.publicado}`} producto={producto} categorias={catalogos.categorias} />
-      <GaleriaAdmin productoId={producto.id} imagenes={producto.imagenes} />
+      <GaleriaAdmin
+        carpeta={`productos/${producto.id}`}
+        imagenes={producto.imagenes}
+        acciones={{
+          registrar: registrarImagen.bind(null, producto.id),
+          reordenar: reordenarImagenes.bind(null, producto.id),
+          actualizarAlt,
+          borrar: borrarImagen,
+        }}
+      />
       <EditorEtiquetas key={`et-${producto.etiquetas.join()}`} productoId={producto.id} grupos={catalogos.grupos} seleccionadas={producto.etiquetas} />
       <EditorVariantes
         key={`var-${producto.variantes.map((v) => `${v.clave}:${v.stock}`).join()}`}
@@ -73,7 +83,7 @@ async function Edicion({ params }: { params: PageProps<"/admin/productos/[id]">[
         grupos={catalogos.grupos}
         variantes={producto.variantes}
       />
-      <EditorDescripcion productoId={producto.id} inicial={producto.descripcion} />
+      <EditorDescripcion inicial={producto.descripcion} guardar={guardarDescripcion.bind(null, producto.id)} />
       <BorrarProducto id={producto.id} nombre={producto.nombre} />
     </>
   );

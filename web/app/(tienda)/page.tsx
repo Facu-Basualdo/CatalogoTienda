@@ -4,7 +4,9 @@ import NextLink from "next/link";
 import { CarruselBanners } from "@/components/tienda/carrusel-banners";
 import { CarruselProductos } from "@/components/tienda/carrusel-productos";
 import { PestanasDestacados } from "@/components/tienda/pestanas-destacados";
+import { TarjetaCombo } from "@/components/tienda/tarjeta-combo";
 import { TarjetaProducto } from "@/components/tienda/tarjeta-producto";
+import { buscarCombos } from "@/lib/catalogo/combos";
 import {
   obtenerBanners,
   obtenerCategorias,
@@ -23,11 +25,12 @@ function Titulo({ normal, fuerte }: { normal: string; fuerte: string }) {
 }
 
 export default async function Inicio() {
-  const [banners, categorias, mosaico, ofertas] = await Promise.all([
+  const [banners, categorias, mosaico, ofertas, combos] = await Promise.all([
     obtenerBanners(),
     obtenerCategorias(),
     obtenerMosaicoCategorias(),
     obtenerOfertas(12),
+    buscarCombos(true, 8),
   ]);
   const destacados = await Promise.all([
     obtenerDestacados(6).then((productos) => ({ id: "todos", titulo: "Todos", productos })),
@@ -109,6 +112,14 @@ export default async function Inicio() {
             ))}
           </ul>
         </section>
+      )}
+
+      {combos.combos.length > 0 && (
+        <CarruselProductos titulo={<Titulo normal="Llevá más con nuestros" fuerte="combos" />}>
+          {combos.combos.map((c) => (
+            <TarjetaCombo key={c.id} combo={c} />
+          ))}
+        </CarruselProductos>
       )}
 
       {ofertas.productos.length > 0 && (

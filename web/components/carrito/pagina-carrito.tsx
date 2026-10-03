@@ -6,7 +6,7 @@ import { buttonVariants } from "@heroui/styles";
 import Image from "next/image";
 import NextLink from "next/link";
 import { useState } from "react";
-import { carrito, useCarrito } from "@/lib/carrito/almacen";
+import { carrito, claveItem, useCarrito } from "@/lib/carrito/almacen";
 import { aItemsRpc, useCotizacion, type LineaCotizada, type PedidoCreado } from "@/lib/carrito/cotizacion";
 import { formatearPrecio } from "@/lib/formato";
 import { SITIO } from "@/lib/sitio";
@@ -63,13 +63,13 @@ export function PaginaCarrito() {
         {!cotizacion ? (
           <div className="flex flex-col gap-4 p-5">
             {items.map((i) => (
-              <Skeleton key={i.varianteId} className="h-24 rounded-xl" />
+              <Skeleton key={claveItem(i)} className="h-24 rounded-xl" />
             ))}
           </div>
         ) : (
           <ul className={`divide-y divide-separator transition-opacity ${cargando ? "opacity-60" : ""}`}>
             {cotizacion.lineas.map((l) => (
-              <Linea key={l.variante_id} linea={l} />
+              <Linea key={l.clave} linea={l} />
             ))}
           </ul>
         )}
@@ -133,15 +133,28 @@ function Linea({ linea: l }: { linea: LineaCotizada }) {
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             {l.slug ? (
-              <NextLink href={`/p/${l.slug}?variante=${l.variante_id}`} className="line-clamp-2 text-sm font-medium hover:underline">
+              <NextLink
+                href={l.tipo === "combo" ? `/combo/${l.slug}` : `/p/${l.slug}?variante=${l.variante_id}`}
+                className="line-clamp-2 text-sm font-medium hover:underline"
+              >
                 {l.nombre}
               </NextLink>
             ) : (
               <p className="text-sm font-medium text-muted">Producto no disponible</p>
             )}
-            {l.detalle && <p className="text-xs text-muted">{l.detalle}</p>}
+            {l.tipo === "combo" && <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">Combo</p>}
+            {l.detalle &&
+              (l.tipo === "combo" ? (
+                <ul className="mt-1 flex flex-col gap-0.5 text-xs text-muted">
+                  {l.detalle.split(" + ").map((d) => (
+                    <li key={d}>{d}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-xs text-muted">{l.detalle}</p>
+              ))}
           </div>
-          <Button isIconOnly size="sm" variant="ghost" aria-label="Quitar del carrito" onPress={() => carrito.quitar(l.variante_id)}>
+          <Button isIconOnly size="sm" variant="ghost" aria-label="Quitar del carrito" onPress={() => carrito.quitar(l.clave)}>
             <TrashBin />
           </Button>
         </div>
@@ -153,7 +166,7 @@ function Linea({ linea: l }: { linea: LineaCotizada }) {
               value={l.cantidad}
               minValue={1}
               maxValue={Math.max(maximo, l.cantidad)}
-              onChange={(v) => v && carrito.fijarCantidad(l.variante_id, v)}
+              onChange={(v) => v && carrito.fijarCantidad(l.clave, v)}
               className="w-32"
             >
               <NumberField.Group>
@@ -172,6 +185,14 @@ function Linea({ linea: l }: { linea: LineaCotizada }) {
           </div>
         ) : null}
 
+        {l.estado === "ok" && !!l.ahorro && (
+          <p className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="rounded bg-ahorro px-1.5 py-0.5 font-semibold text-ahorro-foreground tabular-nums">
+              Ahorrás {formatearPrecio(l.ahorro)}
+            </span>
+            <span className="text-muted">frente a comprarlos por separado</span>
+          </p>
+        )}
         {l.estado === "ok" && l.promo && l.descuento > 0 && (
           <p className="flex flex-wrap items-center gap-2 text-xs">
             <span className="rounded bg-ahorro px-1.5 py-0.5 font-semibold text-ahorro-foreground tabular-nums">
@@ -185,12 +206,16 @@ function Linea({ linea: l }: { linea: LineaCotizada }) {
             <span className="text-danger">
               {l.stock === 1 ? "Queda 1 unidad." : `Quedan ${l.stock} unidades.`}
             </span>
-            <Button size="sm" variant="outline" onPress={() => carrito.fijarCantidad(l.variante_id, l.stock)}>
+            <Button size="sm" variant="outline" onPress={() => carrito.fijarCantidad(l.clave, l.stock)}>
               Llevar {l.stock}
             </Button>
           </p>
         )}
-        {l.estado === "sin_stock" && <p className="text-xs text-danger">Se quedó sin stock. Quitalo para continuar.</p>}
+        {l.estado === "sin_stock" && (
+          <p className="text-xs text-danger">
+            {l.tipo === "combo" ? "Uno de los productos del combo se quedó sin stock" : "Se quedó sin stock"}. Quitalo para continuar.
+          </p>
+        )}
         {l.estado === "no_disponible" && <p className="text-xs text-danger">Ya no está a la venta. Quitalo para continuar.</p>}
       </div>
     </li>
@@ -200,7 +225,7 @@ function Linea({ linea: l }: { linea: LineaCotizada }) {
 function mensajeWhatsapp(p: PedidoCreado & { nombre: string; notas: string }) {
   const lineas = p.lineas.map(
     (l) =>
-      `• ${l.cantidad} × ${l.nombre}${l.detalle ? ` (${l.detalle})` : ""} — ${formatearPrecio(l.subtotal)}${l.promo && l.descuento > 0 ? ` (${l.promo})` : ""}`,
+      `• ${l.cantidad} × ${l.tipo === "combo" ? "Combo " : ""}${l.nombre}${l.detalle ? ` (${l.detalle})` : ""} — ${formatearPrecio(l.subtotal)}${l.promo && l.descuento > 0 ? ` (${l.promo})` : ""}`,
   );
   return [
     `Hola! Quiero hacer el pedido #${p.numero}:`,

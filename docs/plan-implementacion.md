@@ -39,13 +39,13 @@ Tienda de portfolio con catálogo genérico (ropa, electrónica, lo que sea):
 | 4 — ABM de productos | ✅ Hecha: listado, alta, datos, marca y características, galería con recorte, variantes y stock, descripción con tablas, borrado |
 | 5 — Carrito y pedidos | ✅ Hecha: carrito, cotización, pedido por WhatsApp y dashboard de pedidos con estados y stock |
 | 6 — Promociones | ✅ Hecha: motor en `cotizar`, precios con promo en la tienda, ABM en el dashboard |
-| 7 — Combos | Pendiente — **siguiente** |
-| 8 — Cupones | Pendiente |
+| 7 — Combos | ✅ Hecha: ficha con variantes por producto, línea de combo en `cotizar`, pedido padre + hijas, ABM |
+| 8 — Cupones | Pendiente — **siguiente** |
 | 9 — Etiquetas, categorías y banners | Pendiente |
 | 10 — SEO, rendimiento y producción | Pendiente |
 
 Orden acordado: rediseño y carrito primero, después el dashboard (3, 4 y 5) y
-promociones (hecho); ahora combos, cupones y el resto del dashboard.
+promociones y combos (hecho); ahora cupones y el resto del dashboard.
 
 ## Decisiones de arquitectura
 
@@ -152,19 +152,27 @@ Verificado en el navegador (crear, pausar desde el listado, editar, borrar, carr
 
 ### Fase 7 — Combos
 
-- `combos` (`slug`, `nombre`, `descripcion` TipTap, `precio`, `publicado`,
-  `destacado`), `combo_items` (`producto_id`, `cantidad`), `combo_imagenes` (4:5, mismo
-  flujo que productos).
-- **Disponible** si cada producto del combo tiene alguna variante activa con stock ≥
-  cantidad. "Ahorrás $X" = suma de precios base de los ítems − precio del combo.
-- Ficha `/combo/[slug]`: el visitante elige la variante de cada producto que tenga
-  variantes (reusa el selector de la ficha); al carrito va como una línea `combo`.
-- Listado `/combos` y sección en la home. No se mezclan en la grilla del catálogo:
-  romperían facetas y paginación.
-- Dashboard: ABM con buscador de productos, cantidades, precio y cálculo del ahorro.
-- Al reescribir `crear_pedido` para las líneas de combo, sumar `pedido_items.promo` (el
-  nombre de la promoción aplicada; hoy sólo se guarda el `descuento`) y mostrarlo en el
-  detalle del pedido.
+Hecha (ver [combos web](../claude/web/combos.md) y
+[combos supabase](../claude/supabase/combos.md)).
+
+- [x] `combos`, `combo_items` (productos, `restrict`), `combo_imagenes`, con RLS y grants.
+- [x] Disponible si cada producto tiene alguna variante activa con stock ≥ cantidad;
+      "Ahorrás $X" contra el precio de lista más bajo de cada producto.
+- [x] Ficha `/combo/[slug]` con un selector por producto (mismas reglas que la ficha,
+      contra la cantidad del ítem); al carrito como línea `combo` con `clave` propia.
+- [x] `cotizar` con líneas de combo (sin promociones adentro); `crear_pedido` guarda
+      padre + hijas por variante, y `pedido_items.promo` en las líneas con promoción.
+- [x] `/combos`, carrusel en la home y "Combos" en el encabezado; no se mezclan en el
+      catálogo.
+- [x] Dashboard: listado con switch, edición de datos, productos y cantidades (vista
+      previa del ahorro), imágenes y descripción (componentes compartidos con productos),
+      borrado. Borrar un producto que está en un combo avisa en cuál.
+
+**Listo cuando:** un combo con remera y buzo deja elegir talle y color de cada uno, el
+pedido lo guarda con las variantes exactas y confirmarlo descuenta el stock de esas
+variantes. ✅ Verificado en el navegador: combo abrigo al carrito con ahorro, pedido,
+confirmar (stock 2/2 → 1/1) y cancelar (vuelve a 2/2), alta de un combo desde el panel,
+publicación, ficha en la tienda y borrado.
 
 ### Fase 8 — Cupones
 
@@ -203,7 +211,6 @@ Se crean cuando exista el código, no antes:
 |---|---|---|
 | 3 | `claude/web/dashboard.md` | Patrón de Server Action, `requerirAdmin`, toasts, `SubidaImagen` |
 | 5 | (ya escritas: `claude/*/carrito.md`) | Agregar el dashboard de pedidos cuando exista |
-| 7 | `claude/supabase/combos.md` + `claude/web/combos.md` | Disponibilidad, variantes por ítem, ahorro |
 | 8 | `claude/supabase/cupones.md` | Sin grants, validación dentro de `cotizar`, usos atómicos |
 
 ## Riesgos

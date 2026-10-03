@@ -6,7 +6,9 @@ import { useRouter } from "next/navigation";
 import { carrito } from "@/lib/carrito/almacen";
 
 type Props = {
-  varianteId: string;
+  /** Una variante suelta, o un combo con la variante elegida de cada producto. */
+  varianteId?: string;
+  combo?: { id: string; variantes: string[] };
   nombre: string;
   cantidad?: number;
   isDisabled?: boolean;
@@ -14,7 +16,7 @@ type Props = {
   className?: string;
 };
 
-export function BotonAgregar({ varianteId, nombre, cantidad = 1, isDisabled, size = "md", className }: Props) {
+export function BotonAgregar({ varianteId, combo, nombre, cantidad = 1, isDisabled, size = "md", className }: Props) {
   const router = useRouter();
 
   return (
@@ -24,7 +26,12 @@ export function BotonAgregar({ varianteId, nombre, cantidad = 1, isDisabled, siz
       isDisabled={isDisabled}
       className={className}
       onPress={() => {
-        if (!carrito.agregar(varianteId, cantidad)) {
+        const sumado = combo
+          ? carrito.agregarCombo(combo.id, combo.variantes, cantidad)
+          : varianteId
+            ? carrito.agregar(varianteId, cantidad)
+            : true;
+        if (!sumado) {
           toast.danger("El carrito admite hasta 30 productos distintos");
           return;
         }

@@ -28,7 +28,7 @@ hay dos listas.
 
 ## Editor (dashboard)
 
-- `components/admin/productos/editor-descripcion.tsx`, `'use client'`, con
+- `components/admin/editor-descripcion.tsx` (productos y combos), `'use client'`, con
   `useEditor({ immediatelyRender: false, … })`. **Sin `immediatelyRender: false` hay
   hydration mismatch** en Next: TipTap intenta renderizar en el servidor un DOM que
   después no coincide. El estado de los botones sale de `useEditorState`.

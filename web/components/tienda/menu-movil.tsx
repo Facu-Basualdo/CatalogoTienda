@@ -33,6 +33,9 @@ export function MenuMovil({ categorias }: { categorias: Categoria[] }) {
                 <NextLink href="/catalogo" onClick={cerrar} className="font-medium">
                   Todos los productos
                 </NextLink>
+                <NextLink href="/combos" onClick={cerrar} className="font-medium">
+                  Combos
+                </NextLink>
                 <NextLink href="/ofertas" onClick={cerrar} className="font-medium">
                   Ofertas
                 </NextLink>

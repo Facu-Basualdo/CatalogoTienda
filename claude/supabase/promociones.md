@@ -50,7 +50,7 @@ porcentaje con `lleva` no entran.
    unitarias que esas líneas pierden. Se elige de a una (la de mayor ganancia) hasta que
    ninguna gane; una línea asignada ya no entra en otra.
 
-Las unidades dentro de un combo no van a recibir promociones (fase 7).
+Las unidades dentro de un combo no reciben promociones (ver [combos](combos.md)).
 
 ## Contratos con la web
 
@@ -62,8 +62,8 @@ Las unidades dentro de un combo no van a recibir promociones (fase 7).
 | `cotizar` (totales) | `subtotal` = suma a precio de lista · `descuento_promociones` · `total` |
 | `guardar_promocion(p_id, p_promo, p_alcance)` | `uuid`. Crea (`p_id` null) o reemplaza promo **y** alcance en una transacción |
 
-`pedido_items` todavía no guarda el **nombre** de la promo, sólo `descuento`: se agrega
-cuando la fase 7 reescriba `crear_pedido` para combos.
+`crear_pedido` guarda en `pedido_items.promo` el nombre de la promoción de cada línea, y
+el detalle del pedido en el panel lo muestra junto al descuento.
 
 ## Seguridad
 
@@ -87,3 +87,4 @@ carrito cotiza en vivo: la compra nunca usa un precio vencido.
 - [Carrito y pedidos](carrito.md) — `cotizar` es el motor; acá sólo la parte de promos
 - [Seguridad y RLS](seguridad-rls.md)
 - [Esquema](esquema.md)
+- [Combos](combos.md)

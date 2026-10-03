@@ -19,7 +19,9 @@ etiquetas de grupos `es_variante` (Talle, Color…) van en la variante.
 
 Un `ToggleButtonGroup selectionMode="single"` por grupo de variante
 (`components/tienda/selector-variantes.tsx`); los colores llevan la muestra de
-`color_hex` adentro del botón. Nada de `<select>`.
+`color_hex` adentro del botón. Nada de `<select>`. Las reglas de abajo están en
+`lib/catalogo/variantes.ts`, compartidas con el selector del combo (que las evalúa
+contra la cantidad del ítem, ver [combos](combos.md#tienda)).
 
 - **Nunca se ocultan opciones.** Si se ocultan, al elegir "negro" desaparece el talle M
   y el usuario no entiende si el producto viene en M.
@@ -76,6 +78,7 @@ Toda escritura de variantes o stock invalida `producto:{slug}`, `productos` y
 ## Ver también
 
 - [Variantes y stock (supabase)](../supabase/variantes-y-stock.md)
+- [Combos](combos.md) — un selector por producto con las mismas reglas
 - [Etiquetas y filtros](etiquetas.md)
 - [Tema y marca](tema-y-marca.md)
 - [HeroUI](heroui.md)

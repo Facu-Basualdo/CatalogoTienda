@@ -7,13 +7,12 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { BotonAgregar } from "@/components/carrito/boton-agregar";
 import type { GrupoVariante, VarianteFicha } from "@/lib/catalogo/lecturas";
+import { estadoOpcion, varianteAlElegir, varianteInicial } from "@/lib/catalogo/variantes";
 import { SITIO } from "@/lib/sitio";
 import { Precio } from "./precio";
 
-// Reglas del selector: claude/web/variantes-y-stock.md#selector-en-la-ficha
-// - nunca se ocultan opciones: agotada = tachada y elegible, inexistente = deshabilitada
-// - la disponibilidad se calcula contra lo ya elegido en los otros grupos
-// - la variante elegida vive en la URL (?variante=<id>)
+// Reglas del selector en lib/catalogo/variantes.ts. Acá, además, la variante elegida
+// vive en la URL (?variante=<id>).
 
 type Props = {
   nombre: string;
@@ -25,10 +24,6 @@ type Props = {
   variantes: VarianteFicha[];
 };
 
-function varianteInicial(variantes: VarianteFicha[], id: string | null) {
-  return variantes.find((v) => v.id === id) ?? variantes.find((v) => v.stock > 0) ?? variantes[0];
-}
-
 export function SelectorVariantes({ nombre, url, precioAnterior, promoUnitaria, promoCantidad, grupos, variantes }: Props) {
   const router = useRouter();
   const pathname = usePathname();
@@ -36,23 +31,11 @@ export function SelectorVariantes({ nombre, url, precioAnterior, promoUnitaria, 
   const [cantidad, setCantidad] = useState(1);
 
   function elegir(grupo: string, slug: string) {
-    const deseadas = { ...actual.opciones, [grupo]: slug };
-    // Primero la combinación exacta; si no existe, la primera con stock que tenga esa opción.
-    const exacta = variantes.find((v) => grupos.every((g) => v.opciones[g.slug] === deseadas[g.slug]));
-    const alternativa =
-      variantes.find((v) => v.opciones[grupo] === slug && v.stock > 0) ?? variantes.find((v) => v.opciones[grupo] === slug);
-    const destino = exacta ?? alternativa;
+    const destino = varianteAlElegir(variantes, grupos, actual, grupo, slug);
     if (destino) {
       setCantidad(1);
       router.replace(`${pathname}?variante=${destino.id}`, { scroll: false });
     }
-  }
-
-  function estadoOpcion(grupo: string, slug: string): "ok" | "agotada" | "inexistente" {
-    const deseadas = { ...actual.opciones, [grupo]: slug };
-    const v = variantes.find((x) => grupos.every((g) => x.opciones[g.slug] === deseadas[g.slug]));
-    if (!v) return "inexistente";
-    return v.stock > 0 ? "ok" : "agotada";
   }
 
   const disponible = actual.stock > 0;
@@ -99,7 +82,7 @@ export function SelectorVariantes({ nombre, url, precioAnterior, promoUnitaria, 
             className="flex flex-wrap gap-2"
           >
             {g.opciones.map((o) => {
-              const estado = estadoOpcion(g.slug, o.slug);
+              const estado = estadoOpcion(variantes, grupos, actual, g.slug, o.slug);
               return (
                 <ToggleButton
                   key={o.slug}

@@ -1,11 +1,10 @@
 "use server";
 
-import { generateText, type JSONContent } from "@tiptap/core";
 import { updateTag } from "next/cache";
 import { z } from "zod";
 import { adminParaAccion, fallo, ok, type Resultado } from "@/lib/admin/accion";
+import { procesarDescripcion } from "@/lib/admin/descripcion";
 import { TAGS } from "@/lib/catalogo/tags";
-import { extensionesDescripcion } from "@/lib/descripcion/extensiones";
 import { SLUG_VALIDO, slugify } from "@/lib/slug";
 import { BUCKET } from "@/lib/supabase/storage";
 
@@ -45,6 +44,14 @@ export async function borrarProducto(id: string): Promise<Resultado> {
 
   const { data: producto } = await supabase.from("productos").select("slug").eq("id", id).maybeSingle();
   if (!producto) return fallo("El producto no existe.");
+
+  // combo_items.producto_id es on delete restrict: antes de tocar Storage, o se borrarían
+  // las imágenes de un producto que después no se puede borrar.
+  const { data: enCombos } = await supabase.from("combo_items").select("combo:combos(nombre)").eq("producto_id", id);
+  if (enCombos?.length) {
+    const nombres = enCombos.map((c) => c.combo?.nombre).filter(Boolean).join(", ");
+    return fallo(`Está en ${enCombos.length === 1 ? "el combo" : "los combos"} ${nombres}. Sacalo de ahí antes de borrarlo.`);
+  }
 
   // Storage primero: borrar la fila no borra los archivos.
   const { data: archivos } = await supabase.storage.from(BUCKET).list(`productos/${id}`, { limit: 1000 });
@@ -286,38 +293,18 @@ export async function borrarImagen(imagenId: string): Promise<Resultado> {
 
 // ---------------------------------------------------------------- descripción
 
-/**
- * Recibe el documento como STRING JSON, no como objeto: ProseMirror crea los `attrs`
- * de los nodos con Object.create(null) y React no los serializa como datos al llamar un
- * Server Action (los vuelve "referencias temporales" opacas). Con tablas o títulos el
- * servidor no podía leer `colspan`/`level` y la descripción se rechazaba.
- */
+/** El documento llega como string JSON: ver procesarDescripcion. */
 export async function guardarDescripcion(id: string, contenido: string): Promise<Resultado> {
   const { supabase, error } = await adminParaAccion();
   if (!supabase) return fallo(error);
-
-  if (typeof contenido !== "string" || contenido.length > 100_000) return fallo("La descripción es demasiado larga.");
-  let json: JSONContent;
-  try {
-    json = JSON.parse(contenido) as JSONContent;
-  } catch {
-    return fallo("Descripción inválida.");
-  }
-  if (!json || typeof json !== "object" || json.type !== "doc") return fallo("Descripción inválida.");
-
-  let texto: string;
-  try {
-    // Valida también: un nodo que las extensiones no conocen tira error.
-    texto = generateText(json, extensionesDescripcion).replace(/\s+/g, " ").trim();
-  } catch {
-    return fallo("La descripción tiene contenido no soportado.");
-  }
+  const d = procesarDescripcion(contenido);
+  if (!d.ok) return d;
+  const { json, texto } = d.datos;
 
   // descripcion_texto es obligatoria: la usan la búsqueda y la meta description.
-  const vacia = !texto;
   const { data, error: e } = await supabase
     .from("productos")
-    .update({ descripcion: vacia ? null : json, descripcion_texto: texto })
+    .update({ descripcion: json, descripcion_texto: texto })
     .eq("id", id)
     .select("slug")
     .maybeSingle();

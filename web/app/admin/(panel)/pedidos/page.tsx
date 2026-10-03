@@ -42,7 +42,7 @@ async function Listado({ searchParams }: { searchParams: PageProps<"/admin/pedid
 
   let consulta = supabase
     .from("pedidos")
-    .select("id, numero, estado, nombre, total, creado_en, items:pedido_items(cantidad)", { count: "exact" })
+    .select("id, numero, estado, nombre, total, creado_en, items:pedido_items(cantidad, combo_id, padre_id)", { count: "exact" })
     .order("creado_en", { ascending: false })
     .range((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA - 1);
   if (estado === "activos") consulta = consulta.in("estado", ["pendiente", "confirmado"]);
@@ -94,7 +94,7 @@ async function Listado({ searchParams }: { searchParams: PageProps<"/admin/pedid
                   </Table.Cell>
                   <Table.Cell className="text-muted">{fecha.format(new Date(p.creado_en))}</Table.Cell>
                   <Table.Cell>{p.nombre}</Table.Cell>
-                  <Table.Cell className="tabular-nums">{p.items.reduce((n, i) => n + i.cantidad, 0)}</Table.Cell>
+                  <Table.Cell className="tabular-nums">{p.items.filter((i) => !(i.combo_id && !i.padre_id)).reduce((n, i) => n + i.cantidad, 0)}</Table.Cell>
                   <Table.Cell className="tabular-nums">{formatearPrecio(p.total)}</Table.Cell>
                   <Table.Cell>
                     <ChipEstado estado={p.estado as EstadoPedido} />
