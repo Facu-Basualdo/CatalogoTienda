@@ -65,9 +65,26 @@ producto viene en M".
 
 ## En el dashboard
 
-`Autocomplete` por grupo con opción "Crear «…»". **Buscar antes de crear**: el
-autocompletar compara contra el slug normalizado, así "144hz" sugiere "144 Hz"
-existente en vez de crear un duplicado.
+En la edición de un producto: `Autocomplete` por grupo con opción "Crear «…»".
+**Buscar antes de crear**: el autocompletar compara contra el slug normalizado, así
+"144hz" sugiere "144 Hz" existente en vez de crear un duplicado.
+
+`/admin/etiquetas` (grupos) y `/admin/etiquetas/[id]` (un grupo y sus valores). Acciones
+en `app/admin/(panel)/etiquetas/acciones.ts`; **todas invalidan `etiquetas`, `facetas` y
+`productos`** (los nombres salen en fichas, tarjetas y filtros de muchos productos).
+
+- **Renombrar un valor cambia su slug**: el panel muestra `viejo → nuevo` antes de
+  guardar. Las URLs con el slug viejo dejan de filtrar; la clave de las variantes la
+  recalcula un trigger (ver [etiquetas supabase](../supabase/etiquetas.md#clave-de-las-variantes)).
+- **Duplicados**: el unique por slug rechaza "144 Hz" si existe "144Hz". Los que ya
+  existen con distinto slug ("Algodon" y "Algodón 100%") se juntan con **Fusionar**
+  (`fusionar_etiquetas`), que mueve productos, variantes y promociones.
+- Borrar un valor lo saca de los productos; si está en una variante, la base lo impide
+  y el panel muestra el mensaje.
+- El slug del grupo es la clave de la URL: no acepta las reservadas (`CLAVES_RESERVADAS`,
+  igual que el `check` de la tabla). "Es de variante" se deshabilita si el grupo ya
+  está en uso; la marca no se mueve de la primera posición.
+- La muestra de color aparece en grupos de variante o si algún valor ya tiene `color_hex`.
 
 ## Ver también
 

@@ -1,15 +1,13 @@
 "use client";
 
 import { Button } from "@heroui/react";
-import { buttonVariants } from "@heroui/styles";
 import useEmblaCarousel from "embla-carousel-react";
-import Image from "next/image";
-import NextLink from "next/link";
 import { useEffect, useState } from "react";
 import type { Banner } from "@/lib/catalogo/lecturas";
-import { urlPublica } from "@/lib/supabase/storage";
+import { DiapositivaBanner } from "./diapositiva-banner";
 
 // Desktop 3:1, mobile 4:5 (imagen_mobile_path; si falta, la de desktop recortada).
+// Cada diapositiva: diapositiva-banner.tsx (la reusa la vista previa del panel).
 export function CarruselBanners({ banners }: { banners: Banner[] }) {
   const [ref, embla] = useEmblaCarousel({ loop: banners.length > 1 });
   const [actual, setActual] = useState(0);
@@ -33,50 +31,11 @@ export function CarruselBanners({ banners }: { banners: Banner[] }) {
     <section aria-roledescription="carrusel" aria-label="Novedades" className="relative overflow-hidden rounded-tarjeta">
       <div className="overflow-hidden" ref={ref}>
         <div className="flex">
-          {banners.map((b, i) => {
-            const oscuro = i % 2 === 1;
-            return (
-              <div key={b.id} className="relative min-w-0 flex-[0_0_100%]" aria-roledescription="diapositiva" aria-label={`${i + 1} de ${banners.length}`}>
-                <div className="relative aspect-[4/5] sm:aspect-[3/1]">
-                  {/* Dos <Image> con visibilidad por breakpoint: art direction sin JS. */}
-                  <Image
-                    src={urlPublica(b.imagenMobilePath ?? b.imagenPath)}
-                    alt=""
-                    fill
-                    sizes="100vw"
-                    priority={i === 0}
-                    className="object-cover sm:hidden"
-                  />
-                  <Image
-                    src={urlPublica(b.imagenPath)}
-                    alt=""
-                    fill
-                    sizes="100vw"
-                    priority={i === 0}
-                    className="hidden object-cover sm:block"
-                  />
-                </div>
-                {(b.titulo || b.subtitulo) && (
-                  <div className="absolute inset-0 flex flex-col justify-start gap-3 px-6 pt-12 sm:justify-center sm:px-12 sm:pt-0 lg:px-16">
-                    {b.titulo && (
-                      <h2 className={`max-w-md text-4xl font-semibold tracking-tight sm:text-6xl ${oscuro ? "text-white" : "text-black"}`}>
-                        {b.titulo}
-                      </h2>
-                    )}
-                    {b.subtitulo && <p className={`max-w-md text-lg ${oscuro ? "text-white/70" : "text-black/60"}`}>{b.subtitulo}</p>}
-                    {b.enlace && b.textoBoton && (
-                      <NextLink
-                        href={b.enlace}
-                        className={`${buttonVariants({ size: "lg" })} mt-2 self-start ${oscuro ? "!bg-white !text-black" : "!bg-black !text-white"}`}
-                      >
-                        {b.textoBoton}
-                      </NextLink>
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+          {banners.map((b, i) => (
+            <div key={b.id} className="relative min-w-0 flex-[0_0_100%]" aria-roledescription="diapositiva" aria-label={`${i + 1} de ${banners.length}`}>
+              <DiapositivaBanner banner={b} prioridad={i === 0} />
+            </div>
+          ))}
         </div>
       </div>
 

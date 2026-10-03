@@ -3,7 +3,7 @@
 import {
   Bars,
   Box,
-  Gear,
+  Folder,
   House,
   LayoutHeaderCells,
   Percent,
@@ -26,9 +26,9 @@ const SECCIONES = [
   { href: "/admin/combos", titulo: "Combos", icono: LayoutHeaderCells, listo: true },
   { href: "/admin/promociones", titulo: "Promociones", icono: Percent, listo: true },
   { href: "/admin/cupones", titulo: "Cupones", icono: Tag, listo: true },
-  { href: "/admin/banners", titulo: "Banners", icono: Picture, listo: false },
-  { href: "/admin/etiquetas", titulo: "Etiquetas", icono: Tags, listo: false },
-  { href: "/admin/categorias", titulo: "Categorías", icono: Gear, listo: false },
+  { href: "/admin/banners", titulo: "Banners", icono: Picture, listo: true },
+  { href: "/admin/etiquetas", titulo: "Etiquetas", icono: Tags, listo: true },
+  { href: "/admin/categorias", titulo: "Categorías", icono: Folder, listo: true },
 ] as const;
 
 // usePathname es dato de la URL: en rutas dinámicas (/admin/productos/[id]) tiene que

@@ -205,6 +205,8 @@ export type Banner = {
   enlace: string | null;
   imagenPath: string;
   imagenMobilePath: string | null;
+  /** Texto blanco (imagen oscura). */
+  textoClaro: boolean;
 };
 
 export async function obtenerBanners(): Promise<Banner[]> {
@@ -224,6 +226,7 @@ export async function obtenerBanners(): Promise<Banner[]> {
     enlace: b.enlace,
     imagenPath: b.imagen_path,
     imagenMobilePath: b.imagen_mobile_path,
+    textoClaro: b.texto_claro,
   }));
 }
 
@@ -275,7 +278,8 @@ export async function obtenerProducto(slug: string): Promise<FichaProducto | nul
   "use cache";
   cacheLife(VIDA_PRECIOS);
   // `etiquetas`: renombrar una etiqueta o grupo cambia la ficha de muchos productos.
-  cacheTag(TAGS.producto(slug), TAGS.etiquetas, TAGS.promociones);
+  // `categorias`: la ficha muestra la categoría en las migas.
+  cacheTag(TAGS.producto(slug), TAGS.etiquetas, TAGS.promociones, TAGS.categorias);
 
   const { data: p, error } = await supabasePublico()
     .from("productos")

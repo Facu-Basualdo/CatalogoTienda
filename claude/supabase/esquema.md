@@ -51,7 +51,7 @@ admins ── auth.users
 ## categorias
 
 `id`, `slug` unique, `nombre`, `padre_id` (null = raíz), `orden`. Jerarquía de hasta
-dos niveles (un trigger rechaza el tercero) (Ropa → Remeras). Filtrar por una categoría padre incluye las hijas: el RPC
+dos niveles (un trigger rechaza el tercero, también al mover bajo otra una categoría que ya tiene hijas) (Ropa → Remeras). Filtrar por una categoría padre incluye las hijas: el RPC
 lo resuelve, no el cliente.
 
 ## grupos_etiqueta · etiquetas · producto_etiquetas
@@ -79,6 +79,7 @@ Detalle en [imagenes](imagenes.md).
 | `titulo`, `subtitulo`, `texto_boton` | `text` | Opcionales: un banner puede ser sólo imagen |
 | `imagen_path` | `text` not null | Desktop, 1920×640 recomendado |
 | `imagen_mobile_path` | `text` null | Si falta, se usa la de desktop recortada con `object-cover` |
+| `texto_claro` | `boolean` | Texto blanco sobre la imagen (imagen oscura). Lo elige el admin |
 | `enlace` | `text` null | Ruta interna (`/catalogo?cat=ofertas`) o URL externa |
 | `orden` | `int` | |
 | `activo` | `boolean` | |
@@ -105,6 +106,8 @@ un banner que vence a las 00:00 sigue visible hasta la próxima revalidación �
 | `guardar_combo_items(p_combo_id, p_items)` | authenticated (+RLS admin) | Reemplaza los productos del combo |
 | `reordenar_imagenes_combo(p_combo_id, p_ids)` | authenticated (+RLS admin) | Reescribe `orden` |
 | `guardar_promocion(p_id, p_promo, p_alcance)` | authenticated (+RLS admin) | Promo + alcance en una transacción |
+| `fusionar_etiquetas(p_origen, p_destino)` | authenticated (+RLS admin) | Junta dos valores del mismo grupo (ver [etiquetas](etiquetas.md#clave-de-las-variantes)) |
+| `reordenar_grupos` · `reordenar_etiquetas` · `reordenar_categorias` · `reordenar_banners` | authenticated (+RLS admin) | Reescriben `orden` según la posición en el array |
 | `es_admin()` | authenticated | ¿El usuario actual es admin? |
 
 Helpers en el schema `private` (no expuesto): `productos_filtrados`, `filtros_validos`,

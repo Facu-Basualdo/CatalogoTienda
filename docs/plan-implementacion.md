@@ -41,11 +41,11 @@ Tienda de portfolio con catálogo genérico (ropa, electrónica, lo que sea):
 | 6 — Promociones | ✅ Hecha: motor en `cotizar`, precios con promo en la tienda, ABM en el dashboard |
 | 7 — Combos | ✅ Hecha: ficha con variantes por producto, línea de combo en `cotizar`, pedido padre + hijas, ABM |
 | 8 — Cupones | ✅ Hecha: evaluación en la base sin exponer la tabla, campo en el carrito, usos, ABM |
-| 9 — Etiquetas, categorías y banners | Pendiente — **siguiente** |
-| 10 — SEO, rendimiento y producción | Pendiente |
+| 9 — Etiquetas, categorías y banners | ✅ Hecha: ABM completos, claves de variantes al día, color del texto del banner |
+| 10 — SEO, rendimiento y producción | Pendiente — **siguiente** |
 
 Orden acordado: rediseño y carrito primero, después el dashboard (3, 4 y 5) y
-promociones, combos y cupones (hecho); ahora el resto del dashboard y producción.
+promociones, combos, cupones y el resto del dashboard (hecho); ahora producción.
 
 ## Decisiones de arquitectura
 
@@ -197,11 +197,23 @@ pedido con cupón inválido rechazado) y en el navegador (aplicar, recargar, env
 
 ### Fase 9 — Etiquetas, categorías y banners
 
-- [ ] ABM de grupos (slug validado contra claves reservadas, "es variante" bloqueado si
-      está en uso) y etiquetas (con fusión de duplicadas).
-- [ ] ABM de categorías (dos niveles).
-- [ ] ABM de banners: `SubidaImagen` 3:1 (desktop) y 4:5 (mobile), textos, enlace,
-      ventana `desde/hasta`, reorden, vista previa.
+Hecha (ver [etiquetas](../claude/web/etiquetas.md#en-el-dashboard),
+[banners](../claude/web/banners.md) y [dashboard](../claude/web/dashboard.md#secciones)).
+
+- [x] ABM de grupos (slug contra claves reservadas, "es variante" bloqueado si está en
+      uso, marca siempre primera) y valores (renombrar con aviso del slug, color, orden,
+      fusión de duplicadas, borrado).
+- [x] La `clave` de las variantes se recalcula al renombrar valores o cambiar
+      orden/slug de un grupo (triggers).
+- [x] ABM de categorías (dos niveles, también al mover una que tiene hijas).
+- [x] ABM de banners: `SubidaImagen` 3:1 y 4:5, textos, enlace, color del texto,
+      ventana `desde/hasta`, reorden, vista previa con la misma diapositiva de la home.
+
+**Listo cuando:** se crea un grupo y sus valores, se fusionan dos, se arma una
+subcategoría y se publica un banner que aparece en la home. ✅ Verificado en el
+navegador (slug reservado y duplicado rechazados, renombrar, fusionar, borrar; categoría
+bajo Ropa y Ropa sin poder anidarse; banner con texto blanco en la home y borrado con su
+carpeta de Storage) y las claves por SQL en una transacción revertida.
 
 ### Fase 10 — SEO, rendimiento y producción
 

@@ -84,12 +84,16 @@ Banner redondeado (Embla), destacados en pestañas por categoría raíz (`p_dest
 con la imagen de su producto más reciente y carrusel de rebajados (`p_ofertas`). El
 título y botón del banner se superponen desde la tabla `banners`: **las imágenes (de
 banners y de productos) no llevan texto**; escrito en la imagen se duplica y se
-superpone con el de la tarjeta.
+superpone con el de la tarjeta. El color del texto lo elige el admin por banner
+(`texto_claro`); cada diapositiva es `DiapositivaBanner`, la misma que la vista previa del
+panel (ver [banners](banners.md)).
 
 El mosaico hace una consulta por subcategoría: con ~10 está bien (cacheadas con tag);
 si pasan de ~30, moverlo a un RPC.
 
 ## Ver también
+
+- [Banners](banners.md)
 
 - [Etiquetas y filtros](etiquetas.md)
 - [Caché y revalidación](cache-y-revalidacion.md)

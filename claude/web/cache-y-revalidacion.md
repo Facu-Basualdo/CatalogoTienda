@@ -35,8 +35,8 @@ cacheTag(TAGS.productos);  // constantes de lib/catalogo/tags.ts, nunca strings 
 | `productos` | listado, destacados, facetas, slugs para `generateStaticParams` | alta/edición/borrado de cualquier producto, publicar/despublicar, cambios de stock o variantes |
 | `producto:{slug}` | ficha | edición de ese producto, sus imágenes, etiquetas, variantes o stock |
 | `facetas` | panel de filtros | cambios de etiquetas de productos, grupos o etiquetas, **y de stock** (las facetas de talle/color cuentan sólo variantes con stock) |
-| `etiquetas` | ficha (características, selector) | ABM de grupos y etiquetas |
-| `categorias` | menú, subcategorías, home | ABM de categorías |
+| `etiquetas` | ficha (características, selector) | ABM de grupos y etiquetas (que además invalida `productos` y `facetas`) |
+| `categorias` | menú, subcategorías, home, **ficha** (migas) | ABM de categorías (que además invalida `productos` y `facetas`: el slug es el `?cat=`) |
 | `banners` | carrusel de la home | ABM y reorden de banners |
 | `promociones` | **toda lectura con precio**: listado, destacados, ofertas, ficha | ABM de promociones, activar/pausar |
 | `combos` · `combo:{slug}` | listado de combos, carrusel de la home, ficha del combo (que además llevan `productos`) | ABM de combos, sus productos, imágenes y descripción |

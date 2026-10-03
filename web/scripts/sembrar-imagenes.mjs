@@ -185,7 +185,7 @@ if (!count) {
     await subir(imagen_mobile_path, svgBanner({ ...b, w: 800, h: 1000 }));
     const { error: e } = await supabase.from('banners').insert({
       id, titulo: b.titulo, subtitulo: b.subtitulo, texto_boton: b.texto_boton, enlace: b.enlace,
-      imagen_path, imagen_mobile_path, orden: i, activo: true,
+      imagen_path, imagen_mobile_path, orden: i, activo: true, texto_claro: b.oscuro,
     });
     if (e) throw e;
     subidas += 2;

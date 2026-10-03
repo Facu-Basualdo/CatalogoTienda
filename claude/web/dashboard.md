@@ -141,9 +141,22 @@ los botones de estado de `components/admin/pedidos/acciones-pedido.tsx`.
 
 ## Secciones
 
-`components/admin/navegacion-admin.tsx` lista todas; las que no existen van con
-`listo: false` (deshabilitadas, chip "Pronto"). Al construir una sección, pasarla a
-`listo: true`. La lista que lee `usePathname` va en `Suspense` (ver la tabla de arriba).
+`components/admin/navegacion-admin.tsx` lista todas, y todas están construidas. Una
+sección nueva puede entrar con `listo: false` (deshabilitada, chip "Pronto") hasta
+estar lista. La lista que lee `usePathname` va en `Suspense` (ver la tabla de arriba).
+
+| Sección | Nota |
+|---|---|
+| Productos, pedidos | Esta nota |
+| Combos | [combos](combos.md#dashboard) |
+| Promociones | [promociones](promociones.md#dashboard) |
+| Cupones | [cupones](cupones.md#dashboard) |
+| Banners | [banners](banners.md) |
+| Etiquetas | [etiquetas](etiquetas.md#en-el-dashboard) |
+| Categorías | `/admin/categorias`: árbol de dos niveles, alta y edición en un `Modal`, flechas entre hermanas. Una categoría con hijas no puede ir dentro de otra (lo impide un trigger). Borrarla deja sus productos sin categoría |
+
+Reordenar en todo el panel es con flechas (accesible con teclado y en touch), nunca
+drag and drop, y cada tabla tiene su RPC `reordenar_*`.
 
 ## Ver también
 

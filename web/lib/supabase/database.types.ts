@@ -37,6 +37,7 @@ export type Database = {
           orden: number;
           subtitulo: string | null;
           texto_boton: string | null;
+          texto_claro: boolean;
           titulo: string | null;
         };
         Insert: {
@@ -51,6 +52,7 @@ export type Database = {
           orden?: number;
           subtitulo?: string | null;
           texto_boton?: string | null;
+          texto_claro?: boolean;
           titulo?: string | null;
         };
         Update: {
@@ -65,6 +67,7 @@ export type Database = {
           orden?: number;
           subtitulo?: string | null;
           texto_boton?: string | null;
+          texto_claro?: boolean;
           titulo?: string | null;
         };
         Relationships: [];
@@ -803,6 +806,7 @@ export type Database = {
           orden: number;
           subtitulo: string | null;
           texto_boton: string | null;
+          texto_claro: boolean;
           titulo: string | null;
         }[];
         SetofOptions: {
@@ -894,6 +898,10 @@ export type Database = {
           seleccionada: boolean;
         }[];
       };
+      fusionar_etiquetas: {
+        Args: { p_destino: string; p_origen: string };
+        Returns: undefined;
+      };
       guardar_combo_items: {
         Args: { p_combo_id: string; p_items: Json };
         Returns: undefined;
@@ -916,6 +924,13 @@ export type Database = {
           variante_id: string;
         }[];
       };
+      reordenar_banners: { Args: { p_ids: string[] }; Returns: undefined };
+      reordenar_categorias: { Args: { p_ids: string[] }; Returns: undefined };
+      reordenar_etiquetas: {
+        Args: { p_grupo_id: string; p_ids: string[] };
+        Returns: undefined;
+      };
+      reordenar_grupos: { Args: { p_ids: string[] }; Returns: undefined };
       reordenar_imagenes: {
         Args: { p_ids: string[]; p_producto_id: string };
         Returns: undefined;

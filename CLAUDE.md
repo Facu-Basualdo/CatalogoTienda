@@ -9,8 +9,8 @@ Next.js 16 + HeroUI v3 en Vercel, datos e imágenes en Supabase.
 
 **Estado:** hechos la base, el modelo de datos con demo, el catálogo público con el
 rediseño estilo compragamer, el carrito con pedido por WhatsApp, el dashboard de
-productos y pedidos, las promociones, los combos y los cupones. Falta el ABM de
-etiquetas, categorías y banners, y la puesta en producción: orden y diseño en
+completo (productos, pedidos, promociones, combos, cupones, banners, etiquetas y
+categorías). Falta la puesta en producción (SEO, Vercel): orden y diseño en
 [docs/plan-implementacion.md](docs/plan-implementacion.md). Las notas de `claude/`
 describen lo construido; si el código se aparta, gana el código y la nota se corrige
 con `/docs`.
@@ -57,7 +57,7 @@ grep -rn "updateTag" web/             # después, el código
 | Descripción rica | [descripcion-rica](claude/web/descripcion-rica.md) | [esquema](claude/supabase/esquema.md#productos) |
 | Búsqueda | [etiquetas](claude/web/etiquetas.md#url-de-filtros) | [busqueda](claude/supabase/busqueda.md) |
 | Acceso al dashboard | [dashboard](claude/web/dashboard.md) · [clientes-supabase](claude/web/clientes-supabase.md) | [seguridad-rls](claude/supabase/seguridad-rls.md) |
-| Banners de la home | [catalogo](claude/web/catalogo.md#home) · [cache-y-revalidacion](claude/web/cache-y-revalidacion.md#banners-y-ventanas-de-fecha) | [esquema](claude/supabase/esquema.md#banners) |
+| Banners de la home | [banners](claude/web/banners.md) · [catalogo](claude/web/catalogo.md#home) · [cache-y-revalidacion](claude/web/cache-y-revalidacion.md#banners-y-ventanas-de-fecha) | [esquema](claude/supabase/esquema.md#banners) |
 | Carrito y pedidos | [carrito](claude/web/carrito.md) | [carrito](claude/supabase/carrito.md) |
 | Promociones | [promociones](claude/web/promociones.md) | [promociones](claude/supabase/promociones.md) |
 | Combos | [combos](claude/web/combos.md) | [combos](claude/supabase/combos.md) |
@@ -105,4 +105,4 @@ grep -rn "updateTag" web/             # después, el código
 `claude/` es contexto permanente. Planes, investigaciones, auditorías y borradores van
 en `docs/` y se leen a demanda:
 
-- [docs/plan-implementacion.md](docs/plan-implementacion.md) — estado por fase y diseño de lo que falta (etiquetas, categorías, banners, producción).
+- [docs/plan-implementacion.md](docs/plan-implementacion.md) — estado por fase y diseño de lo que falta (SEO, rendimiento, producción).

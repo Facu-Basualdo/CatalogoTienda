@@ -43,6 +43,31 @@ grupo**.
   Un `check` en la tabla lo impide; si agregás una clave reservada nueva en la web,
   agregala también al `check` en una migración.
 
+## Clave de las variantes
+
+`producto_variantes.clave` son los slugs de sus etiquetas ordenados por grupo
+(`orden`, `slug`): `m/negro`. **Si queda vieja, el siguiente `guardar_variantes` borra
+esas variantes y las recrea con otro id** (los carritos que las tenían dejan de
+encontrarlas). Por eso hay triggers que la recalculan con `private.recalcular_claves`:
+
+| Cambio | Trigger |
+|---|---|
+| `etiquetas.valor` (cambia el slug generado) | `etiquetas_recalcular_claves` |
+| `grupos_etiqueta.orden` o `slug` | `grupos_recalcular_claves` |
+| Fusionar etiquetas | `fusionar_etiquetas` la llama al final |
+
+Otras reglas del panel que viven en la base:
+
+- `fusionar_etiquetas(p_origen, p_destino)`: mismo grupo; mueve `producto_etiquetas`,
+  `variante_etiquetas` y `promocion_alcance` y borra el origen. Si dos variantes de un
+  producto quedan iguales, el unique `(producto_id, clave)` aborta todo con un mensaje.
+- `grupos_etiqueta_bloquear_es_variante` (esquema inicial): no se cambia `es_variante`
+  de un grupo con etiquetas en uso.
+- `grupos_marca_primero`: la marca siempre tiene `orden = 0`; `reordenar_grupos`
+  numera los demás desde 1.
+- `variante_etiquetas` referencia a `etiquetas` sin cascade: no se borra una etiqueta
+  (ni su grupo) mientras la use una variante. `producto_etiquetas` sí es cascade.
+
 ## Semántica del filtro
 
 **AND entre grupos, OR dentro del grupo.** `refresco=144-hz,165-hz & panel=ips` es
